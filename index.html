@@ -1354,8 +1354,8 @@ body:not(.main-tab-active) .site-header{min-height:96px!important;}
 #coachGrid .member-card.member-coach .member-body{padding:12px 6px 7px!important;}
 #coachGrid .member-card.member-coach .avatar-wrap{width:56px!important;height:56px!important;margin-bottom:8px!important;}
 #coachGrid .member-card.member-coach .name-row .name{font-size:13px!important;}
-#coachGrid .member-card.member-coach .race-badge{font-size:9px!important;}
-#coachGrid .member-card.member-coach .meta-item{font-size:8px!important;}
+#coachGrid .member-card.member-coach .race-badge{font-size:13px!important;}
+#coachGrid .member-card.member-coach .meta-item{font-size:12.1px!important;}
 #coachGrid .member-card.member-coach .links{display:none!important;}
 #tierBoard{overflow:hidden!important;padding:14px 18px 16px!important;}
 .tier-section{position:relative!important;grid-template-columns:1fr!important;gap:8px!important;max-width:calc(100% - 10px)!important;}
@@ -1437,7 +1437,7 @@ body:not(.main-tab-active) .site-header{min-height:96px!important;}
 
   #leaderGrid .role-line,
   #coachGrid .role-line {
-    font-size: 12px !important;
+    font-size: 13px!important;
     line-height: 1.12 !important;
     margin: 1px 0 4px !important;
   }
@@ -1702,11 +1702,11 @@ body:not(.main-tab-active) .site-header{min-height:96px!important;}
     line-height:1.1!important;
   }
   #coachGrid .member-card.member-coach .race-badge{
-    font-size:8.2px!important;
+    font-size:13px!important;
     margin-top:3px!important;
   }
   #coachGrid .member-card.member-coach .meta-item{
-    font-size:7.2px!important;
+    font-size:12.1px!important;
     letter-spacing:-.03em!important;
   }
   #coachGrid .member-card.member-coach .links{
@@ -2303,12 +2303,12 @@ body:not(.main-tab-active) .site-header{min-height:96px!important;}
   }
   #mainScreen #coachGrid .member-card.member-coach .race-badge,
   #coachGrid .member-card.member-coach .race-badge {
-    font-size: 12px !important;
+    font-size: 13px!important;
     line-height: 1.15 !important;
   }
   #mainScreen #coachGrid .member-card.member-coach .meta-item,
   #coachGrid .member-card.member-coach .meta-item {
-    font-size: 11px !important;
+    font-size: 12.1px!important;
     line-height: 1.18 !important;
   }
 
@@ -5319,6 +5319,42 @@ function createMemberCard(member) {
 .member-detail-row{min-height:43px!important;}
 .member-detail-value{white-space:normal!important;}
 .member-detail-actions a[aria-disabled="true"]{opacity:.55;cursor:not-allowed;filter:grayscale(.25)}
+
+/* ===== REAL FINAL: COACH TEXT SAME AS PLAYER TEXT SIZE ===== */
+#mainScreen #coachGrid .member-card.member-coach .race-badge,
+#mainScreen #coachGrid .member-card .race-badge,
+#coachGrid .member-card.member-coach .race-badge,
+#coachGrid .member-card .race-badge{
+  font-size:13px!important;
+  line-height:1.12!important;
+  margin-top:3px!important;
+  font-weight:950!important;
+  color:#cfe2ff!important;
+}
+
+#mainScreen #coachGrid .member-card.member-coach .role-line,
+#mainScreen #coachGrid .member-card .role-line,
+#coachGrid .member-card.member-coach .role-line,
+#coachGrid .member-card .role-line,
+#coachGrid .role-line{
+  font-size:13px!important;
+  line-height:1.12!important;
+  margin-top:3px!important;
+  font-weight:950!important;
+  color:#cfe2ff!important;
+}
+
+#mainScreen #coachGrid .member-card.member-coach .meta-item,
+#mainScreen #coachGrid .member-card .meta-item,
+#coachGrid .member-card.member-coach .meta-item,
+#coachGrid .member-card .meta-item{
+  font-size:12.1px!important;
+  line-height:1.15!important;
+  font-weight:900!important;
+  color:#a9c6ee!important;
+  max-width:180px!important;
+}
+
 </style>
 <script id="monstars-detail-data-hotfix-script">
 (function(){
