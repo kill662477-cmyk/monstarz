@@ -5119,6 +5119,27 @@ function createMemberCard(member) {
 })();
 </script>
 
+
+
+<!-- ===== STUDENT TIER LABEL FINAL OVERRIDE: 티어 라벨 제거 ===== -->
+<script id="monstars-student-tier-label-final-override">
+(function(){
+  function cleanTierLabel(){
+    document.querySelectorAll('.tier-grid .member-card.member-player .tier-item span, #tierBoard .member-card.member-player .tier-item span').forEach(function(el){
+      el.textContent = String(el.textContent || '').replace(/^\s*티어\s*[:：]\s*/,'').trim();
+    });
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    cleanTierLabel();
+    setTimeout(cleanTierLabel, 80);
+    setTimeout(cleanTierLabel, 300);
+    setTimeout(cleanTierLabel, 900);
+  });
+  setTimeout(cleanTierLabel, 0);
+  setTimeout(cleanTierLabel, 250);
+  setTimeout(cleanTierLabel, 1000);
+})();
+</script>
 </body>
 
 
@@ -5454,3 +5475,118 @@ function createMemberCard(member) {
 })();
 </script>
 
+
+
+<!-- ===== STUDENT TIER FORCE FIX: 종족 → 티어 → 입단일 강제 표시 ===== -->
+<style id="monstars-student-tier-force-style">
+  /* 기존 최종 CSS에서 학생 meta-list를 display:none 처리하고 있어서 다시 강제로 살림 */
+  .tier-grid .member-card.member-player .meta-list,
+  #tierBoard .member-card.member-player .meta-list {
+    display: grid !important;
+    width: auto !important;
+    max-width: calc(100% - 2px) !important;
+    gap: 1px !important;
+    margin: 2px 0 0 !important;
+    padding: 0 !important;
+  }
+  .tier-grid .member-card.member-player .meta-item,
+  #tierBoard .member-card.member-player .meta-item {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 0 !important;
+    font-size: 9.5px !important;
+    line-height: 1.18 !important;
+    font-weight: 850 !important;
+    color: #b7c9e4 !important;
+    white-space: nowrap !important;
+  }
+  .tier-grid .member-card.member-player .tier-item,
+  #tierBoard .member-card.member-player .tier-item {
+    color: #dbeafe !important;
+    font-weight: 950 !important;
+  }
+  .tier-grid .member-card.member-player .join-item,
+  #tierBoard .member-card.member-player .join-item {
+    color: #9fb3ca !important;
+  }
+  body.light-mode .tier-grid .member-card.member-player .tier-item,
+  body.light-mode #tierBoard .member-card.member-player .tier-item {
+    color: #1e40af !important;
+  }
+  body.light-mode .tier-grid .member-card.member-player .join-item,
+  body.light-mode #tierBoard .member-card.member-player .join-item {
+    color: #58708f !important;
+  }
+</style>
+<script id="monstars-student-tier-force-script">
+(function(){
+  function getMembers(){
+    try{ if(Array.isArray(window.MEMBERS)) return window.MEMBERS; }catch(e){}
+    try{ if(typeof MEMBERS !== 'undefined' && Array.isArray(MEMBERS)) return MEMBERS; }catch(e){}
+    try{ if(Array.isArray(window.members)) return window.members; }catch(e){}
+    try{ if(typeof members !== 'undefined' && Array.isArray(members)) return members; }catch(e){}
+    return [];
+  }
+  function findMember(name){
+    name = String(name || '').trim();
+    return getMembers().find(function(m){ return m && String(m.name || '').trim() === name; }) || null;
+  }
+  function joinText(m){
+    try{ return (typeof formatJoinDateText === 'function') ? formatJoinDateText(m.name) : '-'; }catch(e){ return '-'; }
+  }
+  function tierText(m){
+    var t = m && (m.tier || m.grade || m.level);
+    if(t === undefined || t === null || t === '') return '';
+    t = String(t).replace(/티어/g,'').trim();
+    return t ? (t + '티어') : '';
+  }
+  function applyStudentTier(){
+    document.querySelectorAll('.tier-grid .member-card, #tierBoard .member-card.member-player').forEach(function(card){
+      card.classList.add('member-player');
+      var nameEl = card.querySelector('.name-row .name, .name');
+      var name = nameEl ? nameEl.textContent.trim() : '';
+      var m = findMember(name);
+      if(!m) return;
+      var meta = card.querySelector('.meta-list');
+      var body = card.querySelector('.member-body') || card;
+      if(!meta){
+        meta = document.createElement('div');
+        meta.className = 'meta-list';
+        var nameRow = card.querySelector('.name-row');
+        if(nameRow && nameRow.parentNode) nameRow.parentNode.insertBefore(meta, nameRow.nextSibling);
+        else body.appendChild(meta);
+      }
+      var tier = tierText(m);
+      var join = joinText(m);
+      meta.innerHTML = (tier ? '<div class="meta-item tier-item"><span>'+tier+'</span></div>' : '') + '<div class="meta-item join-item"><span>입단일 : '+join+'</span></div>';
+    });
+  }
+  function wrapRender(){
+    if(window.__monstarsStudentTierForceWrapped) return;
+    var prev = window.render || (typeof render === 'function' ? render : null);
+    if(typeof prev === 'function'){
+      window.__monstarsStudentTierForceWrapped = true;
+      try{
+        render = window.render = function(){
+          var ret = prev.apply(this, arguments);
+          setTimeout(applyStudentTier, 0);
+          setTimeout(applyStudentTier, 80);
+          setTimeout(applyStudentTier, 250);
+          return ret;
+        };
+      }catch(e){}
+    }
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    wrapRender();
+    applyStudentTier();
+    setTimeout(applyStudentTier, 80);
+    setTimeout(applyStudentTier, 300);
+    setTimeout(applyStudentTier, 900);
+  });
+  wrapRender();
+  setTimeout(applyStudentTier, 0);
+  setTimeout(applyStudentTier, 250);
+})();
+</script>
