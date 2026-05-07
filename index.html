@@ -5536,12 +5536,13 @@ function createMemberCard(member) {
   function joinText(m){
     try{ return (typeof formatJoinDateText === 'function') ? formatJoinDateText(m.name) : '-'; }catch(e){ return '-'; }
   }
-  function tierText(m){
-    var t = m && (m.tier || m.grade || m.level);
-    if(t === undefined || t === null || t === '') return '';
-    t = String(t).replace(/티어/g,'').trim();
-    return t ? (t + '티어') : '';
-  }
+function tierText(m){
+  var t = m && (m.tier || m.grade || m.level);
+  if(t === undefined || t === null || t === '') return '';
+  t = String(t).replace(/티어/g,'').trim();
+  if(t === '9') return '유스티어';
+  return t ? (t + '티어') : '';
+}
   function applyStudentTier(){
     document.querySelectorAll('.tier-grid .member-card, #tierBoard .member-card.member-player').forEach(function(card){
       card.classList.add('member-player');
