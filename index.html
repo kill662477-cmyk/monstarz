@@ -3504,7 +3504,6 @@ body.light-mode .monstars-member-row{border-color:rgba(36,99,168,.12)}
 
   const LIVE_STATUS_URL = "https://livecheck-2.onrender.com/live-status";
   const YOUTUBE_JSON_URL = "https://raw.githubusercontent.com/kill662477-cmyk/youtube/main/youtube.json";
-  const KAMRINI_JSON_URL = "https://raw.githubusercontent.com/kill662477-cmyk/RINI/main/data/kamrini-videos.json";
 
   // 보자충 탭: URL을 직접 넣는 수동 영상 리스트입니다.
   // 형식: { title: "영상 제목", url: "영상 URL", note: "선택 메모" }
@@ -4478,21 +4477,16 @@ function createMemberCard(member) {
 
   async function fetchYoutube() {
     try {
-      const results = await Promise.allSettled([
-        fetchYoutubeJson(YOUTUBE_JSON_URL),
-        fetchYoutubeJson(KAMRINI_JSON_URL)
-      ]);
+      const data = await fetchYoutubeJson(YOUTUBE_JSON_URL);
+      const normalItems = Array.isArray(data?.items) ? data.items : [];
 
-      const normalData = results[0].status === "fulfilled" ? results[0].value : null;
-      const kamriniData = results[1].status === "fulfilled" ? results[1].value : null;
-
-      const normalItems = Array.isArray(normalData?.items) ? normalData.items : [];
-      const kamriniItems = Array.isArray(kamriniData?.items) ? kamriniData.items : [];
-
-      youtubeItems = [
-        ...normalItems.map((item, index) => normalizeYoutubeItem(item, item.name || item.channelTitle || "팬유튜브", index)),
-        ...kamriniItems.map((item, index) => normalizeYoutubeItem(item, "캄린이", 10000 + index))
-      ].filter(item => item.videoId && item.url);
+      youtubeItems = normalItems
+        .map((item, index) => normalizeYoutubeItem(
+          item,
+          item.name || item.channelTitle || item.sourceName || "팬유튜브",
+          index
+        ))
+        .filter(item => item.videoId && item.url);
 
       const seen = new Set();
       youtubeItems = youtubeItems.filter((item) => {
@@ -4501,9 +4495,9 @@ function createMemberCard(member) {
         return true;
       });
 
-      lastYoutubeCheckedAt = normalData?.checkedAt || kamriniData?.scrapedAt || "";
+      lastYoutubeCheckedAt = data?.checkedAt || "";
       renderYoutube();
-      console.log("유튜브 데이터 업데이트 성공", { normalData, kamriniData, total: youtubeItems.length });
+      console.log("유튜브 데이터 업데이트 성공", { data, total: youtubeItems.length });
     } catch (error) {
       console.log("유튜브 데이터 가져오기 실패", error);
       // 재생 중 네트워크 오류가 나도 기존 목록/플레이어를 유지해서 영상이 끊기지 않게 함.
