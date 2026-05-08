@@ -4213,17 +4213,17 @@ function createMemberCard(member) {
     return "default";
   }
 
-  function getYoutubeMetaText(item) {
-    const raw = item.viewCountText || item.publishedText || "";
-    const parsed = splitYoutubeMetaText(raw);
-    const fallbackDate = formatYoutubeDate(item.publishedAt || item.published || item.updatedAt || "");
-    const bits = [getYoutubeChannelName(item)];
-    if (parsed.views) bits.push(parsed.views);
-    if (parsed.age) bits.push(parsed.age);
-    else if (fallbackDate) bits.push(fallbackDate);
-    else if (item.year) bits.push(`${item.year}년`);
-    return bits.filter(Boolean).join(" · ");
-  }
+ function getYoutubeMetaText(item) {
+  if (item.displayMeta) return item.displayMeta;
+
+  const channel = getYoutubeChannelName(item);
+  const date =
+    item.displayDate ||
+    splitYoutubeMetaText(item.viewCountText || item.publishedText || "").age ||
+    formatYoutubeDate(item.publishedAt || item.published || item.updatedAt || "");
+
+  return [channel, date].filter(Boolean).join(" · ");
+}
 
   function getRelativeYoutubeTime(value) {
     const text = String(value || "");
@@ -4465,7 +4465,9 @@ function createMemberCard(member) {
       publishedAt: item.publishedAt || item.published || item.updatedAt || "",
       viewCountText: item.viewCountText || "",
       publishedText: item.publishedText || "",
-      lengthText: item.lengthText || ""
+      lengthText: item.lengthText || "",
+displayDate: item.displayDate || "",
+displayMeta: item.displayMeta || ""
     };
   }
 
