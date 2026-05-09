@@ -5541,74 +5541,78 @@ displayMeta: item.displayMeta || ""
   }
 </style>
 <script id="monstars-student-tier-force-script">
+<script>
 (function(){
   function getMembers(){
     try{ if(Array.isArray(window.MEMBERS)) return window.MEMBERS; }catch(e){}
-    try{ if(typeof MEMBERS !== 'undefined' && Array.isArray(MEMBERS)) return MEMBERS; }catch(e){}
+    try{ if(typeof MEMBERS !== "undefined" && Array.isArray(MEMBERS)) return MEMBERS; }catch(e){}
     try{ if(Array.isArray(window.members)) return window.members; }catch(e){}
-    try{ if(typeof members !== 'undefined' && Array.isArray(members)) return members; }catch(e){}
+    try{ if(typeof members !== "undefined" && Array.isArray(members)) return members; }catch(e){}
     return [];
   }
+
   function findMember(name){
-    name = String(name || '').trim();
-    return getMembers().find(function(m){ return m && String(m.name || '').trim() === name; }) || null;
+    name = String(name || "").trim();
+    return getMembers().find(function(m){
+      return m && String(m.name || "").trim() === name;
+    }) || null;
   }
-  function joinText(m){
-    try{ return (typeof formatJoinDateText === 'function') ? formatJoinDateText(m.name) : '-'; }catch(e){ return '-'; }
+
+  function tierText(m){
+    var tier = m && m.tier;
+    if(tier === null || tier === undefined || tier === "") return "";
+
+    var text = String(tier).trim();
+
+    if(text === "9") return "유스";
+    if(/^\d+$/.test(text)) return text + "티어";
+
+    return text;
   }
-function tierText(m){
-  var t = m && (m.tier || m.grade || m.level);
-  if(t === undefined || t === null || t === '') return '';
-  t = String(t).replace(/티어/g,'').trim();
-  if(t === '9') return '유스티어';
-  return t ? (t + '티어') : '';
-}
-  function applyStudentTier(){
-    document.querySelectorAll('.tier-grid .member-card, #tierBoard .member-card.member-player').forEach(function(card){
-      card.classList.add('member-player');
-      var nameEl = card.querySelector('.name-row .name, .name');
-      var name = nameEl ? nameEl.textContent.trim() : '';
+
+  function patchStaffTierLines(){
+    document.querySelectorAll("#leaderGrid .member-card, #coachGrid .member-card").forEach(function(card){
+      var nameEl = card.querySelector(".name-row .name, .name");
+      var name = nameEl ? nameEl.textContent.trim() : "";
       var m = findMember(name);
       if(!m) return;
-      var meta = card.querySelector('.meta-list');
-      var body = card.querySelector('.member-body') || card;
-      if(!meta){
-        meta = document.createElement('div');
-        meta.className = 'meta-list';
-        var nameRow = card.querySelector('.name-row');
-        if(nameRow && nameRow.parentNode) nameRow.parentNode.insertBefore(meta, nameRow.nextSibling);
-        else body.appendChild(meta);
+
+      var text = tierText(m);
+      if(!text) return;
+
+      var line = card.querySelector(".role-line");
+      if(!line){
+        line = document.createElement("div");
+        line.className = "role-line";
+        var nameRow = card.querySelector(".name-row");
+        if(nameRow && nameRow.parentNode){
+          nameRow.parentNode.insertBefore(line, nameRow.nextSibling);
+        }
       }
-      var tier = tierText(m);
-      var join = joinText(m);
-      meta.innerHTML = (tier ? '<div class="meta-item tier-item"><span>'+tier+'</span></div>' : '') + '<div class="meta-item join-item"><span>입단일 : '+join+'</span></div>';
+
+      line.textContent = text;
     });
   }
-  function wrapRender(){
-    if(window.__monstarsStudentTierForceWrapped) return;
-    var prev = window.render || (typeof render === 'function' ? render : null);
-    if(typeof prev === 'function'){
-      window.__monstarsStudentTierForceWrapped = true;
-      try{
-        render = window.render = function(){
-          var ret = prev.apply(this, arguments);
-          setTimeout(applyStudentTier, 0);
-          setTimeout(applyStudentTier, 80);
-          setTimeout(applyStudentTier, 250);
-          return ret;
-        };
-      }catch(e){}
-    }
+
+  function run(){
+    patchStaffTierLines();
+    setTimeout(patchStaffTierLines, 50);
+    setTimeout(patchStaffTierLines, 200);
+    setTimeout(patchStaffTierLines, 600);
   }
-  document.addEventListener('DOMContentLoaded', function(){
-    wrapRender();
-    applyStudentTier();
-    setTimeout(applyStudentTier, 80);
-    setTimeout(applyStudentTier, 300);
-    setTimeout(applyStudentTier, 900);
-  });
-  wrapRender();
-  setTimeout(applyStudentTier, 0);
-  setTimeout(applyStudentTier, 250);
+
+  document.addEventListener("DOMContentLoaded", run);
+
+  var prevRender = window.render;
+  if(typeof prevRender === "function" && !window.__staffTierLinePatch){
+    window.__staffTierLinePatch = true;
+    window.render = function(){
+      var ret = prevRender.apply(this, arguments);
+      run();
+      return ret;
+    };
+  }
+
+  run();
 })();
 </script>
