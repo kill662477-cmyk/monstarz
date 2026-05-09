@@ -3587,7 +3587,7 @@ body.light-mode .monstars-member-row{border-color:rgba(36,99,168,.12)}
     { name: "김윤환", userId: "brainzerg7", type: "leader", role: "감독", tier: "Jack", race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/br/brainzerg7/m/brainzerg7.webp", stream: "https://www.sooplive.com/station/brainzerg7", live: "https://play.sooplive.com/brainzerg7", youtube: "http://www.youtube.com/@calmtube2", profile: "#" },
     { name: "박준오", userId: "h78ert", type: "coach", role: "코치", tier: "King", race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/h7/h78ert/m/h78ert.webp", stream: "https://www.sooplive.com/station/h78ert", live: "https://play.sooplive.com/h78ert", youtube: "#", profile: "#" },
     { name: "박수범", userId: "jihoon002", type: "coach", role: "코치", tier: "King", race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ji/jihoon002/m/jihoon002.webp", stream: "https://www.sooplive.com/station/jihoon002", live: "https://play.sooplive.com/jihoon002", youtube: "#", profile: "#" },
-    { name: "사테", userId: "hoonykkk", type: "coach", role: "코치", tier: "God", race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ho/hoonykkk/m/hoonykkk.webp", stream: "https://www.sooplive.com/station/hoonykkk", live: "https://play.sooplive.com/hoonykkk", youtube: "#", profile: "#" },
+    { name: "사테", userId: "hoonykkk", type: "coach", role: "코치", tier: "GOD", race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ho/hoonykkk/m/hoonykkk.webp", stream: "https://www.sooplive.com/station/hoonykkk", live: "https://play.sooplive.com/hoonykkk", youtube: "#", profile: "#" },
     { name: "지동원", userId: "rondobba", type: "coach", role: "코치", tier: "Jack", race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ro/rondobba/m/rondobba.webp", stream: "https://www.sooplive.com/station/rondobba", live: "https://play.sooplive.com/rondobba", youtube: "#", profile: "#" },
     { name: "배성흠", userId: "goodzerg", type: "coach", role: "코치", tier: "Jack", race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/go/goodzerg/m/goodzerg.webp", stream: "https://www.sooplive.com/station/goodzerg", live: "https://play.sooplive.com/goodzerg", youtube: "#", profile: "#" },
     { name: "파도튜브", userId: "kthrs9207", type: "coach", role: "코치", tier: "Spade", race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/kt/kthrs9207/m/kthrs9207.webp", stream: "https://www.sooplive.com/station/kthrs9207", live: "https://play.sooplive.com/kthrs9207", youtube: "http://www.youtube.com/@padotube9207", profile: "#" },
@@ -3815,11 +3815,22 @@ body.light-mode .monstars-member-row{border-color:rgba(36,99,168,.12)}
     return url && url !== "#" ? url : "javascript:void(0)";
   }
 
+  function formatMemberTier(member) {
+    const tier = member && member.tier;
+    if (tier === null || tier === undefined || tier === "") return "";
+
+    const text = String(tier).trim();
+    if (!text) return "";
+
+    if (text === "9") return "유스";
+    if (/^\d+$/.test(text)) return `${text}티어`;
+    if (text.toLowerCase() === "god") return "GOD";
+
+    return text;
+  }
+
   function getLeaderCoachCategory(member) {
-    if (["김윤환", "지동원", "배성흠"].includes(member.name)) return "Jack";
-    if (["박준오", "박수범", "사테"].includes(member.name)) return "King";
-    if (member.name === "파도튜브") return "Spade";
-    return "";
+    return formatMemberTier(member);
   }
 
   function formatJoinDateText(name) {
@@ -3838,55 +3849,22 @@ body.light-mode .monstars-member-row{border-color:rgba(36,99,168,.12)}
 
     return `${yy}.${mm}.${dd}(${dText})`;
   }
-
-  
-    function getMemberRole(member) {
-      const name = (member && member.name ? String(member.name).trim() : "");
-      if (member && member.role && String(member.role).trim()) return String(member.role).trim();
-      if (name === "김윤환") return "Head";
-      if (name === "박준오" || name === "박수범" || name === "서태") return "King";
-      if (name === "지동원" || name === "배성흠") return "Jack";
-      if (name === "파도튜브") return "Spade";
-      return "";
-    }
+  function getMemberRole(member) {
+    return formatMemberTier(member);
+  }
 
 function createMemberCard(member) {
     const bannerClass = member.type === "leader" ? "leader" : member.type === "coach" ? "coach" : `t${member.tier}`;
-    const tierText =
-  member.tier === null ||
-  member.tier === undefined ||
-  member.tier === ""
-    ? ""
-    : /^\d+$/.test(String(member.tier).trim())
-      ? (
-          String(member.tier).trim() === "9"
-            ? "유스"
-            : `${String(member.tier).trim()}티어`
-        )
-      : String(member.tier).trim();
-  ? (member.tier === 9 ? "유스" : `${member.tier}티어`)
-  : member.role;
+    const tierText = formatMemberTier(member);
     const statusText = member.status === "live" ? "방송중" : "오프라인";
     const statusClass = member.status === "live" ? "live" : "offline";
-  
-const rawTier = member.tier;
-const tierText =
-  rawTier === null || rawTier === undefined || rawTier === ""
-    ? ""
-    : /^\d+$/.test(String(rawTier).trim())
-      ? (
-          String(rawTier).trim() === "9"
-            ? "유스"
-            : `${String(rawTier).trim()}티어`
-        )
-      : String(rawTier).trim();
     const category = (member.type === "leader" || member.type === "coach") ? getLeaderCoachCategory(member) : "";
     const joinDateText = formatJoinDateText(member.name);
     const liveLink = member.live && member.live !== "#" ? member.live : member.stream;
     const streamButtonLink = member.stream;
 
     return `
-      <article class="member-card" data-member-name="${escapeHtml(member.name || '')}" data-member-role="${escapeHtml(member.role || '')}" data-member-race="${escapeHtml(member.race || '')}" data-member-userid="${escapeHtml(member.userId || '')}" data-member-tier="${escapeHtml(tierText || '')}" data-member-category="${escapeHtml(category || getMemberRole(member) || '')}" data-member-join="${escapeHtml(joinDateText || '-')}" data-member-status="${escapeHtml(statusText || '')}" data-member-status-key="${escapeHtml(member.status || '')}" data-member-image="${safeLink(member.profileImage || '')}" data-member-stream="${safeLink(streamButtonLink || '')}" data-member-live="${safeLink(liveLink || '')}" data-member-youtube="${safeLink(member.youtube || '')}" data-member-profile="${safeLink(member.profile || '')}">
+      <article class="member-card" data-member-name="${escapeHtml(member.name || '')}" data-member-role="${escapeHtml(member.role || '')}" data-member-race="${escapeHtml(member.race || '')}" data-member-userid="${escapeHtml(member.userId || '')}" data-member-tier="${escapeHtml(tierText || '')}" data-member-category="${escapeHtml(category || '')}" data-member-join="${escapeHtml(joinDateText || '-')}" data-member-status="${escapeHtml(statusText || '')}" data-member-status-key="${escapeHtml(member.status || '')}" data-member-image="${safeLink(member.profileImage || '')}" data-member-stream="${safeLink(streamButtonLink || '')}" data-member-live="${safeLink(liveLink || '')}" data-member-youtube="${safeLink(member.youtube || '')}" data-member-profile="${safeLink(member.profile || '')}">
         <div class="member-banner ${bannerClass}">
           <div class="badge-row status-only">
             ${
@@ -3904,7 +3882,7 @@ const tierText =
             <div class="name">${member.name}</div>
             <div class="race-badge">${member.race}</div>
           </div>
-      ${tierText ? `<div class="role-line">${tierText}</div>` : ""}
+          ${tierText ? `<div class="role-line">${tierText}</div>` : ""}
           <div class="meta-list">
             <div class="meta-item"><span class="label">역할</span><span>${member.role}</span></div>
             ${member.type === "player" ? "" : `<div class="meta-item"><span class="label">분류</span><span>${category}</span></div>`}
@@ -5334,12 +5312,13 @@ displayMeta: item.displayMeta || ""
 (function(){
   function safe(url){try{return (typeof safeLink==='function')?safeLink(url):String(url||'#');}catch(e){return String(url||'#');}}
   function roleLabel(member){
-    var name=String((member&&member.name)||'').trim();
-    if(name==='김윤환') return 'Jack';
-    if(name==='박준오'||name==='박수범'||name==='사테'||name==='서태') return 'King';
-    if(name==='지동원'||name==='배성흠') return 'Jack';
-    if(name==='파도튜브') return 'Spade';
-    return '';
+    var tier = member && member.tier;
+    if(tier === null || tier === undefined || tier === '') return '';
+    var text = String(tier).trim();
+    if(text === '9') return '유스';
+    if(/^\d+$/.test(text)) return text + '티어';
+    if(text.toLowerCase() === 'god') return 'GOD';
+    return text;
   }
   function joinText(member){try{return (typeof formatJoinDateText==='function')?formatJoinDateText(member.name):'-';}catch(e){return '-';}}
   function finalRoleCard(member){
@@ -5350,7 +5329,7 @@ displayMeta: item.displayMeta || ""
     var streamButtonLink=member.stream;
     var typeClass='member-'+member.type;
     var raceText=member.race||member.role||'';
-    var role=(member.type==='leader'||member.type==='coach')?roleLabel(member):'';
+    var role=roleLabel(member);
     return '<article class="member-card '+typeClass+'"><div class="member-banner '+bannerClass+'"><div class="badge-row status-only">'
       +(member.status==='live'&&liveLink&&liveLink!=='#'?'<a class="chip '+statusClass+'" href="'+safe(liveLink)+'" target="_blank" rel="noopener noreferrer">'+statusText+'</a>':'<span class="chip '+statusClass+'">'+statusText+'</span>')
       +'</div></div><div class="member-body"><div class="avatar-wrap '+(member.status==='live'?'live-border':'')+'"><img class="avatar" src="'+(member.profileImage||'')+'" alt="'+member.name+' 프로필 이미지" /></div><div class="name-row"><div class="name">'+member.name+'</div><div class="race-badge">'+raceText+'</div></div>'
@@ -5564,81 +5543,5 @@ displayMeta: item.displayMeta || ""
   }
 </style>
 <script id="monstars-student-tier-force-script">
-<script>
-(function(){
-  function getMembers(){
-    try{ if(Array.isArray(window.MEMBERS)) return window.MEMBERS; }catch(e){}
-    try{ if(typeof MEMBERS !== "undefined" && Array.isArray(MEMBERS)) return MEMBERS; }catch(e){}
-    try{ if(Array.isArray(window.members)) return window.members; }catch(e){}
-    try{ if(typeof members !== "undefined" && Array.isArray(members)) return members; }catch(e){}
-    return [];
-  }
-
-  function findMember(name){
-    name = String(name || "").trim();
-    return getMembers().find(function(m){
-      return m && String(m.name || "").trim() === name;
-    }) || null;
-  }
-
-  function tierText(m){
-    var tier = m && m.tier;
-    if(tier === null || tier === undefined || tier === "") return "";
-
-    var text = String(tier).trim();
-
-    if(text === "9") return "유스";
-    if(/^\d+$/.test(text)) return text + "티어";
-
-    return text;
-  }
-
-  function patchStaffTierLines(){
-    document.querySelectorAll("#leaderGrid .member-card, #coachGrid .member-card").forEach(function(card){
-      var nameEl = card.querySelector(".name-row .name, .name");
-      var name = nameEl ? nameEl.textContent.trim() : "";
-      var m = findMember(name);
-      if(!m) return;
-
-      var text = tierText(m);
-      if(!text) return;
-
-      var line = card.querySelector(".role-line");
-      if(!line){
-        line = document.createElement("div");
-        line.className = "role-line";
-        var nameRow = card.querySelector(".name-row");
-        if(nameRow && nameRow.parentNode){
-          nameRow.parentNode.insertBefore(line, nameRow.nextSibling);
-        }
-      }
-
-      line.textContent = text;
-    });
-  }
-
-  function run(){
-    patchStaffTierLines();
-    setTimeout(patchStaffTierLines, 50);
-    setTimeout(patchStaffTierLines, 200);
-    setTimeout(patchStaffTierLines, 600);
-  }
-
-  document.addEventListener("DOMContentLoaded", run);
-
-  var prevRender = window.render;
-  if(typeof prevRender === "function" && !window.__staffTierLinePatch){
-    window.__staffTierLinePatch = true;
-    window.render = function(){
-      var ret = prevRender.apply(this, arguments);
-      run();
-      return ret;
-    };
-  }
-
-  run();
-})();
-</script>
-
 </body>
 </html>
