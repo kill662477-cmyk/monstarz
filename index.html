@@ -3852,7 +3852,18 @@ body.light-mode .monstars-member-row{border-color:rgba(36,99,168,.12)}
 
 function createMemberCard(member) {
     const bannerClass = member.type === "leader" ? "leader" : member.type === "coach" ? "coach" : `t${member.tier}`;
-    const tierText = member.type === "player"
+    const tierText =
+  member.tier === null ||
+  member.tier === undefined ||
+  member.tier === ""
+    ? ""
+    : /^\d+$/.test(String(member.tier).trim())
+      ? (
+          String(member.tier).trim() === "9"
+            ? "유스"
+            : `${String(member.tier).trim()}티어`
+        )
+      : String(member.tier).trim();
   ? (member.tier === 9 ? "유스" : `${member.tier}티어`)
   : member.role;
     const statusText = member.status === "live" ? "방송중" : "오프라인";
@@ -3881,7 +3892,7 @@ function createMemberCard(member) {
             <div class="name">${member.name}</div>
             <div class="race-badge">${member.race}</div>
           </div>
-      ${getMemberRole(member) ? `<div class="role-line">${getMemberRole(member)}</div>` : ""}
+      ${tierText ? `<div class="role-line">${tierText}</div>` : ""}
           <div class="meta-list">
             <div class="meta-item"><span class="label">역할</span><span>${member.role}</span></div>
             ${member.type === "player" ? "" : `<div class="meta-item"><span class="label">분류</span><span>${category}</span></div>`}
