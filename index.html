@@ -3868,6 +3868,18 @@ function createMemberCard(member) {
   : member.role;
     const statusText = member.status === "live" ? "방송중" : "오프라인";
     const statusClass = member.status === "live" ? "live" : "offline";
+  
+const rawTier = member.tier;
+const tierText =
+  rawTier === null || rawTier === undefined || rawTier === ""
+    ? ""
+    : /^\d+$/.test(String(rawTier).trim())
+      ? (
+          String(rawTier).trim() === "9"
+            ? "유스"
+            : `${String(rawTier).trim()}티어`
+        )
+      : String(rawTier).trim();
     const category = (member.type === "leader" || member.type === "coach") ? getLeaderCoachCategory(member) : "";
     const joinDateText = formatJoinDateText(member.name);
     const liveLink = member.live && member.live !== "#" ? member.live : member.stream;
