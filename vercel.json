@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/soop-token.js": {
+      "maxDuration": 10
+    },
+    "api/soop-refresh.js": {
+      "maxDuration": 10
+    }
+  }
+}
