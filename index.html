@@ -3099,6 +3099,7 @@ body.light-mode .profile-awards{background:linear-gradient(135deg,rgba(245,158,1
 .site-header .tab-row:before{content:"MONSTARS\A SINCE 2024"!important;}
 .site-header .tab-row:after{display:none!important;content:none!important;}
 #tabGame:before{content:"🎮";}
+#tabDuckCalc:before{content:"🧮";}
 .nav-external{
   width:100%;
   margin-top:auto;
@@ -3256,6 +3257,158 @@ body.funding-mode .wrap{
 }
 body.light-mode .funding-embed-wrap{
   background:rgba(255,255,255,.82)!important;
+}
+
+/* ===== Duck Goose calculator tab: isolated block ===== */
+#duckCalcScreen section{margin-bottom:14px!important;}
+.duckcalc-shell{border:1px solid var(--sr-line);background:var(--sr-board-bg);box-shadow:var(--sr-shadow);}
+.duckcalc-head{border-bottom:0!important;}
+.duckcalc-grid{display:grid;grid-template-columns:minmax(280px,.9fr) minmax(330px,1.05fr) minmax(280px,.95fr);gap:10px;padding:12px;border:1px solid var(--sr-line);background:linear-gradient(180deg,rgba(4,14,30,.54),rgba(5,16,31,.72));}
+.duckcalc-panel{min-width:0;border:1px solid rgba(112,164,238,.20);background:linear-gradient(180deg,rgba(9,26,49,.94),rgba(5,16,31,.96));box-shadow:0 12px 26px rgba(0,0,0,.22);}
+.duckcalc-panel-head{min-height:42px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-bottom:1px solid rgba(112,164,238,.16);background:linear-gradient(90deg,rgba(29,102,255,.22),rgba(34,197,94,.06));}
+.duckcalc-panel-head b{color:#f4f8ff;font-size:13px;font-weight:950;letter-spacing:-.04em;}
+.duckcalc-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;}
+.duckcalc-btn{min-height:30px;padding:0 10px;border:1px solid rgba(112,164,238,.28);border-radius:7px;background:rgba(29,102,255,.16);color:#eaf3ff;font-family:inherit;font-size:11px;font-weight:950;cursor:pointer;}
+.duckcalc-btn:hover{border-color:rgba(96,165,250,.68);background:rgba(29,102,255,.25);}
+.duckcalc-btn.danger{border-color:rgba(251,113,133,.24);background:rgba(244,63,94,.13);color:#ffe4e6;}
+.duckcalc-btn.gold{border-color:rgba(245,158,11,.38);background:linear-gradient(135deg,rgba(245,158,11,.30),rgba(29,102,255,.12));color:#fff7d6;}
+.duckcalc-btn.green{border-color:rgba(34,197,94,.36);background:rgba(34,197,94,.15);color:#dcfce7;}
+.duckcalc-btn:disabled{opacity:.42;cursor:not-allowed;}
+.duckcalc-table{padding:10px;}
+.duckcalc-table-head,.duckcalc-row{display:grid;grid-template-columns:34px minmax(0,1fr) 86px 30px;gap:6px;align-items:center;}
+.duckcalc-table-head{height:28px;color:#9fb3ca;font-size:10px;font-weight:950;text-align:center;}
+.duckcalc-rows{display:grid;gap:6px;max-height:460px;overflow:auto;padding-right:2px;}
+.duckcalc-row{min-height:38px;padding:4px;border:1px solid rgba(112,164,238,.16);background:rgba(255,255,255,.035);}
+.duckcalc-row-index{display:grid;place-items:center;width:26px;height:26px;border-radius:7px;background:rgba(29,102,255,.18);color:#cfe2ff;font-size:11px;font-weight:950;}
+.duckcalc-input{width:100%;height:30px;border:1px solid rgba(112,164,238,.22);border-radius:7px;background:rgba(2,9,20,.70);color:#fff;padding:0 8px;font-family:inherit;font-size:12px;font-weight:900;outline:none;}
+.duckcalc-input:focus{border-color:rgba(96,165,250,.76);box-shadow:0 0 0 2px rgba(96,165,250,.16);}
+.duckcalc-score{text-align:right;}
+.duckcalc-cell-edit{width:100%;height:30px;border:1px solid rgba(112,164,238,.14);border-radius:7px;background:rgba(255,255,255,.035);color:#f8fbff;padding:0 8px;font-family:inherit;font-size:12px;font-weight:950;cursor:text;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.duckcalc-cell-edit:hover{border-color:rgba(96,165,250,.52);background:rgba(96,165,250,.10);}
+.duckcalc-cell-edit.empty{color:rgba(219,234,254,.46);}
+.duckcalc-name-cell{text-align:left;}
+.duckcalc-score-cell{text-align:right;font-variant-numeric:tabular-nums;}
+.duckcalc-remove{width:28px;height:28px;border:0;border-radius:7px;background:rgba(244,63,94,.14);color:#fecdd3;font-size:16px;font-weight:950;cursor:pointer;}
+.duckcalc-manual{display:grid;gap:7px;margin:0 10px 10px;padding:9px;border:1px solid rgba(112,164,238,.16);background:rgba(255,255,255,.035);}
+.duckcalc-manual-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.duckcalc-manual-head b{color:#dbeafe;font-size:11px;font-weight:950;}
+.duckcalc-manual-fields{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;align-items:center;}
+.duckcalc-manual-hint{color:#8ea7c4;font-size:10px;font-weight:850;line-height:1.35;}
+.duckcalc-center{display:grid;gap:10px;align-content:start;min-width:0;}
+.duckcalc-rank-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.duckcalc-rank-card{min-height:126px;border:1px solid rgba(112,164,238,.20);background:linear-gradient(180deg,rgba(12,32,58,.96),rgba(6,18,34,.97));padding:12px;display:flex;flex-direction:column;gap:8px;}
+.duckcalc-rank-card.top{box-shadow:inset 0 0 0 1px rgba(245,158,11,.18);}
+.duckcalc-rank-card.bottom{box-shadow:inset 0 0 0 1px rgba(244,63,94,.18);}
+.duckcalc-rank-card span{color:#9fb3ca;font-size:11px;font-weight:950;}
+.duckcalc-rank-card strong{min-height:32px;color:#fff;font-size:24px;font-weight:950;line-height:1.08;letter-spacing:-.06em;word-break:break-all;}
+.duckcalc-rank-card small{min-height:16px;color:#b9d3f4;font-size:10px;font-weight:850;line-height:1.35;}
+.duckcalc-final-box{border:1px solid rgba(112,164,238,.20);background:linear-gradient(135deg,rgba(29,102,255,.18),rgba(34,197,94,.10));padding:12px;display:grid;gap:8px;}
+.duckcalc-final-box .duckcalc-btn{width:100%;min-height:46px;font-size:15px;}
+.duckcalc-status{min-height:36px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px dashed rgba(112,164,238,.22);background:rgba(255,255,255,.028);color:#b9d3f4;font-size:12px;font-weight:900;line-height:1.4;padding:7px;}
+.duckcalc-order-board{border:1px solid rgba(112,164,238,.20);background:rgba(3,12,26,.52);padding:10px;min-height:250px;}
+.duckcalc-order-title{display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;color:#eaf3ff;font-size:12px;font-weight:950;}
+.duckcalc-order-list{display:grid;gap:6px;margin:0;padding:0;list-style:none;max-height:330px;overflow:auto;}
+.duckcalc-order-list li{display:grid;grid-template-columns:32px minmax(0,1fr) 66px;gap:7px;align-items:center;min-height:34px;padding:5px 7px;border:1px solid rgba(112,164,238,.14);background:rgba(255,255,255,.035);font-size:12px;font-weight:950;}
+.duckcalc-order-list .num{display:grid;place-items:center;width:26px;height:24px;border-radius:6px;background:rgba(29,102,255,.20);color:#dbeafe;}
+.duckcalc-order-list .team{justify-self:end;color:#bfdbfe;font-size:10px;}
+.duckcalc-right{display:grid;gap:10px;align-content:start;min-width:0;}
+.duckcalc-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.duckcalc-score-card{border:1px solid rgba(112,164,238,.20);background:linear-gradient(180deg,rgba(12,32,58,.96),rgba(6,18,34,.97));padding:10px;}
+.duckcalc-score-card.win{border-color:rgba(34,197,94,.38);box-shadow:inset 0 0 0 1px rgba(34,197,94,.15);}
+.duckcalc-score-card label{display:block;color:#9fb3ca;font-size:10px;font-weight:950;}
+.duckcalc-score-card strong{display:block;margin-top:4px;color:#fff;font-size:24px;font-weight:950;letter-spacing:-.05em;}
+.duckcalc-score-card small{display:block;margin-top:3px;color:#b9d3f4;font-size:10px;font-weight:850;line-height:1.35;}
+.duckcalc-team-list{display:grid;gap:6px;max-height:190px;overflow:auto;margin-top:8px;}
+.duckcalc-member-pill{display:flex;justify-content:space-between;gap:8px;min-height:28px;padding:5px 7px;border:1px solid rgba(112,164,238,.14);background:rgba(255,255,255,.035);font-size:11px;font-weight:950;}
+.duckcalc-member-pill b{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.duckcalc-member-pill span{color:#fef3c7;white-space:nowrap;}
+.duckcalc-settlement{border:1px solid rgba(112,164,238,.20);background:linear-gradient(180deg,rgba(12,32,58,.96),rgba(6,18,34,.97));}
+.duckcalc-settlement-head{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:42px;padding:8px 10px;border-bottom:1px solid rgba(112,164,238,.16);}
+.duckcalc-settlement-head b{color:#f4f8ff;font-size:13px;font-weight:950;}
+.duckcalc-transfer-list{display:grid;gap:6px;padding:10px;min-height:170px;max-height:260px;overflow:auto;}
+.duckcalc-transfer{display:grid;grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr);gap:6px;align-items:center;min-height:32px;padding:6px 8px;border:1px solid rgba(112,164,238,.14);background:rgba(255,255,255,.035);color:#fff;font-size:12px;font-weight:950;}
+.duckcalc-transfer.rank-settle{border-color:rgba(245,158,11,.32);background:rgba(245,158,11,.08);}
+.duckcalc-transfer span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.duckcalc-transfer i{font-style:normal;color:#facc15;text-align:center;}
+.duckcalc-empty{display:grid;place-items:center;min-height:92px;color:#7f95ae;text-align:center;font-size:12px;font-weight:900;line-height:1.45;padding:14px;border:1px dashed rgba(112,164,238,.18);background:rgba(255,255,255,.02);}
+.duck-pinball-modal{position:fixed;inset:0;z-index:1000000;display:flex;align-items:center;justify-content:center;padding:2vh 22px;background:rgba(0,7,18,.78);backdrop-filter:blur(8px);}
+.duck-pinball-modal[hidden]{display:none!important;}
+.duck-pinball-dialog{width:min(1320px,calc(100vw - 44px));height:96vh;max-height:96vh;border:1px solid rgba(112,164,238,.34);background:#090b12;box-shadow:0 34px 90px rgba(0,0,0,.72);display:grid;grid-template-rows:48px minmax(0,1fr);overflow:hidden;}
+.duck-pinball-top{display:grid;grid-template-columns:42px minmax(0,1fr) 110px;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.10);background:#111827;}
+.duck-pinball-top strong{text-align:center;color:#fff;font-size:15px;font-weight:950;letter-spacing:-.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.duck-pinball-close{width:32px;height:32px;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:#fff;font-size:20px;font-weight:950;cursor:pointer;}
+.duck-pinball-apply{height:32px;border:1px solid rgba(34,197,94,.36);border-radius:8px;background:rgba(34,197,94,.16);color:#dcfce7;font-size:12px;font-weight:950;cursor:pointer;}
+.duck-pinball-apply:disabled{opacity:.4;cursor:not-allowed;}
+.duck-pinball-app{min-height:0;display:grid;grid-template-columns:190px minmax(0,1fr) 250px;background:#0b0f19;}
+.duck-roulette-settings,.duck-roulette-entry{min-height:0;padding:12px;background:#111827;color:#e5e7eb;overflow:auto;}
+.duck-roulette-settings{border-right:1px solid rgba(255,255,255,.09);}
+.duck-roulette-entry{border-left:1px solid rgba(255,255,255,.09);}
+.duck-roulette-toggle{width:100%;height:32px;border:0;border-radius:6px;background:#1f2937;color:#f9fafb;font-size:13px;font-weight:800;text-align:left;padding:0 10px;margin-bottom:10px;}
+.duck-roulette-field{display:grid;gap:5px;margin-bottom:10px;}
+.duck-roulette-field label,.duck-roulette-label{color:#cbd5e1;font-size:11px;font-weight:800;}
+.duck-roulette-field select,.duck-roulette-field input,.duck-roulette-entry textarea{width:100%;border:1px solid rgba(148,163,184,.28);border-radius:6px;background:#0b1220;color:#f8fafc;font-family:inherit;font-size:12px;font-weight:800;outline:none;}
+.duck-roulette-field select,.duck-roulette-field input{height:30px;padding:0 8px;}
+.duck-roulette-check{display:flex;align-items:center;gap:7px;color:#dbeafe;font-size:12px;font-weight:800;margin:9px 0;}
+.duck-winner-box{margin:12px 0;padding:10px;border:1px solid rgba(148,163,184,.22);background:#0b1220;}
+.duck-winner-box b{display:block;color:#9ca3af;font-size:11px;margin-bottom:6px;}
+.duck-winner-name{min-height:30px;color:#fff;font-size:20px;font-weight:950;letter-spacing:-.05em;}
+.duck-winner-options{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px;}
+.duck-winner-options button{height:28px;border:1px solid rgba(148,163,184,.28);border-radius:6px;background:#1f2937;color:#e5e7eb;font-size:11px;font-weight:900;cursor:pointer;}
+.duck-winner-options button.active{background:#2563eb;border-color:#60a5fa;color:#fff;}
+.duck-pinball-stage{position:relative;min-width:0;min-height:0;background:linear-gradient(180deg,#202636,#151a24 55%,#0c111b);overflow:hidden;}
+#duckPinballCanvas{display:block;width:100%;height:100%;}
+.duck-original-roulette-frame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#0b0f19;}
+.duck-pinball-modal.duck-original-mode .duck-pinball-app{display:block;background:#080b12;}
+.duck-pinball-modal.duck-original-mode .duck-roulette-settings,
+.duck-pinball-modal.duck-original-mode .duck-roulette-entry{display:none!important;}
+.duck-pinball-modal.duck-original-mode .duck-pinball-stage{height:100%;background:#05070d;}
+.duck-pinball-modal.duck-original-mode #duckPinballCanvas,
+.duck-pinball-modal.duck-original-mode .duck-pinball-finish{display:none!important;}
+.duck-pinball-finish{position:absolute;left:22px;right:22px;bottom:14px;height:32px;display:grid;grid-template-columns:repeat(8,1fr);gap:4px;pointer-events:none;}
+.duck-pinball-finish span{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);}
+.duck-roulette-entry h3{margin:0 0 8px;color:#f9fafb;font-size:13px;font-weight:900;}
+.duck-roulette-entry textarea{height:132px;resize:none;padding:8px;line-height:1.45;}
+.duck-roulette-controls{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0 10px;}
+.duck-roulette-controls button{height:34px;border:1px solid rgba(148,163,184,.30);border-radius:7px;background:#1f2937;color:#fff;font-size:12px;font-weight:950;cursor:pointer;}
+.duck-roulette-controls button.primary{background:#2563eb;border-color:#60a5fa;}
+.duck-roulette-controls button:disabled{opacity:.42;cursor:not-allowed;}
+.duck-pinball-result-list{display:grid;gap:5px;margin:0;padding:0;list-style:none;max-height:calc(96vh - 320px);overflow:auto;}
+.duck-pinball-result-list li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:6px;align-items:center;min-height:28px;padding:4px 6px;border:1px solid rgba(148,163,184,.18);background:#0b1220;color:#e5e7eb;font-size:12px;font-weight:900;}
+.duck-pinball-result-list span{display:grid;place-items:center;width:22px;height:20px;border-radius:5px;background:#2563eb;color:#fff;font-size:10px;}
+body.light-mode .duckcalc-shell,
+body.light-mode .duckcalc-grid,
+body.light-mode .duckcalc-panel,
+body.light-mode .duckcalc-rank-card,
+body.light-mode .duckcalc-final-box,
+body.light-mode .duckcalc-order-board,
+body.light-mode .duckcalc-score-card,
+body.light-mode .duckcalc-settlement{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(224,238,255,.94))!important;border-color:rgba(36,99,168,.16)!important;color:#13233a!important;box-shadow:0 14px 30px rgba(52,108,176,.14);}
+body.light-mode .duckcalc-panel-head,
+body.light-mode .duckcalc-settlement-head{background:linear-gradient(90deg,rgba(29,116,255,.12),rgba(34,197,94,.06));border-color:rgba(36,99,168,.14);}
+body.light-mode .duckcalc-panel-head b,
+body.light-mode .duckcalc-rank-card strong,
+body.light-mode .duckcalc-score-card strong,
+body.light-mode .duckcalc-settlement-head b{color:#13233a;}
+body.light-mode .duckcalc-input{background:#fff!important;color:#13233a!important;border-color:rgba(36,99,168,.18)!important;-webkit-text-fill-color:#13233a!important;}
+body.light-mode .duckcalc-row,
+body.light-mode .duckcalc-manual,
+body.light-mode .duckcalc-order-list li,
+body.light-mode .duckcalc-member-pill,
+body.light-mode .duckcalc-transfer{background:rgba(255,255,255,.70);border-color:rgba(36,99,168,.12);color:#13233a;}
+body.light-mode .duckcalc-cell-edit{background:rgba(255,255,255,.78);border-color:rgba(36,99,168,.14);color:#13233a;}
+body.light-mode .duckcalc-status,
+body.light-mode .duckcalc-empty{color:#58708f;border-color:rgba(36,99,168,.18);background:rgba(255,255,255,.52);}
+@media(max-width:1120px){
+  .duckcalc-grid{grid-template-columns:1fr;}
+  .duckcalc-right{grid-template-columns:1fr;}
+  .duck-pinball-app{grid-template-columns:160px minmax(0,1fr) 220px;}
+}
+@media(max-width:820px){
+  .duckcalc-rank-row,.duckcalc-summary-grid{grid-template-columns:1fr;}
+  .duck-pinball-modal{padding:0;}
+  .duck-pinball-dialog{width:100vw;height:100vh;max-height:100vh;}
+  .duck-pinball-app{grid-template-columns:1fr;grid-template-rows:auto minmax(360px,1fr) auto;}
+  .duck-roulette-settings,.duck-roulette-entry{max-height:170px;border:0;border-bottom:1px solid rgba(255,255,255,.09);}
 }
 
 body.funding-mode .site-header {
@@ -3418,6 +3571,7 @@ body.funding-overlay-host .funding-temp-frame{
         <button id="tabBoja" class="tab-btn" type="button">보자충</button>
         <button id="tabYoutube" class="tab-btn" type="button">팬튜브</button>
         <button id="tabGame" class="tab-btn" type="button">오락실</button>
+        <button id="tabDuckCalc" class="tab-btn" type="button">덕몽어스계산기</button>
         <button id="tabFunding" class="tab-btn" type="button">펀딩(임시)</button>
         <div class="nav-external" aria-label="외부 사이트">
           <a href="https://calm-hoxy.vercel.app/" target="_blank" rel="noopener noreferrer">💰 CALM HOXY</a>
@@ -3540,6 +3694,154 @@ body.funding-overlay-host .funding-temp-frame{
           <iframe src="https://monstarzrun.vercel.app/" title="몬스타즈 오락실" loading="lazy" allow="fullscreen; gamepad" allowfullscreen></iframe>
         </div>
       </section>
+    </div>
+
+
+    <div id="duckCalcScreen" class="screen hidden">
+      <section class="duckcalc-shell" id="duckCalcRoot">
+        <div class="section-head duckcalc-head">
+          <div>
+            <h2>덕몽어스 계산기</h2>
+            <div class="inout-title-sub">GOOSE GOOSE DUCK TEAM SETTLEMENT</div>
+          </div>
+          <div class="count" id="duckCalcCount">0명</div>
+        </div>
+        <div class="duckcalc-grid">
+          <div class="duckcalc-panel">
+            <div class="duckcalc-panel-head">
+              <b>참가자 입력</b>
+              <div class="duckcalc-actions">
+                <button id="duckAddRowBtn" class="duckcalc-btn" type="button">입력</button>
+                <button id="duckSampleBtn" class="duckcalc-btn" type="button">예시</button>
+                <button id="duckClearBtn" class="duckcalc-btn danger" type="button">초기화</button>
+              </div>
+            </div>
+            <div class="duckcalc-manual">
+              <div class="duckcalc-manual-head">
+                <b>수동 입력</b>
+                <button id="duckManualAddBtn" class="duckcalc-btn" type="button">입력</button>
+              </div>
+              <div class="duckcalc-manual-fields">
+                <input id="duckManualEntry" class="duckcalc-input" type="text" placeholder="닉네임 숫자 예) 토마토 10" autocomplete="off" />
+              </div>
+              <div class="duckcalc-manual-hint">닉네임을 쓰고 한 칸 띄운 뒤 숫자를 입력하고 Enter를 누르면 아래 목록에 추가됩니다. 아래 목록의 닉네임 또는 숫자를 클릭하면 바로 수정할 수 있습니다.</div>
+            </div>
+            <div class="duckcalc-table">
+              <div class="duckcalc-table-head">
+                <span>No</span><span>닉네임</span><span>점수</span><span></span>
+              </div>
+              <div id="duckRows" class="duckcalc-rows"></div>
+            </div>
+          </div>
+
+          <div class="duckcalc-center">
+            <div class="duckcalc-rank-row">
+              <div class="duckcalc-rank-card top">
+                <span>1등 닉네임</span>
+                <strong id="duckTopName">-</strong>
+                <button id="duckTopPinballBtn" class="duckcalc-btn gold" type="button" hidden>1등 핀볼돌리기</button>
+                <small id="duckTopMeta">점수를 입력하면 자동으로 표시됩니다.</small>
+              </div>
+              <div class="duckcalc-rank-card bottom">
+                <span>꼴등 닉네임</span>
+                <strong id="duckBottomName">-</strong>
+                <button id="duckBottomPinballBtn" class="duckcalc-btn danger" type="button" hidden>꼴등 핀볼돌리기</button>
+                <small id="duckBottomMeta">1등과 꼴등은 최종 핀볼에서 제외됩니다.</small>
+              </div>
+            </div>
+            <div class="duckcalc-final-box">
+              <button id="duckFinalPinballBtn" class="duckcalc-btn green" type="button">최종 핀볼 돌리기</button>
+              <div id="duckFinalStatus" class="duckcalc-status">최종 1등과 꼴등이 확정되면 나머지 참가자로 팀을 나눕니다.</div>
+            </div>
+            <div class="duckcalc-order-board">
+              <div class="duckcalc-order-title">
+                <span>최종 핀볼 순서</span>
+                <span id="duckOrderCount">0명</span>
+              </div>
+              <ol id="duckOrderList" class="duckcalc-order-list"></ol>
+            </div>
+          </div>
+
+          <aside class="duckcalc-right">
+            <div class="duckcalc-summary-grid">
+              <div id="duckOddCard" class="duckcalc-score-card">
+                <label>홀수번호팀</label>
+                <strong id="duckOddScore">0점</strong>
+                <small id="duckOddMeta">멤버 없음</small>
+                <div id="duckOddMembers" class="duckcalc-team-list"></div>
+              </div>
+              <div id="duckEvenCard" class="duckcalc-score-card">
+                <label>짝수번호팀</label>
+                <strong id="duckEvenScore">0점</strong>
+                <small id="duckEvenMeta">멤버 없음</small>
+                <div id="duckEvenMembers" class="duckcalc-team-list"></div>
+              </div>
+            </div>
+            <div class="duckcalc-settlement">
+              <div class="duckcalc-settlement-head">
+                <b id="duckSettlementTitle">정산결과</b>
+                <button id="duckCopySettlementBtn" class="duckcalc-btn" type="button">복사</button>
+              </div>
+              <div id="duckSettlementList" class="duckcalc-transfer-list">
+                <div class="duckcalc-empty">최종 핀볼을 돌리면 승리팀과 정산결과가 표시됩니다.</div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <div id="duckPinballModal" class="duck-pinball-modal" hidden>
+        <div class="duck-pinball-dialog" role="dialog" aria-modal="true" aria-labelledby="duckPinballTitle">
+          <div class="duck-pinball-top">
+            <button id="duckPinballCloseBtn" class="duck-pinball-close" type="button" aria-label="닫기">×</button>
+            <strong id="duckPinballTitle">핀볼</strong>
+            <button id="duckPinballApplyBtn" class="duck-pinball-apply" type="button" disabled>결과 적용</button>
+          </div>
+          <div class="duck-pinball-app">
+            <aside class="duck-roulette-settings">
+              <button class="duck-roulette-toggle" type="button">Settings ▲</button>
+              <div class="duck-roulette-field">
+                <label>Map</label>
+                <select id="duckPinballMap">
+                  <option>기본 맵</option>
+                  <option>좁은 길</option>
+                  <option>넓은 길</option>
+                </select>
+              </div>
+              <label class="duck-roulette-check"><input type="checkbox" checked disabled /> Recording</label>
+              <label class="duck-roulette-check"><input type="checkbox" disabled /> Using skills</label>
+              <div class="duck-winner-box">
+                <b>The winner is</b>
+                <div id="duckPinballWinner" class="duck-winner-name">-</div>
+                <div class="duck-winner-options">
+                  <button id="duckModalFirstBtn" type="button" data-mode="first">First</button>
+                  <button id="duckModalLastBtn" type="button" data-mode="last">Last</button>
+                </div>
+                <div class="duck-roulette-field" style="margin-top:7px">
+                  <label for="duckModalRank">Rank</label>
+                  <input id="duckModalRank" type="number" min="1" value="1" />
+                </div>
+              </div>
+            </aside>
+            <div class="duck-pinball-stage">
+              <iframe id="duckOriginalRouletteFrame" class="duck-original-roulette-frame" title="Marble Roulette" hidden></iframe>
+              <canvas id="duckPinballCanvas"></canvas>
+              <div class="duck-pinball-finish" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <aside class="duck-roulette-entry">
+              <h3>Enter names below</h3>
+              <textarea id="duckPinballNames" readonly></textarea>
+              <div class="duck-roulette-controls">
+                <button id="duckPinballShuffleBtn" type="button">Shuffle</button>
+                <button id="duckPinballStartBtn" class="primary" type="button">Start</button>
+              </div>
+              <ol id="duckPinballResultList" class="duck-pinball-result-list"></ol>
+            </aside>
+          </div>
+        </div>
+      </div>
     </div>
 
 
@@ -3765,12 +4067,14 @@ body.funding-overlay-host .funding-temp-frame{
   const bojaPlayerOpen = document.getElementById("bojaPlayerOpen");
   const tabYoutube = document.getElementById("tabYoutube");
   const tabGame = document.getElementById("tabGame");
+  const tabDuckCalc = document.getElementById("tabDuckCalc");
   const tabFunding = document.getElementById("tabFunding");
   const tabInout = document.getElementById("tabInout");
   const themeToggle = document.getElementById("themeToggle");
   const themeIcon = document.getElementById("themeIcon");
   const youtubeScreen = document.getElementById("youtubeScreen");
   const gameScreen = document.getElementById("gameScreen");
+  const duckCalcScreen = document.getElementById("duckCalcScreen");
   const fundingScreen = document.getElementById("fundingScreen");
   const fundingTempFrame = document.getElementById("fundingTempFrame");
   const youtubeList = document.getElementById("youtubeList");
@@ -4751,13 +5055,13 @@ function createMemberCard(member) {
   }
 
   function setActiveTab(activeTab) {
-    [tabMain, tabProfile, tabInout, tabBoja, tabYoutube, tabGame, tabFunding].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
+    [tabMain, tabProfile, tabInout, tabBoja, tabYoutube, tabGame, tabDuckCalc, tabFunding].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
     activeTab.classList.add("active");
     document.body.classList.toggle("main-tab-active", activeTab === tabMain);
   }
 
   function hideAllScreens() {
-    [mainScreen, profileScreen, inoutScreen, bojaScreen, youtubeScreen, gameScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
+    [mainScreen, profileScreen, inoutScreen, bojaScreen, youtubeScreen, gameScreen, duckCalcScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
   }
 
   function showMainScreen() {
@@ -4906,6 +5210,1181 @@ function createMemberCard(member) {
   if (shouldOpenFundingForSoopAuth()) {
     showFundingScreen();
   }
+</script>
+<script id="duckcalc-script">
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    tab: $("tabDuckCalc"),
+    screen: $("duckCalcScreen"),
+    rows: $("duckRows"),
+    count: $("duckCalcCount"),
+    add: $("duckAddRowBtn"),
+    sample: $("duckSampleBtn"),
+    clear: $("duckClearBtn"),
+    manualEntry: $("duckManualEntry"),
+    manualAdd: $("duckManualAddBtn"),
+    topName: $("duckTopName"),
+    bottomName: $("duckBottomName"),
+    topMeta: $("duckTopMeta"),
+    bottomMeta: $("duckBottomMeta"),
+    topBtn: $("duckTopPinballBtn"),
+    bottomBtn: $("duckBottomPinballBtn"),
+    finalBtn: $("duckFinalPinballBtn"),
+    finalStatus: $("duckFinalStatus"),
+    orderCount: $("duckOrderCount"),
+    orderList: $("duckOrderList"),
+    oddCard: $("duckOddCard"),
+    evenCard: $("duckEvenCard"),
+    oddScore: $("duckOddScore"),
+    evenScore: $("duckEvenScore"),
+    oddMeta: $("duckOddMeta"),
+    evenMeta: $("duckEvenMeta"),
+    oddMembers: $("duckOddMembers"),
+    evenMembers: $("duckEvenMembers"),
+    settlementTitle: $("duckSettlementTitle"),
+    settlementList: $("duckSettlementList"),
+    copy: $("duckCopySettlementBtn"),
+    modal: $("duckPinballModal"),
+    modalTitle: $("duckPinballTitle"),
+    modalApply: $("duckPinballApplyBtn"),
+    modalClose: $("duckPinballCloseBtn"),
+    modalNames: $("duckPinballNames"),
+    modalStart: $("duckPinballStartBtn"),
+    modalShuffle: $("duckPinballShuffleBtn"),
+    modalWinner: $("duckPinballWinner"),
+    modalResult: $("duckPinballResultList"),
+    modalRank: $("duckModalRank"),
+    modalFirst: $("duckModalFirstBtn"),
+    modalLast: $("duckModalLastBtn"),
+    frame: $("duckOriginalRouletteFrame"),
+    canvas: $("duckPinballCanvas")
+  };
+
+  if (!els.tab || !els.screen || !els.rows) return;
+
+  const state = {
+    rows: [],
+    topId: "",
+    bottomId: "",
+    finalOrder: [],
+    settlementText: "",
+    modal: null,
+    raf: 0
+  };
+  window.duckCalcState = state;
+
+  function makeId() {
+    return "duck_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+  }
+
+  function esc(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "\"": "&quot;",
+      "'": "&#39;"
+    })[char]);
+  }
+
+  function parseScore(value) {
+    const number = Number(String(value == null ? "" : value).replace(/,/g, "").trim());
+    return Number.isFinite(number) ? number : 0;
+  }
+
+  function normalizeScoreValue(value) {
+    return String(value == null ? "" : value).replace(/,/g, "").trim();
+  }
+
+  function scoreText(score) {
+    return `${score.toLocaleString("ko-KR")}점`;
+  }
+
+  function participants() {
+    return state.rows
+      .map((row, index) => ({
+        id: row.id,
+        name: String(row.name || "").trim(),
+        score: parseScore(row.score),
+        rawScore: row.score,
+        inputNo: index + 1
+      }))
+      .filter((row) => row.name);
+  }
+
+  function byId(id) {
+    return participants().find((row) => row.id === id) || null;
+  }
+
+  function bestCandidates(list) {
+    if (!list.length) return [];
+    const best = Math.max(...list.map((row) => row.score));
+    return list.filter((row) => row.score === best);
+  }
+
+  function bottomCandidates(list) {
+    if (!list.length) return [];
+    const worst = Math.min(...list.map((row) => row.score));
+    return list.filter((row) => row.score === worst);
+  }
+
+  function cleanFinalOrder() {
+    const validIds = new Set(participants().map((row) => row.id));
+    state.finalOrder = state.finalOrder.filter((id) => validIds.has(id) && id !== state.topId && id !== state.bottomId);
+  }
+
+  function resetFinalOrder() {
+    state.finalOrder = [];
+    state.settlementText = "";
+  }
+
+  function reconcileRanks() {
+    const list = participants();
+    const ids = new Set(list.map((row) => row.id));
+    const topRaw = bestCandidates(list);
+    const bottomRaw = bottomCandidates(list);
+
+    if (!ids.has(state.topId) || !topRaw.some((row) => row.id === state.topId)) state.topId = "";
+    if (!ids.has(state.bottomId) || !bottomRaw.some((row) => row.id === state.bottomId)) state.bottomId = "";
+    if (state.topId && state.topId === state.bottomId) state.bottomId = "";
+
+    const topPool = topRaw.filter((row) => row.id !== state.bottomId);
+    if (!state.topId && topPool.length === 1) state.topId = topPool[0].id;
+
+    const bottomPool = bottomRaw.filter((row) => row.id !== state.topId);
+    if (!state.bottomId && bottomPool.length === 1) state.bottomId = bottomPool[0].id;
+
+    const topPoolAfterBottom = topRaw.filter((row) => row.id !== state.bottomId);
+    if (!state.topId && topPoolAfterBottom.length === 1) state.topId = topPoolAfterBottom[0].id;
+    if (state.topId && state.topId === state.bottomId) state.bottomId = "";
+    cleanFinalOrder();
+  }
+
+  function addRow(row) {
+    state.rows.push({
+      id: makeId(),
+      name: row && row.name ? row.name : "",
+      score: row && row.score != null ? row.score : ""
+    });
+  }
+
+  function ensureRows() {}
+
+  function renderRows() {
+    if (!state.rows.length) {
+      els.rows.innerHTML = `<div class="duckcalc-empty">위 수동 입력칸에 "닉네임 숫자"를 입력한 뒤 Enter를 누르면 여기에 추가됩니다.</div>`;
+      return;
+    }
+    els.rows.innerHTML = state.rows.map((row, index) => {
+      const name = String(row.name || "").trim();
+      const score = normalizeScoreValue(row.score);
+      return `
+        <div class="duckcalc-row" data-duck-id="${esc(row.id)}">
+          <span class="duckcalc-row-index">${index + 1}</span>
+          <button class="duckcalc-cell-edit duckcalc-name-cell${name ? "" : " empty"}" type="button" data-duck-edit="name" title="닉네임 수정">${esc(name || "닉네임")}</button>
+          <button class="duckcalc-cell-edit duckcalc-score-cell${score ? "" : " empty"}" type="button" data-duck-edit="score" title="숫자 수정">${esc(score || "숫자")}</button>
+          <button class="duckcalc-remove" type="button" aria-label="삭제">×</button>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function renderRankCards() {
+    const list = participants();
+    const topRaw = bestCandidates(list);
+    const bottomRaw = bottomCandidates(list);
+    const topPool = topRaw.filter((row) => row.id !== state.bottomId);
+    const bottomPool = bottomRaw.filter((row) => row.id !== state.topId);
+    const top = byId(state.topId);
+    const bottom = byId(state.bottomId);
+
+    if (top) {
+      els.topName.textContent = top.name;
+      els.topMeta.textContent = `${scoreText(top.score)} · 최종 핀볼 제외`;
+      els.topBtn.hidden = true;
+    } else if (topPool.length > 1) {
+      els.topName.textContent = `공동 1등 ${topPool.length}명`;
+      els.topMeta.textContent = "핀볼로 최종 1등을 먼저 골라주세요.";
+      els.topBtn.hidden = false;
+    } else {
+      els.topName.textContent = "-";
+      els.topMeta.textContent = list.length ? "1등 후보를 확인 중입니다." : "닉네임과 점수를 입력하면 표시됩니다.";
+      els.topBtn.hidden = true;
+    }
+
+    if (bottom) {
+      els.bottomName.textContent = bottom.name;
+      els.bottomMeta.textContent = `${scoreText(bottom.score)} · 최종 핀볼 제외`;
+      els.bottomBtn.hidden = true;
+    } else if (bottomPool.length > 1) {
+      els.bottomName.textContent = `공동 꼴등 ${bottomPool.length}명`;
+      els.bottomMeta.textContent = "핀볼로 최종 꼴등을 먼저 골라주세요.";
+      els.bottomBtn.hidden = false;
+    } else {
+      els.bottomName.textContent = "-";
+      els.bottomMeta.textContent = list.length ? "꼴등 후보를 확인 중입니다." : "1등과 꼴등은 둘끼리 별도 정산합니다.";
+      els.bottomBtn.hidden = true;
+    }
+  }
+
+  function orderedParticipants() {
+    const map = new Map(participants().map((row) => [row.id, row]));
+    return state.finalOrder.map((id) => map.get(id)).filter(Boolean);
+  }
+
+  function renderOrder() {
+    const order = orderedParticipants();
+    els.orderCount.textContent = `${order.length}명`;
+    if (!order.length) {
+      els.orderList.innerHTML = `<li><span class="num">-</span><b>최종 핀볼 대기</b><span class="team">대기</span></li>`;
+      return;
+    }
+    els.orderList.innerHTML = order.map((row, index) => {
+      const no = index + 1;
+      const team = no % 2 ? "홀수팀" : "짝수팀";
+      return `<li><span class="num">${no}</span><b>${esc(row.name)}</b><span class="team">${team}</span></li>`;
+    }).join("");
+  }
+
+  function memberPills(list) {
+    if (!list.length) return `<div class="duckcalc-empty">멤버 없음</div>`;
+    return list.map((item) => `
+      <div class="duckcalc-member-pill">
+        <b>${item.no}. ${esc(item.name)}</b>
+        <span>${scoreText(item.score)}</span>
+      </div>
+    `).join("");
+  }
+
+  function rankDirection(top, bottom) {
+    return top && bottom ? { from: bottom.name, to: top.name } : null;
+  }
+
+  function rankDirectionHtml(top, bottom) {
+    const item = rankDirection(top, bottom);
+    return item ? `<div class="duckcalc-transfer rank-settle"><span>${esc(item.from)}</span><i>-&gt;</i><span>${esc(item.to)}</span></div>` : "";
+  }
+
+  function rankDirectionText(top, bottom) {
+    const item = rankDirection(top, bottom);
+    return item ? `${item.from} -> ${item.to}` : "-";
+  }
+
+  function emptySettlement(message) {
+    els.settlementList.innerHTML = `<div class="duckcalc-empty">${esc(message)}</div>`;
+    state.settlementText = "";
+  }
+
+  function renderTeams() {
+    const order = orderedParticipants().map((row, index) => ({ ...row, no: index + 1 }));
+    const odd = order.filter((row) => row.no % 2 === 1);
+    const even = order.filter((row) => row.no % 2 === 0);
+    const oddScore = odd.reduce((sum, row) => sum + row.score, 0);
+    const evenScore = even.reduce((sum, row) => sum + row.score, 0);
+    const top = byId(state.topId);
+    const bottom = byId(state.bottomId);
+
+    els.oddScore.textContent = scoreText(oddScore);
+    els.evenScore.textContent = scoreText(evenScore);
+    els.oddMeta.textContent = odd.length ? `${odd.length}명 · ${odd.map((row) => row.name).join(", ")}` : "멤버 없음";
+    els.evenMeta.textContent = even.length ? `${even.length}명 · ${even.map((row) => row.name).join(", ")}` : "멤버 없음";
+    els.oddMembers.innerHTML = memberPills(odd);
+    els.evenMembers.innerHTML = memberPills(even);
+    els.oddCard.classList.toggle("win", order.length && oddScore > evenScore);
+    els.evenCard.classList.toggle("win", order.length && evenScore > oddScore);
+
+    const rankHtml = rankDirectionHtml(top, bottom);
+    const rankText = rankDirectionText(top, bottom);
+
+    if (!order.length) {
+      els.settlementTitle.textContent = "정산결과";
+      if (rankHtml) {
+        els.settlementList.innerHTML = `${rankHtml}<div class="duckcalc-empty">최종 핀볼을 돌리면 승리팀과 팀 정산이 표시됩니다.</div>`;
+        state.settlementText = [
+          "[덕몽어스 정산결과]",
+          `1등: ${top ? top.name : "-"}`,
+          `꼴등: ${bottom ? bottom.name : "-"}`,
+          `1등/꼴등 정산: ${rankText}`,
+          "팀 정산: 최종 핀볼 대기"
+        ].join("\n");
+      } else {
+        emptySettlement("최종 핀볼을 돌리면 승리팀과 정산결과가 표시됩니다.");
+      }
+      return;
+    }
+
+    if (oddScore === evenScore) {
+      els.settlementTitle.textContent = "무승부";
+      els.settlementList.innerHTML = `${rankHtml}<div class="duckcalc-empty">홀수팀과 짝수팀 점수가 같아서 팀 정산이 없습니다.</div>`;
+      state.settlementText = [
+        "[덕몽어스 정산결과]",
+        `1등: ${top ? top.name : "-"}`,
+        `꼴등: ${bottom ? bottom.name : "-"}`,
+        `1등/꼴등 정산: ${rankText}`,
+        `홀수팀 ${scoreText(oddScore)} / 짝수팀 ${scoreText(evenScore)}`,
+        "무승부"
+      ].join("\n");
+      return;
+    }
+
+
+    const oddWin = oddScore > evenScore;
+    const transfers = oddWin
+      ? even.map((payer, index) => ({ from: payer.name, to: odd[index] && odd[index].name })).filter((item) => item.to)
+      : odd.map((payer, index) => ({ from: payer.name, to: even[index] && even[index].name })).filter((item) => item.to);
+    const winnerName = oddWin ? "홀수번호팀 승리" : "짝수번호팀 승리";
+    const winnerMembers = (oddWin ? odd : even).map((row) => row.name).join(", ");
+    const loserMembers = (oddWin ? even : odd).map((row) => row.name).join(", ");
+
+    els.settlementTitle.textContent = winnerName;
+    const transferHtml = transfers.length
+      ? transfers.map((item) => `<div class="duckcalc-transfer"><span>${esc(item.from)}</span><i>-&gt;</i><span>${esc(item.to)}</span></div>`).join("")
+      : `<div class="duckcalc-empty">짝이 맞는 상대가 없어서 표시할 정산 라인이 없습니다.</div>`;
+    els.settlementList.innerHTML = `${rankHtml}${transferHtml}`;
+
+    state.settlementText = [
+      "[덕몽어스 정산결과]",
+      `1등: ${top ? top.name : "-"}`,
+      `꼴등: ${bottom ? bottom.name : "-"}`,
+      `1등/꼴등 정산: ${rankText}`,
+      `승리팀: ${winnerName} (${winnerMembers || "-"})`,
+      `패배팀: ${loserMembers || "-"}`,
+      `홀수팀: ${scoreText(oddScore)}`,
+      `짝수팀: ${scoreText(evenScore)}`,
+      "정산:",
+      ...(transfers.length ? transfers.map((item) => `${item.from} -> ${item.to}`) : ["정산 라인 없음"])
+    ].join("\n");
+  }
+
+  function renderFinalStatus() {
+    const list = participants();
+    const eligible = list.filter((row) => row.id !== state.topId && row.id !== state.bottomId);
+    const ready = !!state.topId && !!state.bottomId && eligible.length >= 2;
+    els.finalBtn.disabled = !ready;
+    if (!list.length) {
+      els.finalStatus.textContent = "닉네임과 점수를 먼저 입력해주세요.";
+    } else if (!state.topId || !state.bottomId) {
+      els.finalStatus.textContent = "공동 1등 또는 공동 꼴등이 있으면 먼저 핀볼로 확정해주세요.";
+    } else if (eligible.length < 2) {
+      els.finalStatus.textContent = "1등과 꼴등을 제외한 참가자가 2명 이상이어야 최종 핀볼을 돌릴 수 있습니다.";
+    } else {
+      els.finalStatus.textContent = `${eligible.length}명으로 최종 핀볼을 돌릴 수 있습니다. 1등과 꼴등은 제외됩니다.`;
+    }
+  }
+
+  function renderAll() {
+    reconcileRanks();
+    els.count.textContent = `${participants().length}명`;
+    renderRankCards();
+    renderFinalStatus();
+    renderOrder();
+    renderTeams();
+  }
+
+  function setSample() {
+    state.rows = [
+      { id: makeId(), name: "토마토", score: "24" },
+      { id: makeId(), name: "지두두", score: "18" },
+      { id: makeId(), name: "햇살", score: "12" },
+      { id: makeId(), name: "찌킹", score: "18" },
+      { id: makeId(), name: "치리", score: "9" },
+      { id: makeId(), name: "주하랑", score: "15" }
+    ];
+    state.topId = "";
+    state.bottomId = "";
+    resetFinalOrder();
+    renderRows();
+    renderAll();
+  }
+
+  function invalidateRanks() {
+    state.topId = "";
+    state.bottomId = "";
+    resetFinalOrder();
+  }
+
+  function parseManualEntry(value) {
+    const raw = String(value == null ? "" : value).trim().replace(/\s+/g, " ");
+    if (!raw) return null;
+    const parts = raw.split(" ");
+    if (parts.length < 2) return null;
+    const score = normalizeScoreValue(parts.pop());
+    const name = parts.join(" ").trim();
+    if (!name || !score || !Number.isFinite(parseScore(score))) return null;
+    return { name, score };
+  }
+
+  function addManualRow() {
+    const parsed = parseManualEntry(els.manualEntry && els.manualEntry.value);
+    if (!parsed) {
+      if (els.manualEntry) {
+        els.manualEntry.focus();
+        els.manualEntry.select();
+      }
+      return;
+    }
+    addRow(parsed);
+    invalidateRanks();
+    if (els.manualEntry) els.manualEntry.value = "";
+    renderRows();
+    renderAll();
+    if (els.manualEntry) els.manualEntry.focus();
+  }
+
+  function focusManualInput() {
+    if (els.manualEntry) els.manualEntry.focus();
+  }
+
+  function handleManualKeydown(event) {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    addManualRow();
+  }
+
+  function startInlineEdit(button) {
+    const rowEl = button && button.closest(".duckcalc-row");
+    if (!rowEl) return;
+    const row = state.rows.find((item) => item.id === rowEl.dataset.duckId);
+    if (!row) return;
+    const field = button.dataset.duckEdit;
+    if (field !== "name" && field !== "score") return;
+    const input = document.createElement("input");
+    input.className = `duckcalc-input ${field === "score" ? "duckcalc-score" : ""}`.trim();
+    input.type = field === "score" ? "number" : "text";
+    input.value = field === "score" ? normalizeScoreValue(row.score) : String(row.name || "");
+    input.placeholder = field === "score" ? "숫자" : "닉네임";
+    input.autocomplete = "off";
+    button.replaceWith(input);
+    input.focus();
+    input.select();
+
+    const commit = () => {
+      row[field] = field === "score" ? normalizeScoreValue(input.value) : input.value.trim();
+      invalidateRanks();
+      renderRows();
+      renderAll();
+    };
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        input.blur();
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        input.dataset.cancelEdit = "1";
+        renderRows();
+      }
+    });
+    input.addEventListener("blur", () => {
+      if (input.dataset.cancelEdit) return;
+      commit();
+    }, { once: true });
+  }
+
+  function shuffle(list) {
+    const copy = list.slice();
+    for (let index = copy.length - 1; index > 0; index--) {
+      const target = Math.floor(Math.random() * (index + 1));
+      [copy[index], copy[target]] = [copy[target], copy[index]];
+    }
+    return copy;
+  }
+
+  function getTieOptions() {
+    return { mode: "first", rank: 1 };
+  }
+
+  function chooseFromOrder(modal) {
+    if (!modal || !modal.order.length) return null;
+    if (modal.type === "final") return null;
+    if (modal.selectedId) return modal.participants.find((row) => row.id === modal.selectedId) || null;
+    if (modal.mode === "last") return modal.order[modal.order.length - 1];
+    if (modal.mode === "rank") return modal.order[Math.min(modal.order.length - 1, Math.max(0, modal.rank - 1))];
+    if (modal.mode === "random") {
+      if (modal.randomIndex == null) modal.randomIndex = Math.floor(Math.random() * modal.order.length);
+      return modal.order[modal.randomIndex];
+    }
+    return modal.order[0];
+  }
+
+  function setModalMode(mode) {
+    if (!state.modal) return;
+    state.modal.mode = mode;
+    state.modal.rank = Math.max(1, parseInt(els.modalRank && els.modalRank.value, 10) || 1);
+    state.modal.randomIndex = null;
+    els.modalFirst.classList.toggle("active", mode === "first");
+    els.modalLast.classList.toggle("active", mode === "last");
+    renderModalResult();
+  }
+
+  function renderModalResult() {
+    const modal = state.modal;
+    if (!modal) return;
+    const selected = chooseFromOrder(modal);
+    if (modal.type === "final") {
+      els.modalWinner.textContent = modal.order.length ? "순서 확정" : "-";
+    } else {
+      els.modalWinner.textContent = selected ? selected.name : "-";
+    }
+    els.modalResult.innerHTML = modal.order.length
+      ? modal.order.map((row, index) => `<li><span>${index + 1}</span>${esc(row.name)}</li>`).join("")
+      : `<li><span>-</span>Start를 누르면 결과가 표시됩니다.</li>`;
+    els.modalApply.disabled = !modal.order.length;
+    els.modalFirst.classList.toggle("active", modal.mode === "first");
+    els.modalLast.classList.toggle("active", modal.mode === "last");
+    if (els.modalRank && modal.mode === "random" && modal.randomIndex != null) {
+      els.modalRank.value = modal.randomIndex + 1;
+    }
+  }
+
+  function originalRankForModal(modal) {
+    if (!modal || !modal.participants.length) return 1;
+    if (modal.type === "final") return modal.participants.length;
+    if (modal.mode === "last") return modal.participants.length;
+    if (modal.mode === "rank") return Math.min(modal.participants.length, Math.max(1, modal.rank || 1));
+    if (modal.mode === "random") {
+      if (modal.randomIndex == null) modal.randomIndex = Math.floor(Math.random() * modal.participants.length);
+      return modal.randomIndex + 1;
+    }
+    return 1;
+  }
+
+  function originalRouletteDoc(modal) {
+    const rank = originalRankForModal(modal);
+    const mode = modal.type === "final" || modal.mode === "rank" || modal.mode === "random" ? "rank" : modal.mode;
+    const config = {
+      modalId: modal.id,
+      type: modal.type,
+      names: modal.participants.map((row) => row.name),
+      mode,
+      rank,
+      mapIndex: 0
+    };
+    const configJson = JSON.stringify(config).replace(/</g, "\\u003c");
+    return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="https://lazygyu.github.io/roulette/">
+<script type="importmap">{"imports":{"2rDQN":"https://lazygyu.github.io/roulette/Box2D.simd.dd31b167.wasm","8BShk":"https://lazygyu.github.io/roulette/Box2D.simd.13a3a125.js","9DwmV":"https://lazygyu.github.io/roulette/kkwak.673a610d.png","9YLvj":"https://lazygyu.github.io/roulette/waldokun.7e88dd59.png","cdgIR":"https://lazygyu.github.io/roulette/chamru.d6926a56.png","fkRhi":"https://lazygyu.github.io/roulette/junyoop.d27f0cbf.png","h7cmx":"https://lazygyu.github.io/roulette/Box2D.b9b16b27.wasm","ilUZb":"https://lazygyu.github.io/roulette/Box2D.4b04ba8e.js","juMvj":"https://lazygyu.github.io/roulette/ff.7fdc9e82.svg","lfSvD":"https://lazygyu.github.io/roulette/kubin.f3647b70.png"}}<\/script>
+<link rel="stylesheet" href="https://lazygyu.github.io/roulette/roulette.6b7afa53.css">
+<title>Marble Roulette</title>
+<style>
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#111}
+#notice,.copyright{display:none!important}
+canvas{width:100vw!important;height:100vh!important}
+#settings{z-index:20}
+</style>
+</head>
+<body>
+<script type="module" src="https://lazygyu.github.io/roulette/roulette.31f8fbbf.js"><\/script>
+<div id="settings" class="settings">
+  <div class="right">
+    <button id="btnToggleSettings" class="btn-toggle-settings"><span data-trans="">Settings</span><i class="toggle-arrow">▲</i></button>
+    <div class="collapsed collapsible-rows">
+      <div class="row">
+        <label for="sltMap"><i class="icon map"></i><span data-trans="">맵</span></label>
+        <select id="sltMap">
+          <option value="0" data-trans="">운명의 수레바퀴</option>
+          <option value="1" data-trans="">버블팝</option>
+          <option value="2" data-trans="">욕망의 항아리</option>
+          <option value="3" data-trans="">밤을 달리다 (by item4)</option>
+        </select>
+      </div>
+      <div class="row row-toggles">
+        <div class="toggle-item"><label for="chkAutoRecording"><i class="icon record"></i><span data-trans="">녹화</span></label><input type="checkbox" id="chkAutoRecording"></div>
+        <div class="toggle-item"><label for="chkSkill"><i class="bomb icon"></i><span data-trans="">스킬 활성화</span></label><input type="checkbox" id="chkSkill" checked></div>
+      </div>
+      <div class="row">
+        <label><i class="icon trophy"></i><span data-trans="">당첨 순위</span></label>
+        <div class="btn-group">
+          <button class="btn-first-winner btn-winner" data-trans="">첫번째</button>
+          <button class="btn-last-winner btn-winner" data-trans="">마지막</button>
+          <input type="number" id="in_winningRank" value="${rank}" min="1">
+        </div>
+      </div>
+      <div class="row row-theme">
+        <div class="theme"><i class="icon sun"></i><input type="checkbox" id="chkDarkMode" checked><i class="icon moon"></i></div>
+      </div>
+    </div>
+  </div>
+  <div class="left">
+    <h3 data-trans="">이름들을 입력하세요</h3>
+    <textarea id="in_names" placeholder="이름들을 쉼표나 엔터로 구분해서 넣어주세요" data-trans="placeholder"></textarea>
+    <div class="actions">
+      <button id="btnNotice"><i class="icon megaphone"></i></button>
+      <a href="https://marblerouletteshop.com" target="_blank" id="btnShop" class="btn new" title="MarbleRoulette Shop"><img src="https://lazygyu.github.io/roulette/marblerouletteshop.a506d1c2.png"></a>
+      <div class="sep"></div>
+      <button id="btnShuffle"><i class="icon shuffle"></i><span data-trans="">섞기</span></button>
+      <button id="btnStart"><i class="icon play"></i><span data-trans="">시작</span></button>
+    </div>
+  </div>
+</div>
+<div id="notice" style="display:none"></div>
+<div class="copyright"></div>
+<script>
+window.__DUCK_ROULETTE_CONFIG__=${configJson};
+(function(){
+  const cfg = window.__DUCK_ROULETTE_CONFIG__;
+  let ready = false;
+  let initialized = false;
+  let winnerType = cfg.mode || "first";
+  const $ = (selector) => document.querySelector(selector);
+  const send = (payload) => parent.postMessage(Object.assign({ source: "duck-original-roulette", modalId: cfg.modalId }, payload), "*");
+  function names(){ return cfg.names.slice(); }
+  function setActiveRankButtons(){
+    $(".btn-first-winner")?.classList.toggle("active", winnerType === "first");
+    $(".btn-last-winner")?.classList.toggle("active", winnerType === "last");
+    $("#in_winningRank")?.classList.toggle("active", winnerType === "rank");
+  }
+  function setWinnerRank(rank){
+    const total = Math.max(1, window.roulette.getCount ? window.roulette.getCount() : names().length);
+    const safeRank = Math.min(total, Math.max(1, Number(rank) || 1));
+    $("#in_winningRank").value = safeRank;
+    window.options.winningRank = safeRank - 1;
+    window.roulette.setWinningRank(window.options.winningRank);
+    setActiveRankButtons();
+  }
+  function prepare(){
+    const value = names().join("\\n");
+    $("#in_names").value = value;
+    window.roulette.setMarbles(names());
+    if ($("#sltMap")) window.roulette.setMap(Number($("#sltMap").value || cfg.mapIndex || 0));
+    if (window.roulette.setTheme) window.roulette.setTheme("dark");
+    if (window.options) {
+      window.options.useSkills = $("#chkSkill") ? $("#chkSkill").checked : true;
+      window.options.autoRecording = false;
+    }
+    if (winnerType === "first") setWinnerRank(1);
+    else if (winnerType === "last") setWinnerRank(window.roulette.getCount());
+    else setWinnerRank(cfg.rank);
+    ready = names().length > 0;
+  }
+  function collectOrder(winner){
+    const raw = Array.isArray(window.roulette._winners) ? window.roulette._winners : [];
+    const order = raw.map((marble) => marble && marble.name).filter(Boolean);
+    if (!order.length && winner) order.push(winner);
+    if (cfg.type === "final") {
+      cfg.names.forEach((name) => { if (!order.includes(name)) order.push(name); });
+    }
+    return order;
+  }
+  function finish(winner){
+    const order = collectOrder(winner);
+    send({ kind: "result", type: cfg.type, winner, order });
+    setTimeout(() => $("#settings")?.classList.remove("hide"), 700);
+  }
+  function waitReady(){
+    if (initialized) return;
+    if (!window.roulette || !window.options || !window.roulette.isReady) {
+      setTimeout(waitReady, 100);
+      return;
+    }
+    initialized = true;
+    $("#in_names").value = names().join("\\n");
+    $("#sltMap").value = String(cfg.mapIndex || 0);
+    $(".btn-first-winner")?.addEventListener("click", () => { winnerType = "first"; cfg.rank = 1; prepare(); });
+    $(".btn-last-winner")?.addEventListener("click", () => { winnerType = "last"; cfg.rank = window.roulette.getCount(); prepare(); });
+    $("#in_winningRank")?.addEventListener("change", (event) => { winnerType = "rank"; cfg.rank = Number(event.target.value) || 1; prepare(); });
+    $("#chkDarkMode")?.addEventListener("change", (event) => { window.roulette.setTheme(event.target.checked ? "dark" : "light"); document.documentElement.classList.toggle("light", !event.target.checked); });
+    $("#chkSkill")?.addEventListener("change", (event) => { window.options.useSkills = event.target.checked; prepare(); });
+    $("#sltMap")?.addEventListener("change", () => prepare());
+    $("#btnShuffle")?.addEventListener("click", () => prepare());
+    $("#btnStart")?.addEventListener("click", () => {
+      if (!ready) prepare();
+      if (!ready) return;
+      $("#settings")?.classList.add("hide");
+      window.roulette.start();
+    });
+    $("#btnToggleSettings")?.addEventListener("click", () => {
+      $(".collapsible-rows")?.classList.toggle("collapsed");
+      const arrow = $(".toggle-arrow");
+      if (arrow) arrow.textContent = $(".collapsible-rows")?.classList.contains("collapsed") ? "▲" : "▼";
+    });
+    window.roulette.addEventListener("goal", (event) => {
+      setTimeout(() => finish(event.detail && event.detail.winner), cfg.type === "final" ? 1400 : 500);
+    });
+    prepare();
+    send({ kind: "ready" });
+  }
+  document.addEventListener("DOMContentLoaded", waitReady);
+  waitReady();
+})();
+<\/script>
+</body>
+</html>`;
+  }
+
+  function resizeCanvas() {
+    const canvas = els.canvas;
+    const holder = canvas && canvas.parentElement;
+    if (!canvas || !holder) return null;
+    const rect = holder.getBoundingClientRect();
+    const width = Math.max(420, rect.width || 640);
+    const height = Math.max(420, rect.height || 560);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx, width, height };
+  }
+
+  function drawBoard(marbles) {
+    const setup = resizeCanvas();
+    if (!setup) return;
+    const { ctx, width, height } = setup;
+    ctx.clearRect(0, 0, width, height);
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#263041");
+    gradient.addColorStop(.55, "#171d29");
+    gradient.addColorStop(1, "#0b101a");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = "rgba(255,255,255,.035)";
+    for (let x = 20; x < width; x += 44) ctx.fillRect(x, 0, 1, height);
+
+    const pegRows = Math.max(8, Math.floor(height / 70));
+    const pegGap = Math.max(48, width / 10);
+    for (let row = 0; row < pegRows; row++) {
+      const y = 78 + row * ((height - 180) / Math.max(1, pegRows - 1));
+      const offset = row % 2 ? pegGap / 2 : 0;
+      for (let x = 38 + offset; x < width - 30; x += pegGap) {
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(226,232,240,.82)";
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(96,165,250,.16)";
+        ctx.arc(x, y, 13, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    const lanes = 8;
+    const laneLeft = 22;
+    const laneWidth = (width - laneLeft * 2) / lanes;
+    ctx.fillStyle = "rgba(0,0,0,.32)";
+    ctx.fillRect(laneLeft, height - 58, width - laneLeft * 2, 34);
+    for (let index = 0; index <= lanes; index++) {
+      const x = laneLeft + index * laneWidth;
+      ctx.fillStyle = "rgba(255,255,255,.18)";
+      ctx.fillRect(x, height - 62, 1, 42);
+    }
+
+    if (!marbles || !marbles.length) return;
+    marbles.forEach((ball) => {
+      if (ball.hidden) return;
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(0,0,0,.32)";
+      ctx.arc(ball.x + 2, ball.y + 4, ball.r + 1, 0, Math.PI * 2);
+      ctx.fill();
+      const gloss = ctx.createRadialGradient(ball.x - ball.r / 3, ball.y - ball.r / 3, 2, ball.x, ball.y, ball.r + 3);
+      gloss.addColorStop(0, "#ffffff");
+      gloss.addColorStop(.24, ball.light);
+      gloss.addColorStop(1, ball.color);
+      ctx.beginPath();
+      ctx.fillStyle = gloss;
+      ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,.55)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = "#fff";
+      ctx.font = "800 11px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(ball.label, ball.x, ball.y);
+    });
+  }
+
+  function idleBoard() {
+    const modal = state.modal;
+    if (!modal) return;
+    const setup = resizeCanvas();
+    if (!setup) return;
+    const colors = ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#ec4899", "#14b8a6", "#f97316"];
+    const marbles = modal.participants.map((row, index) => {
+      const count = Math.max(1, modal.participants.length);
+      return {
+        x: ((index + .5) / count) * setup.width,
+        y: 38 + (index % 3) * 9,
+        r: 17,
+        color: colors[index % colors.length],
+        light: colors[(index + 2) % colors.length],
+        label: String(index + 1)
+      };
+    });
+    drawBoard(marbles);
+  }
+
+  function startPinball() {
+    const modal = state.modal;
+    if (!modal || modal.running || modal.participants.length < 1) return;
+    if (modal.usesOriginal) {
+      els.frame?.contentWindow?.postMessage({ source: "duck-parent", kind: "start", modalId: modal.id }, "*");
+      return;
+    }
+    cancelAnimationFrame(state.raf);
+    modal.running = true;
+    modal.order = [];
+    modal.randomIndex = null;
+    modalApplyOff();
+    renderModalResult();
+
+    const order = shuffle(modal.participants);
+    const setup = resizeCanvas();
+    if (!setup) return;
+    const width = setup.width;
+    const height = setup.height;
+    const rankMap = new Map(order.map((row, index) => [row.id, index]));
+    const colors = ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#ec4899", "#14b8a6", "#f97316"];
+    const lanes = Math.min(8, Math.max(2, order.length));
+    const laneLeft = 38;
+    const laneWidth = (width - laneLeft * 2) / lanes;
+    const start = performance.now();
+    const marbles = modal.participants.map((row, index) => {
+      const rank = rankMap.get(row.id);
+      const lane = rank % lanes;
+      return {
+        id: row.id,
+        label: String(index + 1),
+        x0: ((index + .5) / modal.participants.length) * width,
+        y0: 34 - index * 3,
+        x: 0,
+        y: 0,
+        r: 16,
+        rank,
+        targetX: laneLeft + laneWidth * (lane + .5),
+        color: colors[index % colors.length],
+        light: colors[(index + 2) % colors.length],
+        phase: Math.random() * Math.PI * 2
+      };
+    });
+
+    function ease(value) {
+      return 1 - Math.pow(1 - Math.max(0, Math.min(1, value)), 3);
+    }
+
+    function tick(now) {
+      let done = true;
+      marbles.forEach((ball) => {
+        const delay = ball.rank * 220;
+        const progress = Math.max(0, Math.min(1, (now - start - delay) / 4300));
+        if (progress < 1) done = false;
+        const eased = ease(progress);
+        const swing = Math.sin(progress * 20 + ball.phase) * (42 * (1 - eased));
+        ball.x = ball.x0 * (1 - eased) + ball.targetX * eased + swing;
+        ball.y = ball.y0 + (height - 92 - ball.y0) * eased;
+        ball.hidden = progress <= 0;
+      });
+      drawBoard(marbles);
+      if (!done) {
+        state.raf = requestAnimationFrame(tick);
+      } else {
+        modal.running = false;
+        modal.order = order;
+        modal.rank = Math.max(1, parseInt(els.modalRank && els.modalRank.value, 10) || modal.rank || 1);
+        els.modalStart.disabled = false;
+        els.modalShuffle.disabled = false;
+        renderModalResult();
+      }
+    }
+
+    els.modalStart.disabled = true;
+    els.modalShuffle.disabled = true;
+    state.raf = requestAnimationFrame(tick);
+  }
+
+  function modalApplyOff() {
+    els.modalApply.disabled = true;
+  }
+
+  function rowsFromOriginalOrder(names, pool) {
+    const buckets = new Map();
+    pool.forEach((row) => {
+      const key = row.name;
+      if (!buckets.has(key)) buckets.set(key, []);
+      buckets.get(key).push(row);
+    });
+    const order = [];
+    (names || []).forEach((name) => {
+      const bucket = buckets.get(name);
+      if (bucket && bucket.length) order.push(bucket.shift());
+    });
+    pool.forEach((row) => {
+      if (!order.some((item) => item.id === row.id)) order.push(row);
+    });
+    return order;
+  }
+
+  function selectedFromOriginal(modal, winnerName, orderNames) {
+    const byWinner = modal.participants.find((row) => row.name === winnerName);
+    if (byWinner) return byWinner;
+    const ordered = rowsFromOriginalOrder(orderNames || [], modal.participants);
+    return ordered[Math.min(ordered.length - 1, originalRankForModal(modal) - 1)] || null;
+  }
+
+  function applyOriginalRouletteMessage(event) {
+    const message = event.data || {};
+    if (message.source !== "duck-original-roulette" || !state.modal || message.modalId !== state.modal.id) return;
+    const modal = state.modal;
+    if (message.kind === "ready") {
+      modal.running = false;
+      renderModalResult();
+      return;
+    }
+    if (message.kind !== "result") return;
+    const orderNames = Array.isArray(message.order) ? message.order : [];
+    if (modal.type === "final") {
+      modal.order = rowsFromOriginalOrder(orderNames, modal.participants);
+    } else {
+      const selected = selectedFromOriginal(modal, message.winner, orderNames);
+      modal.selectedId = selected ? selected.id : "";
+      modal.order = rowsFromOriginalOrder(orderNames, modal.participants);
+    }
+    modal.running = false;
+    renderModalResult();
+  }
+
+  function pollOriginalRouletteResult() {
+    const modal = state.modal;
+    if (!modal || !modal.usesOriginal || !els.frame || modal.order.length) return;
+    let orderNames = [];
+    try {
+      const roulette = els.frame.contentWindow && els.frame.contentWindow.roulette;
+      const winners = roulette && Array.isArray(roulette._winners) ? roulette._winners : [];
+      orderNames = winners.map((marble) => marble && marble.name).filter(Boolean);
+    } catch (error) {
+      return;
+    }
+    if (!orderNames.length) return;
+    const rank = originalRankForModal(modal);
+    if (modal.type === "final" && orderNames.length < modal.participants.length) return;
+    if (modal.type !== "final" && orderNames.length < rank) return;
+    if (modal.type === "final") {
+      modal.order = rowsFromOriginalOrder(orderNames, modal.participants);
+    } else {
+      const selected = selectedFromOriginal(modal, orderNames[rank - 1], orderNames);
+      modal.selectedId = selected ? selected.id : "";
+      modal.order = rowsFromOriginalOrder(orderNames, modal.participants);
+    }
+    modal.running = false;
+    renderModalResult();
+  }
+
+  function openPinball(type, title, list, options) {
+    if (!list.length) return;
+    cancelAnimationFrame(state.raf);
+    const mode = options && options.mode ? options.mode : "first";
+    const rank = Math.max(1, options && options.rank ? options.rank : 1);
+    state.modal = {
+      id: makeId(),
+      type,
+      title,
+      participants: list.slice(),
+      order: [],
+      mode,
+      rank,
+      randomIndex: null,
+      running: true,
+      usesOriginal: true
+    };
+    els.modal.hidden = false;
+    els.modal.classList.add("duck-original-mode");
+    els.modalTitle.textContent = title;
+    els.modalNames.value = list.map((row) => row.name).join("\n");
+    els.modalRank.value = rank;
+    els.modalStart.disabled = true;
+    els.modalShuffle.disabled = true;
+    els.modalApply.textContent = type === "final" ? "순서 적용" : "결과 적용";
+    els.frame.hidden = false;
+    els.frame.srcdoc = originalRouletteDoc(state.modal);
+    state.modal.pollTimer = setInterval(pollOriginalRouletteResult, 700);
+    modalApplyOff();
+    renderModalResult();
+  }
+
+  function closeModal() {
+    cancelAnimationFrame(state.raf);
+    if (state.modal && state.modal.pollTimer) clearInterval(state.modal.pollTimer);
+    state.modal = null;
+    els.modal.hidden = true;
+    els.modal.classList.remove("duck-original-mode");
+    if (els.frame) {
+      els.frame.hidden = true;
+      els.frame.removeAttribute("srcdoc");
+    }
+  }
+
+  function applyModalResult() {
+    const modal = state.modal;
+    if (!modal || !modal.order.length) return;
+    if (modal.type === "final") {
+      state.finalOrder = modal.order.map((row) => row.id);
+    } else {
+      const selected = chooseFromOrder(modal);
+      if (!selected) return;
+      if (modal.type === "top") {
+        state.topId = selected.id;
+        if (state.bottomId === selected.id) state.bottomId = "";
+      }
+      if (modal.type === "bottom") {
+        state.bottomId = selected.id;
+        if (state.topId === selected.id) state.topId = "";
+      }
+      resetFinalOrder();
+    }
+    closeModal();
+    renderAll();
+  }
+
+  function openTopPinball() {
+    const list = participants();
+    const candidates = bestCandidates(list).filter((row) => row.id !== state.bottomId);
+    openPinball("top", "공동 1등 핀볼", candidates, getTieOptions());
+  }
+
+  function openBottomPinball() {
+    const list = participants();
+    const candidates = bottomCandidates(list).filter((row) => row.id !== state.topId);
+    openPinball("bottom", "공동 꼴등 핀볼", candidates, getTieOptions());
+  }
+
+  function openFinalPinball() {
+    renderAll();
+    const list = participants();
+    const eligible = list.filter((row) => row.id !== state.topId && row.id !== state.bottomId);
+    if (!state.topId || !state.bottomId || eligible.length < 2) return;
+    openPinball("final", "최종 핀볼 돌리기", eligible, { mode: "first", rank: 1 });
+  }
+
+  function copySettlement() {
+    if (!state.settlementText) return;
+    const text = state.settlementText;
+    const done = () => {
+      const original = els.copy.textContent;
+      els.copy.textContent = "복사됨";
+      setTimeout(() => { els.copy.textContent = original; }, 1100);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else {
+      fallbackCopy(text, done);
+    }
+  }
+
+  function fallbackCopy(text, done) {
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.left = "-9999px";
+    document.body.appendChild(area);
+    area.select();
+    try { document.execCommand("copy"); done(); } catch (error) {}
+    area.remove();
+  }
+
+  function showDuckCalcScreen() {
+    if (typeof window.setFundingPageMode === "function") {
+      window.setFundingPageMode(false);
+    } else {
+      document.body.classList.remove("funding-mode", "funding-overlay-host");
+    }
+    if (typeof window.hideAllScreens === "function") {
+      window.hideAllScreens();
+    } else {
+      document.querySelectorAll(".screen").forEach((screen) => screen.classList.add("hidden"));
+    }
+    if (typeof window.setActiveTab === "function") {
+      window.setActiveTab(els.tab);
+    } else {
+      document.querySelectorAll(".site-header .tab-btn").forEach((tab) => tab.classList.remove("active"));
+      els.tab.classList.add("active");
+      document.body.classList.remove("main-tab-active");
+    }
+    if (typeof window.updateSummaryVisibility === "function") {
+      window.updateSummaryVisibility(false);
+    } else {
+      const summary = $("summaryGrid");
+      if (summary) summary.classList.add("header-summary-hidden");
+    }
+    els.screen.classList.remove("hidden");
+    renderAll();
+  }
+
+  els.rows.addEventListener("click", (event) => {
+    const remove = event.target.closest(".duckcalc-remove");
+    if (remove) {
+      const rowEl = remove.closest(".duckcalc-row");
+      state.rows = state.rows.filter((row) => row.id !== rowEl.dataset.duckId);
+      invalidateRanks();
+      renderRows();
+      renderAll();
+      return;
+    }
+    const edit = event.target.closest("[data-duck-edit]");
+    if (edit) startInlineEdit(edit);
+  });
+
+  els.add.addEventListener("click", () => {
+    addManualRow();
+  });
+  els.sample.addEventListener("click", setSample);
+  if (els.manualAdd) els.manualAdd.addEventListener("click", addManualRow);
+  if (els.manualEntry) els.manualEntry.addEventListener("keydown", handleManualKeydown);
+  els.clear.addEventListener("click", () => {
+    state.rows = [];
+    invalidateRanks();
+    if (els.manualEntry) els.manualEntry.value = "";
+    renderRows();
+    renderAll();
+    focusManualInput();
+  });
+  els.topBtn.addEventListener("click", openTopPinball);
+  els.bottomBtn.addEventListener("click", openBottomPinball);
+  els.finalBtn.addEventListener("click", openFinalPinball);
+  els.copy.addEventListener("click", copySettlement);
+  els.modalClose.addEventListener("click", closeModal);
+  els.modalApply.addEventListener("click", applyModalResult);
+  els.modalStart.addEventListener("click", startPinball);
+  els.modalShuffle.addEventListener("click", () => {
+    if (!state.modal || state.modal.running) return;
+    state.modal.participants = shuffle(state.modal.participants);
+    state.modal.order = [];
+    state.modal.randomIndex = null;
+    els.modalNames.value = state.modal.participants.map((row) => row.name).join("\n");
+    renderModalResult();
+    idleBoard();
+  });
+  els.modalFirst.addEventListener("click", () => setModalMode("first"));
+  els.modalLast.addEventListener("click", () => setModalMode("last"));
+  els.modalRank.addEventListener("input", () => setModalMode("rank"));
+  els.modal.addEventListener("click", (event) => {
+    if (event.target === els.modal) closeModal();
+  });
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && state.modal) closeModal();
+  });
+  window.addEventListener("resize", () => {
+    if (state.modal && state.modal.usesOriginal) return;
+    if (state.modal && !state.modal.running) idleBoard();
+  });
+  window.addEventListener("message", applyOriginalRouletteMessage);
+  els.tab.addEventListener("click", showDuckCalcScreen);
+  window.showDuckCalcScreen = showDuckCalcScreen;
+
+  renderRows();
+  renderAll();
+})();
 </script>
 <!-- ===== MONSTARS FINAL V8: HEAD/COACH WIDTH BALANCE ===== -->
 
