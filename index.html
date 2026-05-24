@@ -3411,6 +3411,399 @@ body.light-mode .duckcalc-empty{color:#58708f;border-color:rgba(36,99,168,.18);b
   .duck-roulette-settings,.duck-roulette-entry{max-height:170px;border:0;border-bottom:1px solid rgba(255,255,255,.09);}
 }
 
+/* ===== Pinball Donation Link tab: isolated block ===== */
+#tabPinballDonation:before{content:"🎯";}
+#tabPinballDonation.tab-pinball-donation-btn{min-height:48px;}
+#tabPinballDonation .pinball-tab-label{display:flex;flex-direction:column;gap:2px;line-height:1.03;}
+#tabPinballDonation .pinball-tab-label span:last-child{font-size:11px;color:var(--sr-muted);font-weight:950;}
+#tabPinballDonation.active .pinball-tab-label span:last-child{color:rgba(255,255,255,.82);}
+#pinballDonationScreen{overflow:hidden;}
+body.pinball-donation-mode{overflow:hidden!important;}
+body.pinball-donation-mode .wrap{min-height:100vh;overflow:hidden!important;}
+body.pinball-donation-mode .site-header{
+  min-height:0!important;
+  height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+body.pinball-donation-mode .site-header > .hero-top,
+body.pinball-donation-mode .site-header > .summary-grid,
+body.pinball-donation-mode .site-header::after{
+  display:none!important;
+}
+body.pinball-donation-mode #pinballDonationScreen{margin-top:0;}
+.pinball-donation-root{
+  width:min(100%,1500px);
+  height:calc(100vh - 54px);
+  min-height:0;
+  display:grid;
+  grid-template-columns:322px 360px minmax(460px,1fr);
+  justify-content:center;
+  align-items:stretch;
+  gap:12px;
+  margin:0 auto;
+  overflow:hidden;
+}
+.pinball-donation-controls,
+.pinball-donation-lists,
+.pinball-donation-memo{
+  min-width:0;
+  min-height:0;
+  border:1px solid var(--sr-line);
+  background:linear-gradient(180deg,rgba(6,17,34,.90),rgba(4,12,25,.86));
+  box-shadow:var(--sr-shadow);
+  overflow:hidden;
+}
+.pinball-donation-controls{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:10px;
+}
+.pinball-donation-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:8px;
+}
+.pinball-donation-block{
+  display:grid;
+  gap:6px;
+  padding:8px;
+  border:1px solid rgba(112,164,238,.18);
+  background:rgba(255,255,255,.035);
+}
+.pinball-donation-label,
+.pinball-donation-mini-head{
+  color:var(--sr-muted);
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:-.02em;
+}
+.pinball-donation-mini-head{padding:0 2px;}
+.pinball-donation-unit-row{
+  display:grid;
+  grid-template-columns:76px minmax(0,1fr);
+  gap:7px;
+  align-items:center;
+  color:var(--sr-title);
+  font-size:12px;
+  font-weight:950;
+}
+.pinball-donation-unit-row input,
+.pinball-donation-input,
+.pinball-donation-textarea,
+.pinball-donation-memo-textarea{
+  width:100%;
+  min-width:0;
+  border:1px solid rgba(112,164,238,.24);
+  background:rgba(5,16,31,.82);
+  color:var(--sr-title);
+  outline:none;
+  font-family:inherit;
+  font-weight:850;
+}
+.pinball-donation-unit-row input,
+.pinball-donation-input{
+  height:30px;
+  padding:0 9px;
+}
+.pinball-donation-textarea{
+  min-height:52px;
+  max-height:52px;
+  resize:none;
+  padding:8px 9px;
+  line-height:1.35;
+}
+.pinball-donation-help,
+.pinball-donation-status{
+  margin:0;
+  color:var(--sr-muted);
+  font-size:10px;
+  font-weight:800;
+  line-height:1.35;
+}
+.pinball-donation-status.warn{color:#fde68a;}
+.pinball-donation-status.ok{color:#bbf7d0;}
+.pinball-donation-status.err{color:#fecaca;}
+.pinball-donation-segment{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:5px;
+}
+.pinball-donation-segment button,
+.pinball-donation-actions button,
+.pinball-donation-main-btn,
+.pinball-donation-item-actions button,
+.pinball-donation-pending-actions button,
+.pinball-donation-memo-head button,
+.pinball-donation-modal-close{
+  border:1px solid rgba(112,164,238,.20);
+  background:rgba(255,255,255,.055);
+  color:var(--sr-button-text);
+  font-family:inherit;
+  font-size:11px;
+  font-weight:950;
+  cursor:pointer;
+}
+.pinball-donation-segment button{min-height:30px;}
+.pinball-donation-segment button.active{
+  background:linear-gradient(90deg,#174faa,#0e2f6a);
+  border-color:rgba(88,154,255,.48);
+  color:#fff;
+}
+.pinball-donation-main-btn{
+  min-height:32px;
+  background:linear-gradient(90deg,rgba(29,102,255,.82),rgba(29,78,216,.68));
+  color:#fff;
+}
+.pinball-donation-main-btn.secondary{
+  background:rgba(255,255,255,.055);
+  color:var(--sr-button-text);
+}
+.pinball-donation-soop-buttons{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+.pinball-donation-state-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+.pinball-donation-state-grid span{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  min-height:26px;
+  padding:0 8px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(112,164,238,.16);
+  color:var(--sr-muted);
+  font-size:10px;
+  font-weight:900;
+}
+.pinball-donation-state-grid b{color:var(--sr-title);font-size:10px;}
+.pinball-donation-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+}
+.pinball-donation-summary div{
+  min-height:42px;
+  padding:7px;
+  border:1px solid rgba(112,164,238,.18);
+  background:rgba(255,255,255,.035);
+}
+.pinball-donation-summary span{
+  display:block;
+  color:var(--sr-muted);
+  font-size:10px;
+  font-weight:900;
+}
+.pinball-donation-summary strong{
+  display:block;
+  color:var(--sr-title);
+  font-size:18px;
+  font-weight:950;
+  line-height:1.1;
+}
+.pinball-donation-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr 1.08fr;
+  gap:6px;
+}
+.pinball-donation-actions button{min-height:34px;}
+.pinball-donation-actions button.primary{background:linear-gradient(90deg,#16a34a,#15803d);color:#fff;}
+.pinball-donation-actions button.danger{background:rgba(239,68,68,.16);color:#fecaca;border-color:rgba(248,113,113,.26);}
+.pinball-donation-lists{
+  display:grid;
+  grid-template-rows:auto minmax(0,.85fr) auto minmax(0,1.15fr);
+  gap:7px;
+  padding:10px;
+}
+.pinball-donation-list{
+  min-height:0;
+  display:grid;
+  align-content:start;
+  gap:6px;
+  overflow:auto;
+  padding-right:2px;
+}
+.pinball-donation-empty{
+  border:1px dashed rgba(112,164,238,.24);
+  color:var(--sr-muted);
+  padding:10px;
+  font-size:11px;
+  font-weight:850;
+  text-align:center;
+}
+.pinball-donation-item,
+.pinball-donation-pending-item{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:6px;
+  align-items:center;
+  min-height:38px;
+  padding:6px 7px;
+  border:1px solid rgba(112,164,238,.16);
+  background:rgba(255,255,255,.035);
+}
+.pinball-donation-pending-item.blocked{border-color:rgba(248,113,113,.34);background:rgba(239,68,68,.09);}
+.pinball-donation-item b,
+.pinball-donation-pending-item b{
+  min-width:0;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  color:var(--sr-title);
+  font-size:11px;
+  font-weight:950;
+}
+.pinball-donation-item small,
+.pinball-donation-pending-item small{
+  color:var(--sr-muted);
+  font-size:9px;
+  font-weight:850;
+}
+.pinball-donation-item-actions,
+.pinball-donation-pending-actions{
+  display:flex;
+  gap:4px;
+}
+.pinball-donation-item-actions button,
+.pinball-donation-pending-actions button{
+  min-width:34px;
+  min-height:24px;
+  padding:0 6px;
+  font-size:10px;
+}
+.pinball-donation-item-actions button.danger,
+.pinball-donation-pending-actions button.danger{
+  color:#fecaca;
+  border-color:rgba(248,113,113,.26);
+  background:rgba(239,68,68,.14);
+}
+.pinball-donation-memo{
+  display:grid;
+  grid-template-rows:auto 44px minmax(0,1fr);
+  gap:8px;
+  padding:10px;
+}
+.pinball-donation-memo-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.pinball-donation-memo-head strong{
+  color:var(--sr-title);
+  font-size:13px;
+  font-weight:950;
+}
+.pinball-donation-memo-head button{
+  min-height:28px;
+  padding:0 10px;
+}
+.pinball-donation-result{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:7px 14px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(2,8,23,.70);
+  color:#fff;
+  font-size:20px;
+  font-weight:950;
+  letter-spacing:-.04em;
+}
+.pinball-donation-memo-textarea{
+  min-height:0;
+  height:100%;
+  resize:none;
+  padding:12px;
+  line-height:1.55;
+  font-size:14px;
+  white-space:pre-wrap;
+}
+.pinball-donation-frame{
+  display:block;
+  width:100%;
+  height:100%;
+  border:0;
+  background:#05070d;
+}
+.pinball-donation-modal{
+  position:fixed;
+  inset:0;
+  z-index:1000000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:2vh 22px;
+  background:rgba(0,7,18,.78);
+  backdrop-filter:blur(8px);
+}
+.pinball-donation-modal[hidden]{display:none;}
+.pinball-donation-modal-dialog{
+  width:min(1320px,calc(100vw - 44px));
+  height:96vh;
+  max-height:96vh;
+  display:grid;
+  grid-template-rows:46px minmax(0,1fr);
+  border:1px solid rgba(112,164,238,.34);
+  background:#05070d;
+  box-shadow:0 34px 90px rgba(0,0,0,.72);
+  overflow:hidden;
+}
+.pinball-donation-modal-head{
+  display:grid;
+  grid-template-columns:110px minmax(0,1fr) 110px;
+  align-items:center;
+  gap:8px;
+  padding:7px 10px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+  background:#111827;
+}
+.pinball-donation-modal-head strong{
+  text-align:center;
+  color:#fff;
+  font-size:15px;
+  font-weight:950;
+  letter-spacing:-.04em;
+}
+.pinball-donation-modal-close{
+  min-height:30px;
+}
+body.light-mode .pinball-donation-controls,
+body.light-mode .pinball-donation-lists,
+body.light-mode .pinball-donation-memo,
+body.light-mode .pinball-donation-block,
+body.light-mode .pinball-donation-summary div,
+body.light-mode .pinball-donation-item,
+body.light-mode .pinball-donation-pending-item,
+body.light-mode .pinball-donation-state-grid span{
+  background:rgba(255,255,255,.88);
+  border-color:rgba(36,99,168,.18);
+}
+body.light-mode .pinball-donation-unit-row input,
+body.light-mode .pinball-donation-input,
+body.light-mode .pinball-donation-textarea,
+body.light-mode .pinball-donation-memo-textarea{
+  background:#fff;
+  color:#13233a;
+  border-color:rgba(36,99,168,.22);
+}
+@media(max-width:1120px){
+  .pinball-donation-root{grid-template-columns:300px 320px minmax(380px,1fr);gap:10px;}
+}
+
+
 body.funding-mode .site-header {
   min-height: 0 !important;
   height: 0 !important;
@@ -3572,12 +3965,15 @@ body.funding-overlay-host .funding-temp-frame{
         <button id="tabYoutube" class="tab-btn" type="button">팬튜브</button>
         <button id="tabGame" class="tab-btn" type="button">오락실</button>
         <button id="tabDuckCalc" class="tab-btn" type="button">덕몽어스계산기</button>
+        <button id="tabPinballDonation" class="tab-btn tab-pinball-donation-btn" type="button"><span class="pinball-tab-label"><span>핀볼연동</span><span>공사중</span></span></button>
         <button id="tabFunding" class="tab-btn" type="button">펀딩(임시)</button>
         <div class="nav-external" aria-label="외부 사이트">
           <a href="https://calm-hoxy.vercel.app/" target="_blank" rel="noopener noreferrer">💰 CALM HOXY</a>
           <a href="https://eloboard.com/" target="_blank" rel="noopener noreferrer">📊 ELOBOARD</a>
           <a href="https://machugi.io/quiz/GJQTMpLt4usVzZyeGMJO" target="_blank" rel="noopener noreferrer">🧠 모의고사</a>
           <a href="https://monstarz-schedule.vercel.app/" target="_blank" rel="noopener noreferrer">📅 일정표</a>
+          <a href="https://fmcalm.vercel.app/" target="_blank" rel="noopener noreferrer">그것이알고싶캄몬</a>
+          <a href="https://www.sooplive.com/station/silver0love" target="_blank" rel="noopener noreferrer">made by 손실바 방송국</a>
         </div>
       </nav>
       <div class="summary-grid" id="summaryGrid"></div>
@@ -3845,6 +4241,103 @@ body.funding-overlay-host .funding-temp-frame{
     </div>
 
 
+    <!-- ===== Pinball Donation Link tab: isolated markup ===== -->
+    <div id="pinballDonationScreen" class="screen hidden">
+      <section id="pinballDonationRoot" class="pinball-donation-root" aria-label="핀볼후원연동">
+        <aside class="pinball-donation-controls" aria-label="핀볼후원연동 조작부">
+          <div class="pinball-donation-block pinball-donation-soop">
+            <div class="pinball-donation-label">SOOP 연동</div>
+            <div class="pinball-donation-soop-buttons">
+              <button id="pinballDonationLoginBtn" class="pinball-donation-main-btn" type="button">숲 로그인</button>
+              <button id="pinballDonationConnectBtn" class="pinball-donation-main-btn secondary" type="button">숲 연결</button>
+            </div>
+            <div class="pinball-donation-state-grid">
+              <span>로그인 <b id="pinballDonationLoginState">로그아웃됨</b></span>
+              <span>연결 <b id="pinballDonationConnectState">미연결</b></span>
+            </div>
+            <p id="pinballDonationSoopStatus" class="pinball-donation-status">연결 상태를 켜면 후원 이벤트 수집이 시작됩니다.</p>
+          </div>
+
+          <div class="pinball-donation-block">
+            <label class="pinball-donation-label" for="pinballDonationUnit">볼 지급 기준</label>
+            <div class="pinball-donation-unit-row">
+              <input id="pinballDonationUnit" type="number" min="1" step="1" value="100" inputmode="numeric" />
+              <span>개당 볼 1개</span>
+            </div>
+            <p class="pinball-donation-help">나머지 별풍선은 버림 처리됩니다.</p>
+          </div>
+
+          <div class="pinball-donation-block">
+            <div class="pinball-donation-label">등록 타입</div>
+            <div class="pinball-donation-segment" role="group" aria-label="등록 타입 선택">
+              <button id="pinballDonationModeMessage" class="active" type="button" data-mode="message">메시지 등록</button>
+              <button id="pinballDonationModeNickname" type="button" data-mode="nickname">후원자 닉네임</button>
+            </div>
+            <p id="pinballDonationModeHelp" class="pinball-donation-help">메시지 모드는 후원 후 채팅 메시지를 등록대기 목록에서 받아옵니다.</p>
+          </div>
+
+          <div class="pinball-donation-block">
+            <label class="pinball-donation-label" for="pinballDonationBlockedWords">금칙어 필터</label>
+            <input id="pinballDonationBlockedWords" class="pinball-donation-input" type="text" value="" autocomplete="off" />
+            <p class="pinball-donation-help">쉼표로 구분합니다. 포함된 메시지는 등록 보류됩니다.</p>
+          </div>
+
+          <div class="pinball-donation-block">
+            <div class="pinball-donation-label">수동 테스트 입력</div>
+            <input id="pinballDonationDonor" class="pinball-donation-input" type="text" placeholder="후원자 닉네임" autocomplete="off" />
+            <input id="pinballDonationCount" class="pinball-donation-input" type="number" min="1" step="1" placeholder="별풍선 개수" inputmode="numeric" />
+            <textarea id="pinballDonationMessage" class="pinball-donation-textarea" placeholder="메시지 모드에서 볼에 들어갈 문구"></textarea>
+            <button id="pinballDonationAddBtn" class="pinball-donation-main-btn" type="button">테스트 볼 등록</button>
+            <p id="pinballDonationStatus" class="pinball-donation-status">수동 테스트는 실제 후원 없이 볼 계산과 등록 구조를 확인하는 용도입니다.</p>
+          </div>
+
+          <div class="pinball-donation-summary">
+            <div><span>후보</span><strong id="pinballDonationEntryCount">0</strong></div>
+            <div><span>총 볼</span><strong id="pinballDonationBallCount">0</strong></div>
+            <div><span>대기</span><strong id="pinballDonationPendingCount">0</strong></div>
+          </div>
+
+          <div class="pinball-donation-actions">
+            <button id="pinballDonationStartBtn" class="primary" type="button">핀볼 실행</button>
+            <button id="pinballDonationResultClearBtn" type="button">메모 초기화</button>
+            <button id="pinballDonationClearBtn" class="danger" type="button">후보 전체 초기화</button>
+          </div>
+        </aside>
+
+        <section class="pinball-donation-lists" aria-label="핀볼후원연동 목록">
+          <div class="pinball-donation-mini-head">등록대기 목록</div>
+          <div id="pinballDonationPendingList" class="pinball-donation-list pinball-donation-pending-list">
+            <div class="pinball-donation-empty">대기 중인 후원이 없습니다.</div>
+          </div>
+          <div class="pinball-donation-mini-head">후보 목록</div>
+          <div id="pinballDonationList" class="pinball-donation-list">
+            <div class="pinball-donation-empty">등록된 볼이 없습니다.</div>
+          </div>
+        </section>
+
+        <section class="pinball-donation-memo" aria-label="핀볼 결과 메모장">
+          <div class="pinball-donation-memo-head">
+            <strong>결과 메모장</strong>
+            <button id="pinballDonationMemoClearBtn" type="button">메모 비우기</button>
+          </div>
+          <div id="pinballDonationResult" class="pinball-donation-result" aria-live="polite">결과 대기</div>
+          <textarea id="pinballDonationMemo" class="pinball-donation-memo-textarea" placeholder="핀볼 결과가 여기 줄바꿈으로 누적됩니다. 직접 메모를 추가해도 됩니다." spellcheck="false"></textarea>
+        </section>
+      </section>
+
+      <div id="pinballDonationModal" class="pinball-donation-modal" hidden>
+        <div class="pinball-donation-modal-dialog" role="dialog" aria-modal="true" aria-label="핀볼 실행 모달">
+          <div class="pinball-donation-modal-head">
+            <span></span>
+            <strong>핀볼 실행</strong>
+            <button id="pinballDonationModalCloseBtn" class="pinball-donation-modal-close" type="button">닫기</button>
+          </div>
+          <iframe id="pinballDonationFrame" class="pinball-donation-frame" title="핀볼후원연동 룰렛" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+
+
     <div id="fundingScreen" class="screen hidden">
       <section>
         <div class="funding-embed-wrap">
@@ -4068,6 +4561,7 @@ body.funding-overlay-host .funding-temp-frame{
   const tabYoutube = document.getElementById("tabYoutube");
   const tabGame = document.getElementById("tabGame");
   const tabDuckCalc = document.getElementById("tabDuckCalc");
+  const tabPinballDonation = document.getElementById("tabPinballDonation");
   const tabFunding = document.getElementById("tabFunding");
   const tabInout = document.getElementById("tabInout");
   const themeToggle = document.getElementById("themeToggle");
@@ -4075,6 +4569,7 @@ body.funding-overlay-host .funding-temp-frame{
   const youtubeScreen = document.getElementById("youtubeScreen");
   const gameScreen = document.getElementById("gameScreen");
   const duckCalcScreen = document.getElementById("duckCalcScreen");
+  const pinballDonationScreen = document.getElementById("pinballDonationScreen");
   const fundingScreen = document.getElementById("fundingScreen");
   const fundingTempFrame = document.getElementById("fundingTempFrame");
   const youtubeList = document.getElementById("youtubeList");
@@ -5055,13 +5550,14 @@ function createMemberCard(member) {
   }
 
   function setActiveTab(activeTab) {
-    [tabMain, tabProfile, tabInout, tabBoja, tabYoutube, tabGame, tabDuckCalc, tabFunding].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
+    [tabMain, tabProfile, tabInout, tabBoja, tabYoutube, tabGame, tabDuckCalc, tabPinballDonation, tabFunding].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
     activeTab.classList.add("active");
     document.body.classList.toggle("main-tab-active", activeTab === tabMain);
+    document.body.classList.toggle("pinball-donation-mode", activeTab === tabPinballDonation);
   }
 
   function hideAllScreens() {
-    [mainScreen, profileScreen, inoutScreen, bojaScreen, youtubeScreen, gameScreen, duckCalcScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
+    [mainScreen, profileScreen, inoutScreen, bojaScreen, youtubeScreen, gameScreen, duckCalcScreen, pinballDonationScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
   }
 
   function showMainScreen() {
@@ -5117,6 +5613,17 @@ function createMemberCard(member) {
   }
 
 
+  function showPinballDonationScreen() {
+    setFundingPageMode(false);
+    setActiveTab(tabPinballDonation);
+    updateSummaryVisibility(false);
+    hideAllScreens();
+    pinballDonationScreen.classList.remove("hidden");
+    window.dispatchEvent(new CustomEvent("pinballDonationScreenShown"));
+  }
+  window.showPinballDonationScreen = showPinballDonationScreen;
+
+
   function showFundingScreen() {
     setFundingPageMode(true);
     setActiveTab(tabFunding);
@@ -5127,10 +5634,21 @@ function createMemberCard(member) {
   }
   window.showFundingScreen = showFundingScreen;
 
+  function shouldOpenPinballDonationForSoopAuth() {
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      return params.get("tab") === "pinballDonation" || sessionStorage.getItem("soopReturnTab") === "pinballDonation";
+    } catch (error) {
+      return false;
+    }
+  }
+
   function shouldOpenFundingForSoopAuth() {
     try {
       const params = new URLSearchParams(window.location.search || "");
-      return params.get("tab") === "funding" || params.has("overlay") || params.has("code") || params.has("authCode") || sessionStorage.getItem("soopReturnTab") === "funding";
+      const returnTab = sessionStorage.getItem("soopReturnTab") || "";
+      if (returnTab === "pinballDonation" || params.get("tab") === "pinballDonation") return false;
+      return params.get("tab") === "funding" || params.has("overlay") || params.has("code") || params.has("authCode") || returnTab === "funding";
     } catch (error) {
       return false;
     }
@@ -5192,6 +5710,7 @@ function createMemberCard(member) {
   tabBoja.addEventListener("click", showBojaScreen);
   tabYoutube.addEventListener("click", showYoutubeScreen);
   if (tabGame) tabGame.addEventListener("click", showGameScreen);
+  if (tabPinballDonation) tabPinballDonation.addEventListener("click", showPinballDonationScreen);
   if (tabFunding) tabFunding.addEventListener("click", showFundingScreen);
   tabInout.addEventListener("click", showInoutScreen);
   youtubeAutoplayToggle.addEventListener("click", toggleYoutubeAutoplay);
@@ -5207,10 +5726,1024 @@ function createMemberCard(member) {
   themeToggle.addEventListener("click", () => {
     applyTheme(document.body.classList.contains("light-mode") ? "dark" : "light");
   });
-  if (shouldOpenFundingForSoopAuth()) {
+  if (shouldOpenPinballDonationForSoopAuth()) {
+    showPinballDonationScreen();
+  } else if (shouldOpenFundingForSoopAuth()) {
     showFundingScreen();
   }
 </script>
+
+<script id="pinball-donation-script">
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    tab: $("tabPinballDonation"),
+    screen: $("pinballDonationScreen"),
+    root: $("pinballDonationRoot"),
+    frame: $("pinballDonationFrame"),
+    unit: $("pinballDonationUnit"),
+    modeMessage: $("pinballDonationModeMessage"),
+    modeNickname: $("pinballDonationModeNickname"),
+    modeHelp: $("pinballDonationModeHelp"),
+    donor: $("pinballDonationDonor"),
+    count: $("pinballDonationCount"),
+    message: $("pinballDonationMessage"),
+    blockedWords: $("pinballDonationBlockedWords"),
+    add: $("pinballDonationAddBtn"),
+    start: $("pinballDonationStartBtn"),
+    resultClear: $("pinballDonationResultClearBtn"),
+    clear: $("pinballDonationClearBtn"),
+    login: $("pinballDonationLoginBtn"),
+    connect: $("pinballDonationConnectBtn"),
+    loginState: $("pinballDonationLoginState"),
+    connectState: $("pinballDonationConnectState"),
+    soopStatus: $("pinballDonationSoopStatus"),
+    status: $("pinballDonationStatus"),
+    entryCount: $("pinballDonationEntryCount"),
+    ballCount: $("pinballDonationBallCount"),
+    pendingCount: $("pinballDonationPendingCount"),
+    pendingList: $("pinballDonationPendingList"),
+    list: $("pinballDonationList"),
+    result: $("pinballDonationResult"),
+    memo: $("pinballDonationMemo"),
+    memoClear: $("pinballDonationMemoClearBtn"),
+    modal: $("pinballDonationModal"),
+    modalClose: $("pinballDonationModalCloseBtn")
+  };
+  if (!els.tab || !els.screen || !els.frame) return;
+
+  const SOOP_CLIENT_ID = "339180d798482f82dba3cd99121dccfe";
+  const SOOP_REDIRECT_URI = "https://monstarznew.vercel.app/";
+  const SOOP_AUTH_URL = "https://openapi.sooplive.com/auth/code";
+  const SOOP_TOKEN_API = "/api/soop-token";
+  const SOOP_REFRESH_API = "/api/soop-refresh";
+  const SOOP_SDK_URLS = [
+    "https://static.sooplive.com/asset/app/sooplive-chat-sdk.js",
+    "https://static.sooplive.com/asset/app/sooplive-chat-sdk.min.js",
+    "https://static.sooplive.com/asset/app/chat-sdk/sooplive-chat-sdk.js",
+    "https://static.sooplive.com/asset/app/chat-sdk/sooplive-chat-sdk.min.js",
+    "https://static.sooplive.com/asset/app/chat-sdk/latest/chat-sdk.min.js",
+    "https://static.sooplive.com/asset/app/chat-sdk/chat-sdk.min.js"
+  ];
+
+  const state = {
+    frameId: "pinball_donation_" + Date.now().toString(36),
+    initialized: false,
+    mode: "message",
+    winnerMode: "first",
+    entries: [],
+    balls: [],
+    pending: [],
+    soop: {
+      accessToken: localStorage.getItem("soopAccessToken") || "",
+      refreshToken: localStorage.getItem("soopRefreshToken") || "",
+      sdk: null,
+      loading: null,
+      connected: false
+    },
+    pendingLimitMs: 60000,
+    pendingTimer: null,
+    frameReady: false,
+    pendingFrameSync: false,
+    pendingFrameStart: false,
+    resultSeq: 1
+  };
+  window.pinballDonationState = state;
+
+  function esc(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "\"": "&quot;",
+      "'": "&#39;"
+    })[char]);
+  }
+
+  function makeId(prefix) {
+    return prefix + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+  }
+
+  function parsePositiveInt(value, fallback) {
+    const number = Math.floor(Number(String(value == null ? "" : value).replace(/,/g, "").trim()));
+    return Number.isFinite(number) && number > 0 ? number : fallback;
+  }
+
+  function getUnit() {
+    return parsePositiveInt(els.unit?.value, 100);
+  }
+
+  function calculateBallCount(count, unit) {
+    return Math.floor((Number(count) || 0) / (Number(unit) || 1));
+  }
+
+  function setStatus(text, type) {
+    if (!els.status) return;
+    els.status.textContent = text;
+    els.status.classList.remove("ok", "warn", "err");
+    if (type) els.status.classList.add(type);
+  }
+
+  function setSoopStatus(text, type) {
+    if (!els.soopStatus) return;
+    els.soopStatus.textContent = text;
+    els.soopStatus.classList.remove("ok", "warn", "err");
+    if (type) els.soopStatus.classList.add(type);
+  }
+
+  function hasToken() {
+    return Boolean(state.soop.accessToken || localStorage.getItem("soopAccessToken"));
+  }
+
+  function getBlockedWords() {
+    const text = String(els.blockedWords?.value || "").trim();
+    return text.split(",").map((word) => word.trim()).filter(Boolean);
+  }
+
+  function containsBlockedWord(value) {
+    const text = String(value || "").toLowerCase().replace(/\s+/g, "");
+    if (!text) return false;
+    return getBlockedWords().some((word) => {
+      const target = String(word || "").toLowerCase().replace(/\s+/g, "");
+      return target && text.includes(target);
+    });
+  }
+
+  function firstValue(obj, keys) {
+    for (const key of keys) {
+      const value = key.split(".").reduce((acc, part) => acc && acc[part], obj);
+      if (value !== undefined && value !== null && String(value).trim() !== "") return value;
+    }
+    return "";
+  }
+
+  function resolveSoopUserId(message) {
+    return String(firstValue(message || {}, ["userId", "fromUserId", "senderId", "user.id", "sender.id"]) || "").trim();
+  }
+
+  function resolveSoopNickname(message) {
+    return String(firstValue(message || {}, ["userNickname", "nickname", "fromUserNickname", "senderNickname", "user.nick", "user.nickname", "sender.nickname"]) || "익명").trim();
+  }
+
+  function resolveSoopCount(message) {
+    return parsePositiveInt(firstValue(message || {}, ["count", "amount", "giftCount", "balloonCount", "value", "data.count"]), 0);
+  }
+
+  function resolveSoopText(message) {
+    return String(firstValue(message || {}, ["message", "text", "content", "chat", "comment", "data.message"]) || "").trim();
+  }
+
+  function userKeyFromParts(userId, nickname) {
+    return String(userId || "").trim() || ("nick:" + String(nickname || "").trim());
+  }
+
+  function buildBallLabel(entry, index, total) {
+    const suffix = total > 1 ? ` ${index + 1}/${total}` : "";
+    if (entry.mode === "nickname") return `${entry.donor}${suffix}`;
+    const text = entry.message || entry.donor;
+    return `${text}${suffix}`;
+  }
+
+  function rebuildBalls() {
+    state.balls = [];
+    state.entries.forEach((entry) => {
+      for (let index = 0; index < entry.ballCount; index += 1) {
+        state.balls.push({
+          id: `${entry.id}_ball_${index}`,
+          name: buildBallLabel(entry, index, entry.ballCount),
+          donor: entry.donor,
+          count: entry.count,
+          message: entry.message,
+          mode: entry.mode
+        });
+      }
+    });
+  }
+
+  function createRouletteDoc(names) {
+    const safeNames = names.length ? names : ["대기중"];
+    const config = {
+      frameId: state.frameId,
+      names: safeNames,
+      mode: state.winnerMode || "first",
+      rank: state.winnerMode === "last" ? safeNames.length : 1,
+      mapIndex: 0
+    };
+    const configJson = JSON.stringify(config).replace(/</g, "\\u003c");
+    return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="https://lazygyu.github.io/roulette/">
+<script type="importmap">{"imports":{"2rDQN":"https://lazygyu.github.io/roulette/Box2D.simd.dd31b167.wasm","8BShk":"https://lazygyu.github.io/roulette/Box2D.simd.13a3a125.js","9DwmV":"https://lazygyu.github.io/roulette/kkwak.673a610d.png","9YLvj":"https://lazygyu.github.io/roulette/waldokun.7e88dd59.png","cdgIR":"https://lazygyu.github.io/roulette/chamru.d6926a56.png","fkRhi":"https://lazygyu.github.io/roulette/junyoop.d27f0cbf.png","h7cmx":"https://lazygyu.github.io/roulette/Box2D.b9b16b27.wasm","ilUZb":"https://lazygyu.github.io/roulette/Box2D.4b04ba8e.js","juMvj":"https://lazygyu.github.io/roulette/ff.7fdc9e82.svg","lfSvD":"https://lazygyu.github.io/roulette/kubin.f3647b70.png"}}<\/script>
+<link rel="stylesheet" href="https://lazygyu.github.io/roulette/roulette.6b7afa53.css">
+<title>핀볼후원연동 룰렛</title>
+<style>
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#111}
+#notice,.copyright{display:none!important}
+canvas{width:100vw!important;height:100vh!important}
+#settings{z-index:20}
+</style>
+</head>
+<body>
+<script type="module" src="https://lazygyu.github.io/roulette/roulette.31f8fbbf.js"><\/script>
+<div id="settings" class="settings">
+  <div class="right">
+    <button id="btnToggleSettings" class="btn-toggle-settings"><span data-trans="">Settings</span><i class="toggle-arrow">▲</i></button>
+    <div class="collapsed collapsible-rows">
+      <div class="row">
+        <label for="sltMap"><i class="icon map"></i><span data-trans="">맵</span></label>
+        <select id="sltMap">
+          <option value="0" data-trans="">운명의 수레바퀴</option>
+          <option value="1" data-trans="">버블팝</option>
+          <option value="2" data-trans="">욕망의 항아리</option>
+          <option value="3" data-trans="">밤을 달리다 (by item4)</option>
+        </select>
+      </div>
+      <div class="row row-toggles">
+        <div class="toggle-item"><label for="chkAutoRecording"><i class="icon record"></i><span data-trans="">녹화</span></label><input type="checkbox" id="chkAutoRecording"></div>
+        <div class="toggle-item"><label for="chkSkill"><i class="bomb icon"></i><span data-trans="">스킬 활성화</span></label><input type="checkbox" id="chkSkill" checked></div>
+      </div>
+      <div class="row">
+        <label><i class="icon trophy"></i><span data-trans="">당첨 순위</span></label>
+        <div class="btn-group">
+          <button class="btn-first-winner btn-winner" data-trans="">첫번째</button>
+          <button class="btn-last-winner btn-winner" data-trans="">마지막</button>
+          <input type="number" id="in_winningRank" value="${config.rank}" min="1">
+        </div>
+      </div>
+      <div class="row row-theme">
+        <div class="theme"><i class="icon sun"></i><input type="checkbox" id="chkDarkMode" checked><i class="icon moon"></i></div>
+      </div>
+    </div>
+  </div>
+  <div class="left">
+    <h3 data-trans="">이름들을 입력하세요</h3>
+    <textarea id="in_names" placeholder="이름들을 쉼표나 엔터로 구분해서 넣어주세요" data-trans="placeholder"></textarea>
+    <div class="actions">
+      <button id="btnNotice"><i class="icon megaphone"></i></button>
+      <a href="https://marblerouletteshop.com" target="_blank" id="btnShop" class="btn new" title="MarbleRoulette Shop"><img src="https://lazygyu.github.io/roulette/marblerouletteshop.a506d1c2.png"></a>
+      <div class="sep"></div>
+      <button id="btnShuffle"><i class="icon shuffle"></i><span data-trans="">섞기</span></button>
+      <button id="btnStart"><i class="icon play"></i><span data-trans="">시작</span></button>
+    </div>
+  </div>
+</div>
+<div id="notice" style="display:none"></div>
+<div class="copyright"></div>
+<script>
+window.__PINBALL_DONATION_CONFIG__=${configJson};
+(function(){
+  const cfg = window.__PINBALL_DONATION_CONFIG__;
+  let ready = false;
+  let initialized = false;
+  let winnerType = cfg.mode || "first";
+  const $ = (selector) => document.querySelector(selector);
+  const send = (payload) => parent.postMessage(Object.assign({ source:"pinball-donation-roulette", frameId:cfg.frameId }, payload), "*");
+  function names(){ return cfg.names.slice(); }
+  function setActiveRankButtons(){
+    $(".btn-first-winner")?.classList.toggle("active", winnerType === "first");
+    $(".btn-last-winner")?.classList.toggle("active", winnerType === "last");
+    $("#in_winningRank")?.classList.toggle("active", winnerType === "rank");
+  }
+  function setWinnerRank(rank){
+    if (!window.roulette || !window.options) return;
+    const total = Math.max(1, window.roulette.getCount ? window.roulette.getCount() : names().length);
+    const safeRank = Math.min(total, Math.max(1, Number(rank) || 1));
+    const input = $("#in_winningRank");
+    if (input) input.value = safeRank;
+    window.options.winningRank = safeRank - 1;
+    if (window.roulette.setWinningRank) window.roulette.setWinningRank(window.options.winningRank);
+    setActiveRankButtons();
+  }
+  function prepare(){
+    const value = names().join("\\n");
+    const input = $("#in_names");
+    if (input) input.value = value;
+    if (window.roulette && window.roulette.setMarbles) window.roulette.setMarbles(names());
+    if ($("#sltMap") && window.roulette && window.roulette.setMap) window.roulette.setMap(Number($("#sltMap").value || cfg.mapIndex || 0));
+    if (window.roulette && window.roulette.setTheme) window.roulette.setTheme("dark");
+    if (window.options) {
+      window.options.useSkills = $("#chkSkill") ? $("#chkSkill").checked : true;
+      window.options.autoRecording = false;
+    }
+    if (winnerType === "first") setWinnerRank(1);
+    else if (winnerType === "last") setWinnerRank(window.roulette && window.roulette.getCount ? window.roulette.getCount() : names().length);
+    else setWinnerRank(cfg.rank);
+    ready = names().length > 0;
+  }
+  function collectOrder(winner){
+    const raw = Array.isArray(window.roulette && window.roulette._winners) ? window.roulette._winners : [];
+    const order = raw.map((marble) => marble && marble.name).filter(Boolean);
+    if (!order.length && winner) order.push(winner);
+    names().forEach((name) => { if (!order.includes(name)) order.push(name); });
+    return order;
+  }
+  function finish(winner){
+    const order = collectOrder(winner);
+    send({ kind:"result", winner, order });
+    setTimeout(() => $("#settings")?.classList.remove("hide"), 700);
+  }
+  function waitReady(){
+    if (initialized) return;
+    if (!window.roulette || !window.options || !window.roulette.isReady) { setTimeout(waitReady, 100); return; }
+    initialized = true;
+    if ($("#in_names")) $("#in_names").value = names().join("\\n");
+    if ($("#sltMap")) $("#sltMap").value = String(cfg.mapIndex || 0);
+    $(".btn-first-winner")?.addEventListener("click", () => { winnerType = "first"; cfg.rank = 1; prepare(); });
+    $(".btn-last-winner")?.addEventListener("click", () => { winnerType = "last"; cfg.rank = window.roulette.getCount ? window.roulette.getCount() : names().length; prepare(); });
+    $("#in_winningRank")?.addEventListener("change", (event) => { winnerType = "rank"; cfg.rank = Number(event.target.value) || 1; prepare(); });
+    $("#chkDarkMode")?.addEventListener("change", (event) => { window.roulette.setTheme(event.target.checked ? "dark" : "light"); document.documentElement.classList.toggle("light", !event.target.checked); });
+    $("#chkSkill")?.addEventListener("change", (event) => { window.options.useSkills = event.target.checked; prepare(); });
+    $("#sltMap")?.addEventListener("change", () => prepare());
+    $("#btnShuffle")?.addEventListener("click", () => prepare());
+    $("#btnStart")?.addEventListener("click", () => {
+      if (!ready) prepare();
+      if (!ready) return;
+      $("#settings")?.classList.add("hide");
+      window.roulette.start();
+    });
+    $("#btnToggleSettings")?.addEventListener("click", () => {
+      $(".collapsible-rows")?.classList.toggle("collapsed");
+      const arrow = $(".toggle-arrow");
+      if (arrow) arrow.textContent = $(".collapsible-rows")?.classList.contains("collapsed") ? "▲" : "▼";
+    });
+    window.roulette.addEventListener("goal", (event) => {
+      setTimeout(() => finish(event.detail && event.detail.winner), 700);
+    });
+    prepare();
+    send({ kind:"ready" });
+  }
+  window.addEventListener("message", (event) => {
+    const message = event.data || {};
+    if (message.source !== "pinball-donation-parent" || message.frameId !== cfg.frameId) return;
+    if (message.kind === "setNames") { cfg.names = Array.isArray(message.names) && message.names.length ? message.names.slice() : ["대기중"]; prepare(); send({ kind:"ready" }); }
+    if (message.kind === "setWinnerMode") { winnerType = message.winnerMode === "last" ? "last" : "first"; cfg.mode = winnerType; prepare(); }
+    if (message.kind === "prepare") { prepare(); $("#settings")?.classList.remove("hide"); send({ kind:"ready" }); }
+    if (message.kind === "start") {
+      if (!ready) prepare();
+      if (!ready) return;
+      $("#settings")?.classList.add("hide");
+      window.roulette.start();
+    }
+  });
+  document.addEventListener("DOMContentLoaded", waitReady);
+  waitReady();
+})();
+<\/script>
+</body>
+</html>`;
+  }
+
+  function namesForRoulette() {
+    return state.balls.map((ball) => ball.name).filter(Boolean);
+  }
+
+  function ensureFrame() {
+    if (state.initialized) return;
+    state.initialized = true;
+    state.frameReady = false;
+    state.pendingFrameSync = true;
+    els.frame.srcdoc = createRouletteDoc(namesForRoulette());
+  }
+
+  function postToFrame(payload) {
+    ensureFrame();
+    if (!els.frame.contentWindow) return;
+    els.frame.contentWindow.postMessage(Object.assign({ source: "pinball-donation-parent", frameId: state.frameId }, payload), "*");
+  }
+
+  function syncFrameNames() {
+    ensureFrame();
+    if (!state.frameReady) {
+      state.pendingFrameSync = true;
+      return;
+    }
+    postToFrame({ kind: "setNames", names: namesForRoulette() });
+    postToFrame({ kind: "setWinnerMode", winnerMode: state.winnerMode });
+  }
+
+  function startFrameWhenReady() {
+    if (!state.frameReady) return;
+    state.pendingFrameStart = false;
+    postToFrame({ kind: "start" });
+  }
+
+  function openRouletteModal() {
+    if (els.modal) els.modal.hidden = false;
+  }
+
+  function closeRouletteModal() {
+    if (els.modal) els.modal.hidden = true;
+  }
+
+  function renderPendingList() {
+    if (!els.pendingList) return;
+    const now = Date.now();
+    state.pending = state.pending.filter((item) => item.blocked || item.expiresAt > now);
+    if (els.pendingCount) els.pendingCount.textContent = String(state.pending.length);
+    if (!state.pending.length) {
+      els.pendingList.innerHTML = `<div class="pinball-donation-empty">대기 중인 후원이 없습니다.</div>`;
+      return;
+    }
+    els.pendingList.innerHTML = state.pending.slice(-5).reverse().map((item) => {
+      const remaining = item.blocked ? "보류" : Math.max(0, Math.ceil((item.expiresAt - now) / 1000)) + "초";
+      const title = item.blocked ? item.message || item.donor : item.donor;
+      const meta = item.blocked
+        ? `${item.donor} · 금칙어 포함 · 볼 ${item.ballCount}개`
+        : `${item.count.toLocaleString("ko-KR")}개 · 볼 ${item.ballCount}개 · 남은 ${remaining}`;
+      return `<div class="pinball-donation-pending-item ${item.blocked ? "blocked" : ""}" data-pending-id="${esc(item.id)}"><div><b>${esc(title)}</b><small>${esc(meta)}</small></div><div class="pinball-donation-pending-actions">${item.blocked ? `<button type="button" data-action="approve-pending" data-id="${esc(item.id)}">등록</button>` : ""}<button class="danger" type="button" data-action="delete-pending" data-id="${esc(item.id)}">삭제</button></div></div>`;
+    }).join("");
+  }
+
+  function renderList() {
+    if (!els.list) return;
+    if (!state.entries.length) {
+      els.list.innerHTML = `<div class="pinball-donation-empty">등록된 볼이 없습니다.</div>`;
+      return;
+    }
+    els.list.innerHTML = state.entries.slice(-10).reverse().map((entry) => {
+      const body = entry.mode === "nickname" ? entry.donor : entry.message;
+      return `<div class="pinball-donation-item" data-entry-id="${esc(entry.id)}"><div><b title="${esc(body)}">${esc(body)}</b><small>${esc(entry.donor)} · ${entry.count.toLocaleString("ko-KR")}개 · 볼 ${entry.ballCount}개 · ${entry.mode === "nickname" ? "닉네임" : "메시지"}</small></div><div class="pinball-donation-item-actions"><button type="button" data-action="edit-entry" data-id="${esc(entry.id)}">수정</button><button class="danger" type="button" data-action="delete-entry" data-id="${esc(entry.id)}">삭제</button></div></div>`;
+    }).join("");
+  }
+
+  function updateModeHelp() {
+    if (!els.modeHelp) return;
+    els.modeHelp.textContent = state.mode === "nickname"
+      ? "닉네임 모드는 후원 즉시 후원자 닉네임이 볼로 등록됩니다."
+      : "메시지 모드는 후원 후 채팅 메시지를 등록대기 목록에서 받아옵니다.";
+  }
+
+  function updateSoopUi() {
+    const loggedIn = hasToken();
+    if (els.login) els.login.textContent = loggedIn ? "로그아웃" : "숲 로그인";
+    if (els.connect) els.connect.textContent = state.soop.connected ? "연결해제" : "숲 연결";
+    if (els.loginState) els.loginState.textContent = loggedIn ? "로그인됨" : "로그아웃됨";
+    if (els.connectState) els.connectState.textContent = state.soop.connected ? "연결됨" : "미연결";
+  }
+
+  function render() {
+    rebuildBalls();
+    if (els.entryCount) els.entryCount.textContent = String(state.entries.length);
+    if (els.ballCount) els.ballCount.textContent = String(state.balls.length);
+    els.modeMessage?.classList.toggle("active", state.mode === "message");
+    els.modeNickname?.classList.toggle("active", state.mode === "nickname");
+    if (els.message) {
+      els.message.disabled = state.mode === "nickname";
+      els.message.placeholder = state.mode === "nickname" ? "닉네임 모드에서는 메시지를 사용하지 않습니다." : "메시지 모드에서 볼에 들어갈 문구";
+    }
+    updateModeHelp();
+    updateSoopUi();
+    renderPendingList();
+    renderList();
+    if (state.initialized) syncFrameNames();
+  }
+
+  function addEntry({ donor, count, message, mode, source, userId }) {
+    const unit = getUnit();
+    const ballCount = calculateBallCount(count, unit);
+    const safeMode = mode === "nickname" ? "nickname" : "message";
+    const body = safeMode === "nickname" ? donor : message;
+    if (!donor) { setStatus("후원자 닉네임이 없습니다.", "warn"); return false; }
+    if (!count) { setStatus("별풍선 개수가 없습니다.", "warn"); return false; }
+    if (safeMode === "message" && !String(body || "").trim()) { setStatus("메시지 모드는 볼에 들어갈 문구가 필요합니다.", "warn"); return false; }
+    if (ballCount < 1) { setStatus(`${count.toLocaleString("ko-KR")}개는 현재 기준 ${unit.toLocaleString("ko-KR")}개당 볼 1개에 못 미쳐 버림 처리됩니다.`, "warn"); return false; }
+    if (safeMode === "message" && containsBlockedWord(body)) {
+      state.pending.push({
+        id: makeId("pinball_blocked"),
+        userId: userId || "",
+        donor,
+        count,
+        unit,
+        ballCount,
+        mode: safeMode,
+        message: body,
+        source: source || "보류",
+        blocked: true,
+        createdAt: Date.now(),
+        expiresAt: Date.now() + state.pendingLimitMs
+      });
+      setStatus(`${donor} 메시지가 금칙어 필터에 걸려 등록대기 목록에 보류됐습니다.`, "warn");
+      render();
+      return false;
+    }
+    state.entries.push({
+      id: makeId("pinball_entry"),
+      userId: userId || "",
+      donor,
+      count,
+      unit,
+      ballCount,
+      mode: safeMode,
+      message: safeMode === "message" ? String(body || "").trim() : donor,
+      source: source || "수동",
+      createdAt: Date.now()
+    });
+    setStatus(`${donor} · ${count.toLocaleString("ko-KR")}개 → 볼 ${ballCount}개 등록`, "ok");
+    render();
+    return true;
+  }
+
+  function addManualEntry() {
+    const donor = String(els.donor?.value || "").trim();
+    const count = parsePositiveInt(els.count?.value, 0);
+    const message = String(els.message?.value || "").trim();
+    const ok = addEntry({
+      donor,
+      count,
+      message: state.mode === "message" ? message : donor,
+      mode: state.mode,
+      source: "수동 테스트"
+    });
+    if (ok) {
+      if (els.count) els.count.value = "";
+      if (els.message && state.mode === "message") els.message.value = "";
+    }
+  }
+
+  function addPendingGift({ userId, donor, count }) {
+    const unit = getUnit();
+    const ballCount = calculateBallCount(count, unit);
+    if (ballCount < 1) {
+      setStatus(`${donor} 후원 ${count.toLocaleString("ko-KR")}개는 기준 미달이라 버림 처리됐습니다.`, "warn");
+      return;
+    }
+    state.pending.push({
+      id: makeId("pinball_pending"),
+      userId: userKeyFromParts(userId, donor),
+      donor,
+      count,
+      unit,
+      ballCount,
+      mode: "message",
+      message: "",
+      source: "SOOP",
+      blocked: false,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + state.pendingLimitMs
+    });
+    setStatus(`${donor} · 볼 ${ballCount}개 메시지 대기 등록`, "ok");
+    startPendingTimer();
+    render();
+  }
+
+  function consumePendingMessage({ userId, nickname, text }) {
+    const key = userKeyFromParts(userId, nickname);
+    const now = Date.now();
+    const index = state.pending.findIndex((item) => !item.blocked && item.expiresAt > now && (item.userId === key || item.donor === nickname));
+    if (index < 0) return false;
+    const pending = state.pending.splice(index, 1)[0];
+    const ok = addEntry({
+      donor: pending.donor,
+      count: pending.count,
+      message: text,
+      mode: "message",
+      source: "SOOP 메시지",
+      userId: pending.userId
+    });
+    render();
+    return ok;
+  }
+
+  function approveBlockedPending(id) {
+    const index = state.pending.findIndex((item) => item.id === id);
+    if (index < 0) return;
+    const pending = state.pending.splice(index, 1)[0];
+    state.entries.push({
+      id: makeId("pinball_entry"),
+      userId: pending.userId || "",
+      donor: pending.donor,
+      count: pending.count,
+      unit: pending.unit || getUnit(),
+      ballCount: pending.ballCount,
+      mode: pending.mode || "message",
+      message: pending.mode === "nickname" ? pending.donor : pending.message,
+      source: pending.source || "보류 해제",
+      createdAt: Date.now()
+    });
+    setStatus(`${pending.donor} 보류 메시지를 등록했습니다.`, "ok");
+    render();
+  }
+
+  function deletePending(id) {
+    const before = state.pending.length;
+    state.pending = state.pending.filter((item) => item.id !== id);
+    if (before !== state.pending.length) setStatus("대기 항목을 삭제했습니다.", "ok");
+    render();
+  }
+
+  function editEntry(id) {
+    const entry = state.entries.find((item) => item.id === id);
+    if (!entry) return;
+    const donor = prompt("후원자 닉네임", entry.donor);
+    if (donor === null) return;
+    const countText = prompt("별풍선 개수", String(entry.count));
+    if (countText === null) return;
+    const nextCount = parsePositiveInt(countText, entry.count);
+    let message = entry.message;
+    if (entry.mode === "message") {
+      const messageText = prompt("볼 메시지", entry.message);
+      if (messageText === null) return;
+      message = String(messageText || "").trim();
+      if (!message) { setStatus("메시지는 비워둘 수 없습니다.", "warn"); return; }
+      if (containsBlockedWord(message)) { setStatus("수정한 메시지가 금칙어 필터에 걸렸습니다.", "warn"); return; }
+    }
+    const nextDonor = String(donor || "").trim();
+    if (!nextDonor) { setStatus("후원자 닉네임은 비워둘 수 없습니다.", "warn"); return; }
+    const nextUnit = getUnit();
+    const nextBallCount = calculateBallCount(nextCount, nextUnit);
+    if (nextBallCount < 1) { setStatus("수정한 별풍선 개수가 현재 기준에 못 미칩니다.", "warn"); return; }
+    entry.donor = nextDonor;
+    entry.count = nextCount;
+    entry.unit = nextUnit;
+    entry.ballCount = nextBallCount;
+    entry.message = entry.mode === "nickname" ? nextDonor : message;
+    setStatus("후보를 수정했습니다.", "ok");
+    render();
+  }
+
+  function deleteEntry(id) {
+    const before = state.entries.length;
+    state.entries = state.entries.filter((item) => item.id !== id);
+    if (before !== state.entries.length) setStatus("후보를 삭제했습니다.", "ok");
+    render();
+  }
+
+  function clearEntries() {
+    if (!state.entries.length && !state.pending.length) {
+      setStatus("초기화할 후보가 없습니다.", "warn");
+      return;
+    }
+    state.entries = [];
+    state.pending = [];
+    state.balls = [];
+    if (els.result) els.result.textContent = "결과 대기";
+    setStatus("후보와 대기 목록을 초기화했습니다. 메모는 유지됩니다.", "ok");
+    render();
+  }
+
+  function clearResult(updateStatus) {
+    if (els.result) els.result.textContent = "결과 대기";
+    if (els.memo) els.memo.value = "";
+    state.resultSeq = 1;
+    if (updateStatus !== false) setStatus("결과 메모를 초기화했습니다.", "ok");
+  }
+
+  function appendMemoResult(winner) {
+    const text = String(winner || "-").trim() || "-";
+    const line = `${state.resultSeq}. ${text}`;
+    state.resultSeq += 1;
+    if (els.memo) {
+      const before = String(els.memo.value || "").trimEnd();
+      els.memo.value = before ? `${before}
+${line}` : line;
+      els.memo.scrollTop = els.memo.scrollHeight;
+    }
+  }
+
+  function setMode(mode) {
+    state.mode = mode === "nickname" ? "nickname" : "message";
+    render();
+  }
+
+  function startRoulette() {
+    if (!state.balls.length) { setStatus("핀볼을 실행하려면 볼을 먼저 등록해야 합니다.", "warn"); return; }
+    if (els.result) els.result.textContent = "핀볼 대기 중";
+    openRouletteModal();
+    state.pendingFrameStart = false;
+    syncFrameNames();
+    postToFrame({ kind: "prepare" });
+    setStatus("핀볼 모달을 열었습니다. 모달 안의 시작 버튼을 눌러 실행해줘.", "ok");
+  }
+
+  function startPendingTimer() {
+    if (state.pendingTimer) return;
+    state.pendingTimer = setInterval(() => {
+      const before = state.pending.length;
+      renderPendingList();
+      if (before !== state.pending.length) render();
+      if (!state.pending.some((item) => !item.blocked)) {
+        clearInterval(state.pendingTimer);
+        state.pendingTimer = null;
+      }
+    }, 1000);
+  }
+
+  function loadScriptOnce(url) {
+    return new Promise((resolve, reject) => {
+      if ([...document.scripts].some((script) => script.src === url)) { resolve(); return; }
+      const script = document.createElement("script");
+      script.src = url;
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("SDK load failed: " + url));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function ensureSoopSdkLoaded() {
+    if (window.SOOP && window.SOOP.ChatSDK) return window.SOOP.ChatSDK;
+    if (window.ChatSDK) return window.ChatSDK;
+    if (state.soop.loading) return state.soop.loading;
+    state.soop.loading = (async () => {
+      let lastError = null;
+      for (const url of SOOP_SDK_URLS) {
+        try {
+          await loadScriptOnce(url);
+          if (window.SOOP && window.SOOP.ChatSDK) return window.SOOP.ChatSDK;
+          if (window.ChatSDK) return window.ChatSDK;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+      throw lastError || new Error("SOOP ChatSDK를 찾지 못했습니다.");
+    })();
+    return state.soop.loading;
+  }
+
+  async function getSoopSdk() {
+    if (state.soop.sdk) return state.soop.sdk;
+    const ChatSDK = await ensureSoopSdkLoaded();
+    try {
+      state.soop.sdk = new ChatSDK(SOOP_CLIENT_ID);
+    } catch (error) {
+      state.soop.sdk = new ChatSDK(SOOP_CLIENT_ID, "");
+    }
+    if (state.soop.sdk && typeof state.soop.sdk.init === "function") {
+      try { state.soop.sdk.init(); } catch (error) { console.warn("[PINBALL SOOP INIT WARN]", error); }
+    }
+    bindSoopSdkHandlers(state.soop.sdk);
+    return state.soop.sdk;
+  }
+
+  function buildSoopAuthUrl() {
+    const oauthState = "pinball_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+    sessionStorage.setItem("soopOAuthState", oauthState);
+    sessionStorage.setItem("soopReturnTab", "pinballDonation");
+    const params = new URLSearchParams();
+    params.set("client_id", SOOP_CLIENT_ID);
+    params.set("redirect_uri", SOOP_REDIRECT_URI);
+    params.set("response_type", "code");
+    params.set("state", oauthState);
+    return SOOP_AUTH_URL + "?" + params.toString();
+  }
+
+  async function exchangeSoopCode(authCode) {
+    const response = await fetch(SOOP_TOKEN_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: authCode, authCode, redirect_uri: SOOP_REDIRECT_URI, client_id: SOOP_CLIENT_ID })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.error) throw new Error(data.message || data.error_description || data.error || ("토큰 발급 실패 HTTP " + response.status));
+    return data;
+  }
+
+  async function refreshSoopToken() {
+    if (!state.soop.refreshToken) throw new Error("refresh_token이 없습니다. 다시 SOOP 로그인 해줘.");
+    const response = await fetch(SOOP_REFRESH_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: state.soop.refreshToken, refreshToken: state.soop.refreshToken, redirect_uri: SOOP_REDIRECT_URI, client_id: SOOP_CLIENT_ID })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.error) throw new Error(data.message || data.error_description || data.error || ("토큰 갱신 실패 HTTP " + response.status));
+    state.soop.accessToken = data.access_token || data.accessToken || state.soop.accessToken;
+    state.soop.refreshToken = data.refresh_token || data.refreshToken || state.soop.refreshToken;
+    if (state.soop.accessToken) localStorage.setItem("soopAccessToken", state.soop.accessToken);
+    if (state.soop.refreshToken) localStorage.setItem("soopRefreshToken", state.soop.refreshToken);
+    return data;
+  }
+
+  function clearOAuthQuery() {
+    try {
+      const clean = location.origin + location.pathname + (location.hash || "");
+      history.replaceState({}, document.title, clean);
+    } catch (error) {
+      try { history.replaceState({}, document.title, location.pathname); } catch (e) {}
+    }
+  }
+
+  async function finishSoopAuthFromUrl() {
+    const params = new URLSearchParams(location.search || "");
+    const authCode = params.get("authCode") || params.get("code");
+    if (!authCode) return false;
+    const returnedState = params.get("state") || "";
+    const savedState = sessionStorage.getItem("soopOAuthState") || "";
+    if (savedState && returnedState && savedState !== returnedState) {
+      setSoopStatus("SOOP 인증 상태 불일치", "err");
+      updateSoopUi();
+      return false;
+    }
+    try {
+      setSoopStatus("SOOP 인증중", "warn");
+      const tokens = await exchangeSoopCode(authCode);
+      state.soop.accessToken = tokens.access_token || tokens.accessToken || "";
+      state.soop.refreshToken = tokens.refresh_token || tokens.refreshToken || "";
+      if (state.soop.accessToken) localStorage.setItem("soopAccessToken", state.soop.accessToken);
+      if (state.soop.refreshToken) localStorage.setItem("soopRefreshToken", state.soop.refreshToken);
+      sessionStorage.removeItem("soopOAuthState");
+      sessionStorage.removeItem("soopReturnTab");
+      clearOAuthQuery();
+      setSoopStatus("SOOP 로그인 완료", "ok");
+      updateSoopUi();
+      return true;
+    } catch (error) {
+      console.error(error);
+      setSoopStatus("SOOP 인증 실패", "err");
+      alert("SOOP 인증 실패: " + (error.message || error));
+      updateSoopUi();
+      return false;
+    }
+  }
+
+  function logoutSoop() {
+    disconnectSoop();
+    state.soop.accessToken = "";
+    state.soop.refreshToken = "";
+    localStorage.removeItem("soopAccessToken");
+    localStorage.removeItem("soopRefreshToken");
+    setSoopStatus("SOOP 로그아웃 완료", "ok");
+    updateSoopUi();
+  }
+
+  function startSoopLogin() {
+    if (hasToken()) {
+      logoutSoop();
+      return;
+    }
+    sessionStorage.setItem("soopReturnTab", "pinballDonation");
+    setSoopStatus("SOOP 로그인 페이지로 이동합니다.", "warn");
+    location.href = buildSoopAuthUrl();
+  }
+
+  async function connectSoop() {
+    try {
+      state.soop.accessToken = state.soop.accessToken || localStorage.getItem("soopAccessToken") || "";
+      state.soop.refreshToken = state.soop.refreshToken || localStorage.getItem("soopRefreshToken") || "";
+      if (!state.soop.accessToken) {
+        const authed = await finishSoopAuthFromUrl();
+        if (!authed) {
+          setSoopStatus("먼저 숲 로그인이 필요합니다.", "err");
+          alert("먼저 숲 로그인 버튼을 눌러 로그인/동의를 완료해줘.");
+          return;
+        }
+      }
+      setSoopStatus("SOOP SDK 로딩중", "warn");
+      const sdk = await getSoopSdk();
+      sdk.setAuth(state.soop.accessToken);
+      try {
+        await sdk.connect();
+      } catch (connectError) {
+        if (state.soop.refreshToken) {
+          await refreshSoopToken();
+          sdk.setAuth(state.soop.accessToken);
+          await sdk.connect();
+        } else {
+          throw connectError;
+        }
+      }
+      state.soop.connected = true;
+      setSoopStatus("SOOP 연결됨 · 후원 이벤트 수집 ON", "ok");
+      updateSoopUi();
+    } catch (error) {
+      console.error(error);
+      state.soop.connected = false;
+      setSoopStatus("SOOP 연결 실패", "err");
+      updateSoopUi();
+      alert("SOOP 채팅 연결 실패: " + (error.message || error));
+    }
+  }
+
+  function disconnectSoop() {
+    try {
+      if (state.soop.sdk && state.soop.connected && typeof state.soop.sdk.disconnect === "function") state.soop.sdk.disconnect();
+    } catch (error) {
+      console.warn(error);
+    }
+    state.soop.connected = false;
+    setSoopStatus("SOOP 미연결 · 자동등록 OFF", "");
+    updateSoopUi();
+  }
+
+  function toggleSoopConnect() {
+    if (state.soop.connected) disconnectSoop();
+    else connectSoop();
+  }
+
+  function handleSoopGift(action, message) {
+    const donor = resolveSoopNickname(message);
+    const userId = resolveSoopUserId(message);
+    const count = resolveSoopCount(message);
+    if (!count) return;
+    if (state.mode === "nickname") {
+      addEntry({ donor, count, message: donor, mode: "nickname", source: action || "SOOP", userId });
+      return;
+    }
+    addPendingGift({ userId, donor, count });
+  }
+
+  function handleSoopMessage(message) {
+    const text = resolveSoopText(message);
+    if (!text) return;
+    const nickname = resolveSoopNickname(message);
+    const userId = resolveSoopUserId(message);
+    consumePendingMessage({ userId, nickname, text });
+  }
+
+  function bindSoopSdkHandlers(sdk) {
+    if (!sdk || sdk.__pinballDonationBound) return;
+    sdk.__pinballDonationBound = true;
+    sdk.handleMessageReceived((action, message) => {
+      if (!state.soop.connected) return;
+      if (action === "BALLOON_GIFTED" || action === "ADBALLOON_GIFTED" || action === "STICKER_GIFTED") {
+        handleSoopGift(action, message || {});
+        return;
+      }
+      if (action === "MESSAGE") {
+        handleSoopMessage(message || {});
+      }
+    });
+    sdk.handleChatClosed(() => {
+      state.soop.connected = false;
+      setSoopStatus("SOOP 연결 종료", "warn");
+      updateSoopUi();
+    });
+    sdk.handleError((code, message) => {
+      console.error("[PINBALL SOOP SDK ERROR]", code, message);
+      setSoopStatus("SOOP 오류", "err");
+      updateSoopUi();
+    });
+  }
+
+  window.addEventListener("message", (event) => {
+    const message = event.data || {};
+    if (message.source !== "pinball-donation-roulette" || message.frameId !== state.frameId) return;
+    if (message.kind === "ready") {
+      state.frameReady = true;
+      if (state.pendingFrameSync) {
+        state.pendingFrameSync = false;
+        postToFrame({ kind: "setNames", names: namesForRoulette() });
+        postToFrame({ kind: "setWinnerMode", winnerMode: state.winnerMode });
+      }
+      return;
+    }
+    if (message.kind === "result") {
+      const winner = message.winner || (Array.isArray(message.order) && message.order[0]) || "-";
+      if (els.result) els.result.textContent = `당첨: ${winner}`;
+      appendMemoResult(winner);
+      setStatus(`핀볼 결과: ${winner}`, "ok");
+    }
+  });
+
+  els.modeMessage?.addEventListener("click", () => setMode("message"));
+  els.modeNickname?.addEventListener("click", () => setMode("nickname"));
+  els.add?.addEventListener("click", addManualEntry);
+  els.start?.addEventListener("click", startRoulette);
+  els.resultClear?.addEventListener("click", () => clearResult(true));
+  els.memoClear?.addEventListener("click", () => clearResult(true));
+  els.modalClose?.addEventListener("click", closeRouletteModal);
+  els.clear?.addEventListener("click", clearEntries);
+  els.login?.addEventListener("click", startSoopLogin);
+  els.connect?.addEventListener("click", toggleSoopConnect);
+  els.list?.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const action = button.dataset.action;
+    const id = button.dataset.id || "";
+    if (action === "edit-entry") editEntry(id);
+    if (action === "delete-entry") deleteEntry(id);
+  });
+  els.pendingList?.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const action = button.dataset.action;
+    const id = button.dataset.id || "";
+    if (action === "approve-pending") approveBlockedPending(id);
+    if (action === "delete-pending") deletePending(id);
+  });
+  [els.donor, els.count, els.message].forEach((field) => {
+    field?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        addManualEntry();
+      }
+    });
+  });
+  els.unit?.addEventListener("change", render);
+  els.blockedWords?.addEventListener("change", render);
+  window.addEventListener("pinballDonationScreenShown", () => { ensureFrame(); render(); });
+
+  finishSoopAuthFromUrl().then(() => {
+    updateSoopUi();
+    render();
+  });
+  render();
+})();
+</script>
+
 <script id="duckcalc-script">
 (function(){
   const $ = (id) => document.getElementById(id);
