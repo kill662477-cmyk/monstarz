@@ -1,0 +1,12 @@
+{
+  "name": "monstarznew",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "collect": "node scripts/collect-data.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.5.0"
+  }
+}
