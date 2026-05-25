@@ -806,6 +806,93 @@
       color: #dcecff;
       border-color: rgba(137,192,255,.22);
     }
+    .selection-player,
+    .selection-empty,
+    .selection-score {
+      background: rgba(2, 10, 24, .56);
+      border: 1px solid rgba(137, 192, 255, .22);
+      color: #f7fbff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .selection-score {
+      min-width: 138px;
+      min-height: 42px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      color: #b8d8ff;
+    }
+    .selection-score strong { color: #ffffff; font-size: 19px; }
+    .selection-score.is-missing {
+      flex-direction: column;
+      gap: 2px;
+      color: #ffd166;
+      font-size: 12px;
+      line-height: 1.25;
+      text-align: center;
+    }
+    .selection-links {
+      margin-top: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .record-link,
+    .selection-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: #d9ecff;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 950;
+      background: rgba(96, 165, 250, .16);
+      border: 1px solid rgba(137, 192, 255, .24);
+    }
+    .record-link:hover,
+    .selection-link:hover {
+      color: #fff;
+      background: rgba(96, 165, 250, .28);
+      border-color: rgba(137, 192, 255, .40);
+    }
+    .record-stat {
+      background: rgba(2, 10, 24, .48);
+      border-color: rgba(137,192,255,.18);
+      color: #eef6ff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .record-stat-label { color: #a9c9ef; }
+    .record-stat-total { color: #ffffff; }
+    .record-table-wrap {
+      border-color: rgba(137,192,255,.20);
+      background: rgba(2, 10, 24, .36);
+    }
+    .record-table th {
+      background: rgba(96, 165, 250, .14);
+      color: #cfe5ff;
+      border-bottom-color: rgba(137,192,255,.18);
+    }
+    .record-table td {
+      color: #eef6ff;
+      border-bottom-color: rgba(137,192,255,.12);
+    }
+    .record-win { color: #7db7ff; }
+    .record-lose { color: #c5d7ee; }
+    .record-empty {
+      color: #b8d8ff;
+      background: rgba(2, 10, 24, .42);
+      border-radius: 12px;
+    }
+    .record-fallback {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+      line-height: 1.55;
+    }
     svg { stroke: currentColor; }
     @media (max-width: 820px) {
       main.calm-tier-main { width: calc(100% - 16px); }
@@ -6221,21 +6308,135 @@
       return value && !value.includes('cnine.kr') && !value.includes('dn.cnine.kr');
     }
 
-    function recordBucket(player, race) {
-      const records = firebaseState.records || {};
-      const keys = [
-        playerDataKey({ userId: player.userId, race: race }),
-        safeKey(player.userId + '_' + race),
-        player.userId + '_' + race,
-        player.userId
-      ];
+    function extractEloMeta(player) {
+      const url = String((player && player.elo) || '');
+      const wrMatch = url.match(/[?&]wr_id=([^&#]+)/i);
+      const tableMatch = url.match(/[?&]bo_table=([^&#]+)/i);
+      const sectionMatch = url.match(/eloboard\.com\/([^/]+)\//i);
+      return {
+        wrId: wrMatch ? decodeURIComponent(wrMatch[1]) : '',
+        table: tableMatch ? decodeURIComponent(tableMatch[1]) : '',
+        section: sectionMatch ? decodeURIComponent(sectionMatch[1]) : ''
+      };
+    }
+
+    function recordKeysFor(player, race) {
+      const userId = extractSoopUserId(player) || player.userId || '';
+      const elo = extractEloMeta(player);
+      return [
+        playerDataKey({ userId: userId, race: race }),
+        safeKey(String(userId || '') + '_' + race),
+        String(userId || '') + '_' + race,
+        userId,
+        playerDataKey({ userId: player.name, race: race }),
+        safeKey(String(player.name || '') + '_' + race),
+        player.name,
+        elo.wrId ? safeKey('wr_' + elo.wrId + '_' + race) : '',
+        elo.wrId ? safeKey(elo.wrId + '_' + race) : '',
+        elo.wrId || '',
+        elo.table && elo.wrId ? safeKey(elo.table + '_' + elo.wrId + '_' + race) : '',
+        elo.section && elo.table && elo.wrId ? safeKey(elo.section + '_' + elo.table + '_' + elo.wrId + '_' + race) : ''
+      ].filter(Boolean).map(String);
+    }
+
+    function normalizeRecordEntry(entry, race) {
+      if (!entry) return [];
+      if (Array.isArray(entry)) return entry;
+      if (typeof entry !== 'object') return [];
+      if (entry[race]) return normalizeList(entry[race]);
+      if (Array.isArray(entry.data)) return entry.data;
+      if (Array.isArray(entry.rows)) return entry.rows;
+      if (Array.isArray(entry.list)) return entry.list;
+      if (Array.isArray(entry.records)) return entry.records;
+      return [];
+    }
+
+    function lookupRecordEntry(records, keys, race, depth) {
+      if (!records || typeof records !== 'object' || depth > 3) return [];
       for (const key of keys) {
-        if (!records[key]) continue;
-        if (Array.isArray(records[key])) return records[key];
-        if (records[key][race]) return normalizeList(records[key][race]);
-        return normalizeList(records[key]);
+        if (!Object.prototype.hasOwnProperty.call(records, key)) continue;
+        const direct = normalizeRecordEntry(records[key], race);
+        if (direct.length) return direct;
+      }
+      for (const value of Object.values(records)) {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
+        const nested = lookupRecordEntry(value, keys, race, depth + 1);
+        if (nested.length) return nested;
       }
       return [];
+    }
+
+    function looksLikeRecordRow(row) {
+      return row && typeof row === 'object' && (
+        row.date || row.standardDate || row.playedAt || row.createdAt ||
+        row.winnerPlayer || row.winnerName || row.losePlayer || row.loserPlayer ||
+        row.opponentName || row.map || row.mapName || row.result || row.isWin !== undefined
+      );
+    }
+
+    function collectRecordRows(value, output, depth) {
+      if (!value || depth > 5) return;
+      if (Array.isArray(value)) {
+        value.forEach(function(item) {
+          if (looksLikeRecordRow(item)) output.push(item);
+          else collectRecordRows(item, output, depth + 1);
+        });
+        return;
+      }
+      if (typeof value !== 'object') return;
+      if (Array.isArray(value.data) || Array.isArray(value.rows) || Array.isArray(value.list) || Array.isArray(value.records)) {
+        ['data', 'rows', 'list', 'records'].forEach(function(key) { collectRecordRows(value[key], output, depth + 1); });
+        return;
+      }
+      Object.values(value).forEach(function(child) { collectRecordRows(child, output, depth + 1); });
+    }
+
+    function rowIds(row) {
+      return [
+        row.winnerSoopUserId, row.winnerUserId, row.winnerId, row.winner,
+        row.loseSoopUserId, row.loserSoopUserId, row.loseUserId, row.loserUserId, row.loserId,
+        row.playerSoopUserId, row.playerUserId, row.playerId,
+        row.opponentSoopUserId, row.opponentUserId, row.opponentId
+      ].map(function(value) { return String(value || ''); }).filter(Boolean);
+    }
+
+    function rowNames(row) {
+      return [
+        row.winnerPlayer, row.winnerName, row.winPlayer, row.winName,
+        row.losePlayer, row.loserPlayer, row.loseName, row.loserName,
+        row.playerName, row.bjName, row.targetName,
+        row.opponentName, row.opponentPlayer
+      ].map(function(value) { return String(value || '').trim(); }).filter(Boolean);
+    }
+
+    function rowContainsPlayer(row, player) {
+      const userId = String(extractSoopUserId(player) || player.userId || '');
+      if (userId && rowIds(row).includes(userId)) return true;
+      const names = rowNames(row);
+      return Boolean(player.name && names.includes(String(player.name).trim()));
+    }
+
+    function rowPlayerRace(row, player) {
+      if (rowWinnerMatches(row, player)) return row.winnerRace || row.winRace || row.playerRace || '';
+      if (rowLoserMatches(row, player)) return row.loseRace || row.loserRace || row.playerRace || '';
+      return row.playerRace || row.myRace || '';
+    }
+
+    function recordBucket(player, race) {
+      const records = firebaseState.records || {};
+      const hydratedPlayer = player.userId ? player : { ...player, userId: extractSoopUserId(player) };
+      const keys = recordKeysFor(hydratedPlayer, race);
+      const directRows = lookupRecordEntry(records, keys, race, 0);
+      if (directRows.length) return directRows;
+
+      const allRows = [];
+      collectRecordRows(records, allRows, 0);
+      if (!allRows.length) return [];
+      return allRows.filter(function(row) {
+        if (!rowContainsPlayer(row, hydratedPlayer)) return false;
+        const ownRace = String(rowPlayerRace(row, hydratedPlayer) || '').trim();
+        return !ownRace || ownRace === race;
+      });
     }
 
     function rowDate(row) {
@@ -6250,18 +6451,50 @@
       return String(row.loseSoopUserId || row.loserSoopUserId || row.loseUserId || row.loserUserId || row.loserId || '');
     }
 
-    function rowOpponentName(row, userId) {
-      const win = rowWinnerId(row) === String(userId);
-      return win ? (row.losePlayer || row.loserPlayer || row.loseName || row.opponentName || '') : (row.winnerPlayer || row.winnerName || row.opponentName || '');
+    function rowWinnerName(row) {
+      return String(row.winnerPlayer || row.winnerName || row.winPlayer || row.winName || '').trim();
     }
 
-    function rowOpponentRace(row, userId) {
-      const win = rowWinnerId(row) === String(userId);
-      return win ? (row.loseRace || row.loserRace || row.opponentRace || '') : (row.winnerRace || row.opponentRace || '');
+    function rowLoserName(row) {
+      return String(row.losePlayer || row.loserPlayer || row.loseName || row.loserName || '').trim();
     }
 
-    function rowIsWin(row, userId) {
-      if (rowWinnerId(row)) return rowWinnerId(row) === String(userId);
+    function playerRef(playerOrUserId) {
+      if (playerOrUserId && typeof playerOrUserId === 'object') {
+        return {
+          userId: String(extractSoopUserId(playerOrUserId) || playerOrUserId.userId || ''),
+          name: String(playerOrUserId.name || '').trim()
+        };
+      }
+      return { userId: String(playerOrUserId || ''), name: '' };
+    }
+
+    function rowWinnerMatches(row, playerOrUserId) {
+      const ref = playerRef(playerOrUserId);
+      if (ref.userId && rowWinnerId(row) === ref.userId) return true;
+      return Boolean(ref.name && rowWinnerName(row) === ref.name);
+    }
+
+    function rowLoserMatches(row, playerOrUserId) {
+      const ref = playerRef(playerOrUserId);
+      if (ref.userId && rowLoserId(row) === ref.userId) return true;
+      return Boolean(ref.name && rowLoserName(row) === ref.name);
+    }
+
+    function rowOpponentName(row, playerOrUserId) {
+      if (rowWinnerMatches(row, playerOrUserId)) return rowLoserName(row) || row.opponentName || row.opponentPlayer || '';
+      if (rowLoserMatches(row, playerOrUserId)) return rowWinnerName(row) || row.opponentName || row.opponentPlayer || '';
+      return row.opponentName || row.opponentPlayer || '';
+    }
+
+    function rowOpponentRace(row, playerOrUserId) {
+      if (rowWinnerMatches(row, playerOrUserId)) return row.loseRace || row.loserRace || row.opponentRace || '';
+      if (rowLoserMatches(row, playerOrUserId)) return row.winnerRace || row.winRace || row.opponentRace || '';
+      return row.opponentRace || '';
+    }
+
+    function rowIsWin(row, playerOrUserId) {
+      if (rowWinnerId(row) || rowWinnerName(row)) return rowWinnerMatches(row, playerOrUserId);
       return String(row.result || row.win || '').toLowerCase() === 'win' || row.isWin === true;
     }
 
@@ -6278,8 +6511,8 @@
       const data = firebaseState.headToHead || {};
       const direct = data[headToHeadKey(player, opponent, period)] || data[headToHeadKey(player, opponent, 'ALL')];
       const reverse = data[headToHeadKey(opponent, player, period)] || data[headToHeadKey(opponent, player, 'ALL')];
-      if (direct) return { player1Wins: Number(direct.player1Wins || direct.wins || 0), player2Wins: Number(direct.player2Wins || direct.losses || 0) };
-      if (reverse) return { player1Wins: Number(reverse.player2Wins || reverse.losses || 0), player2Wins: Number(reverse.player1Wins || reverse.wins || 0) };
+      if (direct) return { player1Wins: Number(direct.player1Wins || direct.wins || 0), player2Wins: Number(direct.player2Wins || direct.losses || 0), hasData: true, source: 'stored' };
+      if (reverse) return { player1Wins: Number(reverse.player2Wins || reverse.losses || 0), player2Wins: Number(reverse.player1Wins || reverse.wins || 0), hasData: true, source: 'stored' };
       return null;
     }
 
@@ -6434,16 +6667,27 @@
       render();
     }
 
+    function playerEloLink(player, label, className) {
+      if (!player || !player.elo) return '';
+      return '<a class="' + (className || 'record-link') + '" href="' + escapeAttr(player.elo) + '" target="_blank" rel="noopener">' + escapeHtml(label || (player.name + ' ELO')) + '</a>';
+    }
+
     function renderSelection() {
       const player = playerByKey(selection.playerKey);
       const opponent = playerByKey(selection.opponentKey);
       selectionPanel.hidden = !player && !opponent;
       if (!player && !opponent) return;
+      const hasResult = selection.result && selection.result.hasData !== false;
       const score = selection.loading
         ? '<span>불러오는 중</span>'
-        : '<strong>' + (selection.result ? selection.result.player1Wins : '?') + '</strong><span>VS</span><strong>' + (selection.result ? selection.result.player2Wins : '?') + '</strong>';
-      selectionBody.innerHTML = compactPlayer(player) + '<div class="selection-score">' + score + '</div>' + compactPlayer(opponent);
-      selectionHint.textContent = player && opponent ? '' : '상대 플레이어를 선택해주세요';
+        : hasResult
+          ? '<strong>' + Number(selection.result.player1Wins || 0) + '</strong><span>VS</span><strong>' + Number(selection.result.player2Wins || 0) + '</strong>'
+          : '<span>데이터 없음</span><small>아래 ELO 링크로 확인</small>';
+      selectionBody.innerHTML = compactPlayer(player) + '<div class="selection-score' + (hasResult || selection.loading ? '' : ' is-missing') + '">' + score + '</div>' + compactPlayer(opponent);
+      const links = player && opponent
+        ? '<div class="selection-links">' + playerEloLink(player, player.name + ' ELO', 'selection-link') + playerEloLink(opponent, opponent.name + ' ELO', 'selection-link') + '</div>'
+        : '';
+      selectionHint.innerHTML = player && opponent ? links : '상대 플레이어를 선택해주세요';
     }
 
     function compactPlayer(player) {
@@ -6480,18 +6724,8 @@
     }
 
     function rowMatchesOpponent(row, player, opponent) {
-      const ids = [
-        row.winnerSoopUserId,
-        row.loseSoopUserId,
-        row.loserSoopUserId,
-        row.winnerUserId,
-        row.loseUserId,
-        row.loserUserId,
-        row.opponentSoopUserId,
-        row.opponentUserId
-      ].map(function(value) { return String(value || ''); });
-      if (ids.includes(String(opponent.userId || ''))) return true;
-      const name = rowOpponentName(row, player.userId).trim();
+      if (rowContainsPlayer(row, opponent)) return true;
+      const name = rowOpponentName(row, player).trim();
       return Boolean(name && name === opponent.name);
     }
 
@@ -6518,12 +6752,15 @@
         renderSelection();
         return;
       }
-      const score = { player1Wins: 0, player2Wins: 0 };
+      const score = { player1Wins: 0, player2Wins: 0, hasData: false, source: 'computed' };
+      let matchedRows = 0;
       recordBucket(player, player.race).forEach(function(row) {
         if (!inHeadPeriod(row, headPeriod.value) || !rowMatchesOpponent(row, player, opponent)) return;
-        if (rowIsWin(row, player.userId)) score.player1Wins += 1;
+        matchedRows += 1;
+        if (rowIsWin(row, player)) score.player1Wins += 1;
         else score.player2Wins += 1;
       });
+      score.hasData = matchedRows > 0;
       selection.result = score;
       selection.loading = false;
       renderSelection();
@@ -6554,8 +6791,9 @@
       const monthlyRows = monthRows(rows, standardMonth());
       recordUpdated.textContent = formatDateTime(firebaseState.meta.eloboardUpdatedAt || firebaseState.meta.updatedAt || firebaseState.meta.syncedAt || '');
       if (!rows.length) {
-        recordStats.innerHTML = '<div class="record-empty">전적 데이터를 불러오지 못했습니다.</div>';
-        recordTable.innerHTML = '<div class="record-empty">전적 데이터를 불러오지 못했습니다.</div>';
+        const link = playerEloLink(player, player.name + ' ELOBOARD 전적 보기');
+        recordStats.innerHTML = '<div class="record-empty record-fallback">이 페이지 내부에 동기화된 전적 데이터가 없습니다.' + (link ? '<div>' + link + '</div>' : '') + '</div>';
+        recordTable.innerHTML = '<div class="record-empty record-fallback">Firebase records/headToHead 데이터가 들어오면 여기서 자동으로 표기됩니다.' + (link ? '<div>' + link + '</div>' : '') + '</div>';
         return;
       }
       renderRecordStats(computeRecordStats(monthlyRows, player));
@@ -6565,8 +6803,8 @@
     function computeRecordStats(rows, player) {
       const stats = { A: emptyStat('A'), Z: emptyStat('Z'), T: emptyStat('T'), P: emptyStat('P') };
       rows.forEach(function(row) {
-        const code = rowOpponentRace(row, player.userId);
-        const win = rowIsWin(row, player.userId);
+        const code = rowOpponentRace(row, player);
+        const win = rowIsWin(row, player);
         ['A', code].forEach(function(key) {
           if (!stats[key]) return;
           stats[key].totalCount += 1;
@@ -6606,9 +6844,9 @@
       }
       recordTable.innerHTML = '<table class="record-table"><thead><tr><th>날짜</th><th>상대</th><th>맵</th></tr></thead><tbody>' +
         rows.map(function(row) {
-          const win = rowIsWin(row, player.userId);
-          const opponent = rowOpponentName(row, player.userId);
-          const opponentRace = rowOpponentRace(row, player.userId);
+          const win = rowIsWin(row, player);
+          const opponent = rowOpponentName(row, player);
+          const opponentRace = rowOpponentRace(row, player);
           return '<tr><td class="' + (win ? 'record-win' : 'record-lose') + '">' + formatDate(row.date || row.standardDate) + '</td>' +
             '<td>' + escapeHtml((opponent || '') + ' ' + (opponentRace || '')) + '</td>' +
             '<td>' + escapeHtml(row.map || row.mapName || '') + '</td></tr>';
