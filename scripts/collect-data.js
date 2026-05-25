@@ -22,6 +22,7 @@ const MANUAL_PLAYERS_PATH = process.env.MANUAL_PLAYERS_PATH
 const FETCH_TIMEOUT_MS = Math.max(3000, Number(process.env.FETCH_TIMEOUT_MS || 15000));
 const RECORD_CONCURRENCY = Math.max(1, Number(process.env.RECORD_CONCURRENCY || 3));
 const RECORD_MAX_PAGES = Math.max(1, Number(process.env.RECORD_MAX_PAGES || 30));
+const ELOBOARD_MAX_ROWS_PER_PLAYER = Math.max(1, Number(process.env.ELOBOARD_MAX_ROWS_PER_PLAYER || 5000));
 
 const CACHE_LOCAL_JSON = process.env.CACHE_LOCAL_JSON !== "false";
 const CACHE_LOCAL_ASSETS = process.env.CACHE_LOCAL_ASSETS === "true";
@@ -359,41 +360,274 @@ async function mapLimit(items, limit, worker) {
   return results;
 }
 
-async function fetchRecords(player) {
-  if (!player.eloboardKey) return [];
+function decodeHtml(value) {
+  return String(value || "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&#160;/g, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&#x27;/gi, "'")
+    .replace(/&#x2F;/gi, "/")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)));
+}
 
-  const rows = [];
-  let page = 1;
-  let total = 0;
+function stripTags(html) {
+  return decodeHtml(
+    String(html || "")
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<br\s*\/?>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+  )
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
-  while (page <= RECORD_MAX_PAGES) {
-    const params = new URLSearchParams({
-      soopUserId: player.userId,
-      race: player.race,
-      page: String(page),
-      size: "1000",
-      orderBy: "id",
-      order: "desc",
-    });
+function htmlToTextLines(html) {
+  const text = decodeHtml(
+    String(html || "")
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/tr>/gi, "\n")
+      .replace(/<\/li>/gi, "\n")
+      .replace(/<\/p>/gi, "\n")
+      .replace(/<\/div>/gi, "\n")
+      .replace(/<\/td>/gi, " ")
+      .replace(/<\/th>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+  );
 
-    const url = `https://www.cnine.kr/api/v2/p/starcraft/eloboard?${params}`;
-    const result = await getJson(url);
+  return text
+    .split(/\n+/)
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+}
 
-    const pageRows = Array.isArray(result && result.data) ? result.data : [];
+function parseOpponentCell(text) {
+  const cleaned = String(text || "").replace(/\s+/g, " ").trim();
+  const match = cleaned.match(/^(.+?)\s*\((T|Z|P|테란|저그|토스|프로토스)\)$/i);
 
-    rows.push(...pageRows);
-
-    total = Number((result && result.total) || rows.length || 0);
-
-    if (pageRows.length === 0) break;
-    if (rows.length >= total) break;
-
-    page += 1;
-
-    await sleep(80);
+  if (match) {
+    return {
+      opponentName: match[1].trim(),
+      opponentRace: normalizeRace(match[2]),
+    };
   }
 
-  return rows;
+  const compact = cleaned.match(/^(.+?)([TZP])$/i);
+
+  if (compact) {
+    return {
+      opponentName: compact[1].trim(),
+      opponentRace: normalizeRace(compact[2]),
+    };
+  }
+
+  return {
+    opponentName: cleaned,
+    opponentRace: "",
+  };
+}
+
+function makeEloboardRecord({ player, date, opponentName, opponentRace, map, eloChange, matchType, memo }) {
+  const ownRace = normalizeRace(player.race);
+  const numericEloChange = Number(eloChange);
+  const isWin = numericEloChange > 0;
+
+  const winnerPlayer = isWin ? player.name : opponentName;
+  const winnerRace = isWin ? ownRace : opponentRace;
+  const losePlayer = isWin ? opponentName : player.name;
+  const loseRace = isWin ? opponentRace : ownRace;
+
+  return {
+    id: `${player.userId || player.name}_${date}_${opponentName}_${opponentRace}_${map}_${numericEloChange}_${matchType || ""}_${memo || ""}`
+      .replace(/\s+/g, "_")
+      .slice(0, 240),
+    date,
+    standardDate: date,
+    playedAt: date,
+    playerName: player.name,
+    playerRace: ownRace,
+    playerUserId: player.userId || "",
+    opponentName,
+    opponentRace,
+    map,
+    elo: numericEloChange,
+    eloChange: numericEloChange,
+    matchType: matchType || "",
+    memo: memo || "",
+    result: isWin ? "win" : "lose",
+    isWin,
+
+    winnerPlayer,
+    winnerName: winnerPlayer,
+    winnerRace,
+    losePlayer,
+    loseName: losePlayer,
+    loseRace,
+
+    winnerSoopUserId: isWin ? player.userId || "" : "",
+    winnerUserId: isWin ? player.userId || "" : "",
+    loseSoopUserId: isWin ? "" : player.userId || "",
+    loserSoopUserId: isWin ? "" : player.userId || "",
+    loseUserId: isWin ? "" : player.userId || "",
+    loserUserId: isWin ? "" : player.userId || "",
+  };
+}
+
+function parseEloboardRecordCells(cells, player) {
+  const clean = cells
+    .map((cell) => String(cell || "").replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+
+  if (clean.length < 5) return null;
+
+  const dateMatch = clean[0].match(/\d{4}-\d{2}-\d{2}/);
+  if (!dateMatch) return null;
+
+  const eloIndex = clean.findIndex((cell, index) => index >= 3 && /^[+-]\d+(?:\.\d+)?$/.test(cell));
+  if (eloIndex < 3) return null;
+
+  const date = dateMatch[0];
+  const { opponentName, opponentRace } = parseOpponentCell(clean[1]);
+  const map = clean.slice(2, eloIndex).join(" ").trim();
+  const numericEloChange = Number(clean[eloIndex]);
+  const matchType = clean[eloIndex + 1] || "";
+  const memo = clean.slice(eloIndex + 2).join(" ").trim();
+
+  if (!opponentName || !opponentRace || !map || !Number.isFinite(numericEloChange)) return null;
+
+  return makeEloboardRecord({
+    player,
+    date,
+    opponentName,
+    opponentRace,
+    map,
+    eloChange: numericEloChange,
+    matchType,
+    memo,
+  });
+}
+
+function parseEloboardRowsByTable(html, player) {
+  const records = [];
+  const trRegex = /<tr\b[\s\S]*?<\/tr>/gi;
+  const cellRegex = /<t[dh]\b[\s\S]*?<\/t[dh]>/gi;
+
+  let trMatch;
+
+  while ((trMatch = trRegex.exec(html))) {
+    const rowHtml = trMatch[0];
+    if (!/\d{4}-\d{2}-\d{2}/.test(rowHtml)) continue;
+
+    const cells = [];
+    let cellMatch;
+
+    while ((cellMatch = cellRegex.exec(rowHtml))) {
+      cells.push(stripTags(cellMatch[0]));
+    }
+
+    const record = parseEloboardRecordCells(cells, player);
+
+    if (record) {
+      records.push(record);
+      if (records.length >= ELOBOARD_MAX_ROWS_PER_PLAYER) break;
+    }
+  }
+
+  return records;
+}
+
+function parseEloboardRecordLine(line, player) {
+  const compact = String(line || "").replace(/\s+/g, " ").trim();
+  const match = compact.match(
+    /^(\d{4}-\d{2}-\d{2})\s+(.+?)\s*\((T|Z|P|테란|저그|토스|프로토스)\)\s+(.+?)\s+([+-]\d+(?:\.\d+)?)\s+([0-9/()]+|단판)\s*(.*)$/
+  );
+
+  if (!match) return null;
+
+  return makeEloboardRecord({
+    player,
+    date: match[1],
+    opponentName: match[2].trim(),
+    opponentRace: normalizeRace(match[3]),
+    map: match[4].trim(),
+    eloChange: Number(match[5]),
+    matchType: match[6] || "",
+    memo: match[7] || "",
+  });
+}
+
+function parseEloboardRowsByText(html, player) {
+  const lines = htmlToTextLines(html);
+  const records = [];
+
+  for (const line of lines) {
+    if (!/^\d{4}-\d{2}-\d{2}\s+/.test(line)) continue;
+
+    const row = parseEloboardRecordLine(line, player);
+
+    if (row) {
+      records.push(row);
+      if (records.length >= ELOBOARD_MAX_ROWS_PER_PLAYER) break;
+    }
+  }
+
+  return records;
+}
+
+function parseEloboardRecords(html, player) {
+  const byTable = parseEloboardRowsByTable(html, player);
+  if (byTable.length > 0) return byTable;
+
+  return parseEloboardRowsByText(html, player);
+}
+
+async function fetchEloboardHtml(url) {
+  const { response, body } = await fetchBodyWithTimeout(
+    url,
+    {
+      headers: {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36",
+        accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "accept-language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+      },
+    },
+    (res) => res.text()
+  );
+
+  if (!response.ok) {
+    throw new Error(`${response.status} ${url}`);
+  }
+
+  return body || "";
+}
+
+async function fetchRecords(player) {
+  const url = normalizeUrl(player.elo || eloboardUrl(player.eloboardKey, player.race));
+
+  if (!url) return [];
+
+  const html = await fetchEloboardHtml(url);
+
+  if (/max_user_connections|Too many connections|DB Connect Error/i.test(html)) {
+    throw new Error("ELOBOARD connection limit page detected");
+  }
+
+  const records = parseEloboardRecords(html, player);
+
+  if (records.length === 0) {
+    console.warn(`[records warn] ${player.name}(${player.userId}/${player.race}) direct ELOBOARD parsed 0 rows`);
+  }
+
+  await sleep(250);
+
+  return records;
 }
 
 function rowDate(row) {
@@ -998,6 +1232,7 @@ async function main() {
     FETCH_TIMEOUT_MS,
     RECORD_CONCURRENCY,
     RECORD_MAX_PAGES,
+    ELOBOARD_MAX_ROWS_PER_PLAYER,
     CACHE_LOCAL_JSON,
     CACHE_LOCAL_ASSETS,
   });
@@ -1108,7 +1343,8 @@ async function main() {
     fetchTimeoutMs: FETCH_TIMEOUT_MS,
     recordConcurrency: RECORD_CONCURRENCY,
     recordMaxPages: RECORD_MAX_PAGES,
-    source: "manual-players + cnine-eloboard",
+    eloboardMaxRowsPerPlayer: ELOBOARD_MAX_ROWS_PER_PLAYER,
+    source: "manual-players + direct-eloboard",
     playerSource: "data/manual/players.json",
     liveSource: "preserved-from-soop-sync",
   };
