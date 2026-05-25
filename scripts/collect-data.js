@@ -15,6 +15,10 @@ const FIREBASE_DATABASE_URL =
 
 const FIREBASE_ROOT = process.env.FIREBASE_ROOT || "starcraftTier/current";
 
+const MANUAL_PLAYERS_PATH = process.env.MANUAL_PLAYERS_PATH
+  ? path.resolve(process.env.MANUAL_PLAYERS_PATH)
+  : path.join(dataDir, "manual", "players.json");
+
 const FETCH_TIMEOUT_MS = Math.max(3000, Number(process.env.FETCH_TIMEOUT_MS || 15000));
 const RECORD_CONCURRENCY = Math.max(1, Number(process.env.RECORD_CONCURRENCY || 3));
 const RECORD_MAX_PAGES = Math.max(1, Number(process.env.RECORD_MAX_PAGES || 30));
@@ -96,6 +100,159 @@ function eloboardUrl(key, race) {
   }
 
   return "";
+}
+
+function normalizeRace(value) {
+  const raw = String(value || "").trim().toUpperCase();
+
+  if (raw === "T" || raw === "TERRAN" || raw === "테란") return "T";
+  if (raw === "Z" || raw === "ZERG" || raw === "저그") return "Z";
+  if (raw === "P" || raw === "PROTOSS" || raw === "토스" || raw === "프로토스") return "P";
+
+  return raw || "";
+}
+
+function normalizeTierCode(value, fallbackTier) {
+  const raw = String(value || "").trim();
+  const tierText = String(fallbackTier || "").trim();
+
+  if (tierOrder.includes(raw)) return raw;
+
+  const map = {
+    갓티어: "G",
+    킹티어: "K",
+    잭티어: "J",
+    조커티어: "O",
+    스페이드티어: "S",
+    베이비티어: "B",
+    티어없음: "N",
+    없음: "N",
+  };
+
+  if (map[raw]) return map[raw];
+  if (map[tierText]) return map[tierText];
+
+  const numberMatch = raw.match(/^([0-8])(?:티어)?$/) || tierText.match(/^([0-8])(?:티어)?$/);
+  if (numberMatch) return numberMatch[1];
+
+  return "N";
+}
+
+function tierLabelFromCode(code, fallbackTier) {
+  const tierCode = normalizeTierCode(code, fallbackTier);
+  return tierName[tierCode] || `${tierCode}티어`;
+}
+
+function normalizeAcademy(item) {
+  const academy = item.academy || item.academyInfo || item.school || item.team || null;
+
+  if (!academy) return null;
+
+  if (typeof academy === "string") {
+    return {
+      id: safeKey(academy),
+      name: academy,
+      image: "",
+      sourceImage: "",
+      position: item.academyPosition || item.position || "",
+    };
+  }
+
+  const image = normalizeUrl(
+    academy.image ||
+      academy.logoImageUrl ||
+      academy.logo ||
+      academy.sourceImage ||
+      academy.profileImageUrl ||
+      ""
+  );
+
+  return {
+    id: academy.id || safeKey(academy.name || item.academyName || "academy"),
+    name: academy.name || item.academyName || "",
+    image,
+    sourceImage: normalizeUrl(academy.sourceImage || academy.logoImageUrl || image),
+    position: academy.position || item.academyPosition || item.position || "",
+  };
+}
+
+function normalizeManualPlayer(item, index) {
+  const userId = String(
+    item.userId || item.soopUserId || item.soopId || item.stationId || item.id || ""
+  ).trim();
+
+  const name = String(item.name || item.nickname || item.nick || item.playerName || userId).trim();
+  const race = normalizeRace(item.race || item.raceCode || item.species);
+  const tierCode = normalizeTierCode(item.tierCode || item.tierId || item.tier, item.tierName || item.tier);
+  const profileImage = normalizeUrl(
+    item.image || item.profileImage || item.profileImageUrl || item.sourceImage || item.logo || ""
+  );
+  const eloboardKey = String(item.eloboardKey || item.eloKey || item.eloBoardKey || "").trim();
+  const station = item.station || item.stationUrl || (userId ? `https://www.sooplive.com/station/${userId}` : "");
+
+  return {
+    id: item.id || userId || `manual_${index + 1}`,
+    userId,
+    name,
+    description: item.description || item.memo || "",
+    race,
+    tierCode,
+    tier: tierLabelFromCode(tierCode, item.tier),
+    tierId: item.tierId && String(item.tierId).startsWith("tier-") ? item.tierId : `tier-${tierCode}`,
+    sortOrder: Number(item.sortOrder ?? item.order ?? item.rank ?? index + 1),
+
+    eloboardKey,
+    elo: item.elo || item.eloboardUrl || eloboardUrl(eloboardKey, race),
+
+    image: CACHE_LOCAL_ASSETS ? localPath(path.join("assets", "profile", `${userId}.jpg`)) : profileImage,
+    sourceImage: profileImage,
+
+    station,
+    stationStatus: Number(item.stationStatus || 0),
+
+    academy: normalizeAcademy(item),
+
+    monthWinRate: item.monthWinRate != null ? Number(item.monthWinRate) : null,
+    yearWinRate: item.yearWinRate != null ? Number(item.yearWinRate) : null,
+    winRate: item.winRate != null ? String(item.winRate) : "",
+
+    live: false,
+    broad: null,
+    broadcastUrl: "",
+  };
+}
+
+async function readManualPlayers() {
+  const raw = await fs.readFile(MANUAL_PLAYERS_PATH, "utf8");
+  const parsed = JSON.parse(raw);
+  const list = Array.isArray(parsed)
+    ? parsed
+    : Array.isArray(parsed.players)
+      ? parsed.players
+      : Array.isArray(parsed.data)
+        ? parsed.data
+        : [];
+
+  const players = list
+    .map((item, index) => normalizeManualPlayer(item, index))
+    .filter((player) => player.userId && player.name && player.race);
+
+  if (players.length === 0) {
+    throw new Error(`manual players empty or invalid: ${MANUAL_PLAYERS_PATH}`);
+  }
+
+  return players.sort((a, b) => {
+    const aTierIndex = tierOrder.indexOf(a.tierCode);
+    const bTierIndex = tierOrder.indexOf(b.tierCode);
+
+    const tierDiff =
+      (aTierIndex === -1 ? 999 : aTierIndex) -
+      (bTierIndex === -1 ? 999 : bTierIndex);
+
+    if (tierDiff !== 0) return tierDiff;
+
+    return Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+  });
 }
 
 async function fetchBodyWithTimeout(url, options = {}, readBody) {
@@ -837,6 +994,7 @@ async function main() {
 
   console.log("[config]", {
     FIREBASE_ROOT,
+    MANUAL_PLAYERS_PATH,
     FETCH_TIMEOUT_MS,
     RECORD_CONCURRENCY,
     RECORD_MAX_PAGES,
@@ -844,80 +1002,35 @@ async function main() {
     CACHE_LOCAL_ASSETS,
   });
 
-  console.log("[1/6] CNINE 기본 데이터 수집 시작");
+  console.log("[1/6] 수동 플레이어 데이터 로드 시작");
 
-  const [playersResult, academiesResult, academyPlayersResult, winRatesResult, lastUpdated] =
-    await Promise.all([
-      getJson(
-        "https://www.cnine.kr/api/v2/p/starcraft/soop/player?page=1&size=1000&orderBy=sortOrder&order=asc&enabled=true"
-      ),
-      getJson(
-        "https://www.cnine.kr/api/v2/p/starcraft/soop/academy?page=1&size=1000&orderBy=sortOrder&order=asc&visible=true"
-      ),
-      getJson(
-        "https://www.cnine.kr/api/v2/p/starcraft/soop/academy/player?page=1&size=1000&orderBy=sortOrder&order=asc"
-      ),
-      getJson(
-        "https://www.cnine.kr/api/v2/p/starcraft/soop/player/win-rate?page=1&size=1000&orderBy=id&order=desc"
-      ),
-      getJson("https://www.cnine.kr/api/v2/p/starcraft/eloboard/last-updated-at").catch(() => ({
-        lastUpdatedAt: null,
-      })),
-    ]);
+  const [manualPlayers, lastUpdated] = await Promise.all([
+    readManualPlayers(),
+    getJson("https://www.cnine.kr/api/v2/p/starcraft/eloboard/last-updated-at").catch(() => ({
+      lastUpdatedAt: null,
+    })),
+  ]);
 
-  const academyList = playersResult && academiesResult ? academiesResult.data || [] : [];
-  const playerList = playersResult.data || [];
-  const academyPlayerList = academyPlayersResult.data || [];
-  const winRateList = winRatesResult.data || [];
-
-  const academies = new Map(academyList.map((item) => [item.id, item]));
-
-  const academyByPlayer = new Map();
-
-  academyPlayerList.forEach((relation) => {
-    if (!academyByPlayer.has(relation.playerId)) {
-      academyByPlayer.set(relation.playerId, relation);
-    }
-  });
-
-  const winRateById = new Map(winRateList.map((item) => [item.id, item]));
+  console.log(`[manual] players loaded ${manualPlayers.length}: ${MANUAL_PLAYERS_PATH}`);
 
   console.log("[2/6] 선택적 이미지 캐시 처리");
 
-  const academyLocal = new Map();
-
   if (CACHE_LOCAL_ASSETS) {
-    await download("https://www.cnine.kr/img/logo/logo-dark.png?v=1", path.join(assetDir, "logo-dark.png")).catch(
-      () => false
-    );
-
-    await mapLimit(academyList, 8, async (academy) => {
-      const url = normalizeUrl(academy.logoImageUrl);
-      if (!url) return;
-
-      const target = path.join(academyDir, `${academy.id}.jpg`);
-      const ok = await download(url, target).catch(() => false);
-
-      if (ok) {
-        academyLocal.set(academy.id, localPath(path.join("assets", "academy", `${academy.id}.jpg`)));
-      }
-    });
-
     let imageOk = 0;
 
-    await mapLimit(playerList, 12, async (player) => {
+    await mapLimit(manualPlayers, 12, async (player) => {
       const target = path.join(profileDir, `${player.userId}.jpg`);
-      const ok = await download(player.profileImageUrl, target).catch(() => false);
+      const ok = await download(player.sourceImage || player.image, target).catch(() => false);
       if (ok) imageOk += 1;
     });
 
-    console.log(`profile image cached: ${imageOk}/${playerList.length}`);
+    console.log(`profile image cached: ${imageOk}/${manualPlayers.length}`);
   }
 
   console.log("[3/6] SOOP 방송국 상태 확인 시작");
 
-  const stationChecks = await mapLimit(playerList, 12, async (player) => {
-    const station = `https://www.sooplive.com/station/${player.userId}`;
+  const stationChecks = await mapLimit(manualPlayers, 12, async (player) => {
+    const station = player.station || `https://www.sooplive.com/station/${player.userId}`;
 
     const result = await getText(station).catch((error) => ({
       status: 0,
@@ -932,65 +1045,13 @@ async function main() {
 
   const stationStatus = new Map(stationChecks.map((item) => [item.userId, item.status]));
 
-  const players = playerList
-    .map((player) => {
-      const academyRelation = academyByPlayer.get(player.id);
-      const academy = academyRelation ? academies.get(academyRelation.academyId) : null;
-      const rate = winRateById.get(player.id);
-
-      const localProfileImage = localPath(path.join("assets", "profile", `${player.userId}.jpg`));
-
-      return {
-        id: player.id,
-        userId: player.userId,
-        name: player.name,
-        description: player.description || "",
-        race: player.race,
-        tierCode: player.tier,
-        tier: tierName[player.tier] || `${player.tier}티어`,
-        tierId: `tier-${player.tier}`,
-        sortOrder: player.sortOrder,
-
-        eloboardKey: player.eloboardKey || "",
-        elo: eloboardUrl(player.eloboardKey, player.race),
-
-        image: CACHE_LOCAL_ASSETS ? localProfileImage : normalizeUrl(player.profileImageUrl),
-        sourceImage: normalizeUrl(player.profileImageUrl),
-
-        station: `https://www.sooplive.com/station/${player.userId}`,
-        stationStatus: stationStatus.get(player.userId) || 0,
-
-        academy: academy
-          ? {
-              id: academy.id,
-              name: academy.name,
-              image: academyLocal.get(academy.id) || normalizeUrl(academy.logoImageUrl),
-              sourceImage: normalizeUrl(academy.logoImageUrl),
-              position: academyRelation.position || "",
-            }
-          : null,
-
-        monthWinRate: rate && rate.monthWinRate != null ? Number(rate.monthWinRate) : null,
-        yearWinRate: rate && rate.yearWinRate != null ? Number(rate.yearWinRate) : null,
-        winRate: rate && rate.monthWinRate != null ? `${Number(rate.monthWinRate).toFixed(0)}%` : "",
-
-        live: false,
-        broad: null,
-        broadcastUrl: "",
-      };
-    })
-    .sort((a, b) => {
-      const aTierIndex = tierOrder.indexOf(a.tierCode);
-      const bTierIndex = tierOrder.indexOf(b.tierCode);
-
-      const tierDiff =
-        (aTierIndex === -1 ? 999 : aTierIndex) -
-        (bTierIndex === -1 ? 999 : bTierIndex);
-
-      if (tierDiff !== 0) return tierDiff;
-
-      return Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
-    });
+  const players = manualPlayers.map((player) => ({
+    ...player,
+    stationStatus: stationStatus.get(player.userId) || player.stationStatus || 0,
+    live: false,
+    broad: null,
+    broadcastUrl: "",
+  }));
 
   console.log(`[4/6] ELO 전적 수집 시작: ${players.length}명`);
 
@@ -1047,7 +1108,8 @@ async function main() {
     fetchTimeoutMs: FETCH_TIMEOUT_MS,
     recordConcurrency: RECORD_CONCURRENCY,
     recordMaxPages: RECORD_MAX_PAGES,
-    source: "cnine.kr",
+    source: "manual-players + cnine-eloboard",
+    playerSource: "data/manual/players.json",
     liveSource: "preserved-from-soop-sync",
   };
 
