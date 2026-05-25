@@ -1,4 +1,4 @@
-name: Sync CNINE Live To Firebase
+name: Sync SOOP Live To Firebase
 
 on:
   workflow_dispatch:
@@ -19,8 +19,9 @@ jobs:
           node-version: 20
 
       - name: Sync live status
-        run: node scripts/sync-cnine-live-to-firebase.js
+        run: node scripts/sync-soop-live-to-firebase.js
         env:
           FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
-          FIREBASE_AUTH: ${{ secrets.FIREBASE_AUTH }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
           FIREBASE_TIER_ROOT: starcraftTier/current
+          SOOP_CLIENT_ID: ${{ secrets.SOOP_CLIENT_ID }}
