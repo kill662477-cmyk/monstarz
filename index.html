@@ -4026,72 +4026,49 @@ body.funding-overlay-host .funding-temp-frame{
 }
 
 
-/* 티어표 탭: 씨나인 복제 페이지를 직접 합치지 않고 iframe으로 격리해 기존 캄몬 index와 충돌 방지 */
+/* 티어표 탭: iframe으로 격리하되, 외부 페이지 스크롤은 만들지 않고 iframe 내부만 스크롤 */
 #tabTier:before { content: "☷"; }
 .tier-tab-shell {
   display: grid;
+  min-height: 0;
+  height: 100%;
   gap: 0;
-}
-.tier-tab-head {
-  position: relative;
-  overflow: hidden;
-  padding: 14px 16px;
-  border: 1px solid rgba(96,165,250,.24);
-  border-radius: 18px;
-  background: radial-gradient(circle at 14% 24%, rgba(37,99,235,.22), transparent 34%),
-              radial-gradient(circle at 90% 10%, rgba(255,214,59,.12), transparent 28%),
-              linear-gradient(135deg, rgba(8,20,38,.96), rgba(12,46,82,.94));
-  box-shadow: var(--shadow);
-}
-.tier-tab-head:after {
-  content: "TIER BOARD";
-  position: absolute;
-  right: 18px;
-  bottom: -10px;
-  color: rgba(255,255,255,.045);
-  font-size: 42px;
-  font-weight: 950;
-  letter-spacing: -.06em;
-  pointer-events: none;
-}
-.tier-tab-head h2 {
-  position: relative;
-  z-index: 1;
-  margin: 0;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 950;
-  letter-spacing: -.04em;
-}
-.tier-tab-sub {
-  position: relative;
-  z-index: 1;
-  margin-top: 4px;
-  color: #9fc7ff;
-  font-size: 11px;
-  font-weight: 900;
 }
 .tier-tab-frame {
   display: block;
   width: 100%;
-  min-height: 1580px;
+  height: 100%;
+  min-height: 0;
   border: 1px solid rgba(137,192,255,.22);
   border-radius: 18px;
   background: #08182c;
   box-shadow: var(--shadow);
 }
-.tier-tab-shell-compact .tier-tab-frame {
-  margin-top: 0;
+html:has(body.tier-tab-active),
+body.tier-tab-active {
+  height: 100vh !important;
+  overflow: hidden !important;
 }
-body.light-mode .tier-tab-head {
-  background: radial-gradient(circle at 16% 22%, rgba(37,99,235,.14), transparent 34%),
-              radial-gradient(circle at 88% 12%, rgba(255,214,59,.20), transparent 28%),
-              linear-gradient(135deg, #ffffff, #dbeafe) !important;
+body.tier-tab-active .wrap {
+  height: 100vh !important;
+  overflow: hidden !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  padding-bottom: 18px !important;
+}
+body.tier-tab-active #tierScreen {
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+body.tier-tab-active .tier-tab-shell,
+body.tier-tab-active .tier-tab-frame {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+body.light-mode .tier-tab-frame {
+  background: #eef6ff;
   border-color: rgba(37,99,235,.20) !important;
 }
-body.light-mode .tier-tab-head h2 { color: #0f172a !important; }
-body.light-mode .tier-tab-sub { color: #1e40af !important; }
-body.light-mode .tier-tab-head:after { color: rgba(37,99,235,.08) !important; }
 </style>
 
 
@@ -4192,7 +4169,7 @@ body.light-mode .tier-tab-head:after { color: rgba(37,99,235,.08) !important; }
 
     <div id="tierScreen" class="screen hidden">
       <section class="tier-tab-shell tier-tab-shell-compact">
-        <iframe id="tierFrame" class="tier-tab-frame" src="tierboard_calm_tab.html" title="스타크래프트 티어표" loading="lazy"></iframe>
+        <iframe id="tierFrame" class="tier-tab-frame" src="tierboard_calm_tab.html" title="스타크래프트 티어표" loading="lazy" scrolling="auto"></iframe>
       </section>
     </div>
 
@@ -5753,6 +5730,7 @@ function createMemberCard(member) {
     const safeActiveTab = activeTab === tabFunding && isFundingTempTabHidden() ? tabMain : activeTab;
     if (safeActiveTab) safeActiveTab.classList.add("active");
     document.body.classList.toggle("main-tab-active", safeActiveTab === tabMain);
+    document.body.classList.toggle("tier-tab-active", safeActiveTab === tabTier);
     document.body.classList.toggle("pinball-donation-mode", safeActiveTab === tabPinballDonation);
   }
 

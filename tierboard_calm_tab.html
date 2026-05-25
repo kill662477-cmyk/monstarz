@@ -675,6 +675,7 @@
     .calm-tier-mini-stats span { display: block; color: #aac4e4; font-size: 10px; font-weight: 900; }
     .calm-tier-mini-stats strong { display: block; color: #fff; margin-top: 2px; font-size: 18px; font-weight: 950; }
     .sources, .contact-float, .floating-tier, footer { display: none !important; }
+    #tierDialog { display: none !important; }
 
     .tier-source-row {
       display: flex;
@@ -721,13 +722,26 @@
     .notice-title { color: #fff; font-weight: 950; letter-spacing: -.03em; }
     .notice p { color: #c4d7ef; font-size: 12px; font-weight: 800; }
     .controls {
-      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      margin-bottom: 10px;
       padding: 10px;
       border: 1px solid rgba(137,192,255,.18);
       border-radius: 16px;
       background: rgba(6, 19, 38, .60);
       box-shadow: var(--shadow);
     }
+    .switches,
+    .filters {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .filters { justify-content: flex-end; flex: 1 1 520px; }
     .switch-label { color: #eaf3ff; font-weight: 950; }
     select, .search, .tier-list-button {
       height: 38px;
@@ -738,6 +752,9 @@
       box-shadow: none;
       font-weight: 850;
     }
+    #raceFilter { min-width: 118px; }
+    #tierFilter { min-width: 138px; }
+    .search { width: 220px; }
     .tier-list-button { background: linear-gradient(135deg, rgba(39,134,255,.28), rgba(255,255,255,.06)); }
     .tier-stack { gap: 12px; }
     .tier-section {
@@ -815,13 +832,31 @@
       </div>
       <div class="filters">
         <select id="raceFilter" aria-label="종족 필터">
-          <option value="all">전체</option>
+          <option value="all">종족 전체</option>
           <option value="T">테란</option>
           <option value="Z">저그</option>
           <option value="P">프로토스</option>
         </select>
+        <select id="tierFilter" class="tier-filter" aria-label="티어 필터">
+          <option value="all">티어 전체</option>
+          <option value="갓티어">갓티어</option>
+          <option value="킹티어">킹티어</option>
+          <option value="잭티어">잭티어</option>
+          <option value="조커티어">조커티어</option>
+          <option value="스페이드티어">스페이드티어</option>
+          <option value="0티어">0티어</option>
+          <option value="1티어">1티어</option>
+          <option value="2티어">2티어</option>
+          <option value="3티어">3티어</option>
+          <option value="4티어">4티어</option>
+          <option value="5티어">5티어</option>
+          <option value="6티어">6티어</option>
+          <option value="7티어">7티어</option>
+          <option value="8티어">8티어</option>
+          <option value="베이비티어">베이비티어</option>
+          <option value="티어없음">티어없음</option>
+        </select>
         <input class="search" id="searchInput" type="search" placeholder="플레이어 검색..." aria-label="플레이어 검색">
-        <button class="tier-list-button" id="openTierList" type="button"><span class="chevrons">&raquo;</span> 티어목록</button>
       </div>
     </div>
     <div class="tier-source-row" aria-label="자료 출처">
@@ -846,11 +881,6 @@
     <div class="tier-stack" id="tierStack"></div>
   </main>
   <button class="contact-float" type="button" title="의견보내기" aria-label="의견보내기"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 4h16v12H7l-3 3V4Z"></path><path d="m8 9 3 3 5-5"></path></svg></button>
-  <button class="tier-list-button floating-tier" id="openTierListFloat" type="button"><span class="chevrons">&raquo;</span> 티어목록</button>
-  <dialog id="tierDialog">
-    <div class="modal-head"><span>티어목록</span><button class="icon-button" id="closeTierList" type="button" title="닫기" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div>
-    <div class="modal-list" id="tierModalList"></div>
-  </dialog>
   <dialog class="record-dialog" id="recordDialog">
     <div class="modal-head"><span id="recordTitle">전적</span><button class="icon-button" id="closeRecord" type="button" title="닫기" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div>
     <div class="record-body">
@@ -6059,8 +6089,7 @@
     const tierOrder = ["갓티어","킹티어","잭티어","조커티어","스페이드티어","0티어","1티어","2티어","3티어","4티어","5티어","6티어","7티어","8티어","베이비티어","티어없음"];
     let tierData = JSON.parse(document.getElementById('tier-data').textContent);
     const tierStack = document.getElementById('tierStack');
-    const tierDialog = document.getElementById('tierDialog');
-    const tierModalList = document.getElementById('tierModalList');
+    const tierFilter = document.getElementById('tierFilter');
     const selectionPanel = document.getElementById('selectionPanel');
     const selectionBody = document.getElementById('selectionBody');
     const selectionHint = document.getElementById('selectionHint');
@@ -6114,23 +6143,77 @@
       return safeKey([player.userId || player.name, player.race || ''].join('_'));
     }
 
-    function livePatch(player, liveMap) {
-      const liveInfo = liveMap[player.userId] || liveMap[playerDataKey(player)] || null;
-      if (!liveInfo) {
-        return Object.keys(liveMap || {}).length
-          ? { ...player, live: false, broad: null, broadcastUrl: '' }
-          : player;
+    function extractSoopUserId(player) {
+      if (player && player.userId) return String(player.userId);
+      const stationMatch = String((player && player.station) || '').match(/sooplive\.com\/station\/([^/?#]+)/i);
+      if (stationMatch) return stationMatch[1];
+      const broadcastMatch = String((player && player.broadcastUrl) || '').match(/play\.sooplive\.com\/([^/?#]+)/i);
+      if (broadcastMatch) return broadcastMatch[1];
+      const imageMatch = String((player && player.image) || '').match(/\/LOGO\/[^/]+\/([^/]+)\//i);
+      if (imageMatch) return imageMatch[1];
+      return '';
+    }
+
+    function isLiveMetaKey(key) {
+      return String(key || '').startsWith('__') || ['meta', 'updatedAt', 'checkedAt', 'source'].includes(String(key || ''));
+    }
+
+    function getLiveInfo(player, liveMap) {
+      const userId = extractSoopUserId(player);
+      const keys = [
+        userId,
+        userId ? safeKey(userId) : '',
+        playerDataKey({ userId: userId || player.userId || player.name, race: player.race }),
+        playerDataKey(player)
+      ].filter(Boolean);
+      for (const key of keys) {
+        if (Object.prototype.hasOwnProperty.call(liveMap || {}, key)) return liveMap[key];
       }
-      const isLive = typeof liveInfo === 'boolean' ? liveInfo : Boolean(liveInfo.live || liveInfo.status === 'live' || liveInfo.broadNo);
+      return null;
+    }
+
+    function hasUsableLiveMap(liveMap) {
+      return Object.keys(liveMap || {}).some(function(key) { return !isLiveMetaKey(key); });
+    }
+
+    function canMatchAnyLiveStatus(players, liveMap) {
+      if (!hasUsableLiveMap(liveMap)) return false;
+      return players.some(function(player) { return getLiveInfo(player, liveMap) !== null; });
+    }
+
+    function livePatch(player, liveMap, forceOfflineWhenMissing) {
+      const userId = extractSoopUserId(player);
+      const liveInfo = getLiveInfo(player, liveMap || {});
+      const basePlayer = userId && !player.userId ? { ...player, userId } : player;
+      if (liveInfo === null || liveInfo === undefined) {
+        return forceOfflineWhenMissing && userId
+          ? { ...basePlayer, live: false, broad: null, broadcastUrl: '' }
+          : basePlayer;
+      }
+      const isLive = typeof liveInfo === 'boolean'
+        ? liveInfo
+        : Boolean(liveInfo.live || liveInfo.status === 'live' || liveInfo.broadNo || liveInfo.broadcastUrl);
       const broadNo = typeof liveInfo === 'object' ? (liveInfo.broadNo || liveInfo.broad_no || '') : '';
       return {
-        ...player,
+        ...basePlayer,
         live: isLive,
-        broad: typeof liveInfo === 'object' ? liveInfo : player.broad,
+        broad: typeof liveInfo === 'object' ? liveInfo : basePlayer.broad,
         broadcastUrl: isLive
-          ? ((typeof liveInfo === 'object' && liveInfo.broadcastUrl) || (broadNo ? 'https://play.sooplive.com/' + player.userId + '/' + broadNo : player.broadcastUrl || player.liveUrl || player.live || ''))
+          ? ((typeof liveInfo === 'object' && liveInfo.broadcastUrl) || (broadNo ? 'https://play.sooplive.com/' + userId + '/' + broadNo : basePlayer.broadcastUrl || basePlayer.liveUrl || (userId ? 'https://play.sooplive.com/' + userId : '')))
           : ''
       };
+    }
+
+    function applyLiveStatus(players, liveMap) {
+      if (!Array.isArray(players) || !players.length) return players;
+      if (!hasUsableLiveMap(liveMap)) {
+        return players.map(function(player) {
+          const userId = extractSoopUserId(player);
+          return userId && !player.userId ? { ...player, userId } : player;
+        });
+      }
+      const matched = canMatchAnyLiveStatus(players, liveMap);
+      return players.map(function(player) { return livePatch(player, liveMap, matched); });
     }
 
     function isSafeImage(url) {
@@ -6208,9 +6291,9 @@
       firebaseState.headToHead = data.headToHead || data.headToHeadSummary || {};
       firebaseState.liveStatus = data.liveStatus || data.statuses || {};
       if (players.length) {
-        tierData = players.map(function(player) { return livePatch(player, firebaseState.liveStatus); });
-      } else if (Object.keys(firebaseState.liveStatus).length) {
-        tierData = tierData.map(function(player) { return livePatch(player, firebaseState.liveStatus); });
+        tierData = applyLiveStatus(players, firebaseState.liveStatus);
+      } else {
+        tierData = applyLiveStatus(tierData, firebaseState.liveStatus);
       }
     }
 
@@ -6249,11 +6332,13 @@
     function filteredData() {
       const liveOnly = document.getElementById('liveOnly').checked;
       const race = document.getElementById('raceFilter').value;
+      const tier = tierFilter.value;
       const q = document.getElementById('searchInput').value.trim().toLowerCase();
       return tierData.filter(function(player) {
         if (liveOnly && !player.live) return false;
         if (race !== 'all' && player.race !== race) return false;
-        if (q && !player.name.toLowerCase().includes(q)) return false;
+        if (tier !== 'all' && player.tier !== tier) return false;
+        if (q && !String(player.name || '').toLowerCase().includes(q)) return false;
         return true;
       });
     }
@@ -6305,8 +6390,18 @@
     }
 
     function render() {
-      const groups = groupedByTier(filteredData());
-      tierStack.innerHTML = tierOrder.map(function(tier) {
+      const filteredPlayers = filteredData();
+      const groups = groupedByTier(filteredPlayers);
+      const selectedTier = tierFilter.value;
+      if (!filteredPlayers.length) {
+        tierStack.innerHTML = '<div class="empty tier-empty-message">조건에 맞는 플레이어가 없습니다.</div>';
+        renderSelection();
+        return;
+      }
+      const visibleTiers = selectedTier === 'all'
+        ? tierOrder.filter(function(tier) { return (groups.get(tier) || []).length; })
+        : [selectedTier];
+      tierStack.innerHTML = visibleTiers.map(function(tier) {
         const id = 'tier-' + encodeURIComponent(tier);
         const players = groups.get(tier) || [];
         return '<section class="tier-section" id="' + id + '">' +
@@ -6317,21 +6412,7 @@
       tierStack.querySelectorAll('.refresh').forEach(function(button) {
         button.addEventListener('click', function() { state.seconds = 300; updateTimers(); });
       });
-      renderModal(groups);
       renderSelection();
-    }
-
-    function renderModal(groups) {
-      tierModalList.innerHTML = tierOrder.map(function(tier) {
-        const count = (groups.get(tier) || []).length;
-        return '<button class="tier-link" type="button" data-tier="' + escapeAttr(tier) + '"><span>' + tier + '</span><span>' + count + '</span></button>';
-      }).join('');
-      tierModalList.querySelectorAll('.tier-link').forEach(function(button) {
-        button.addEventListener('click', function() {
-          tierDialog.close();
-          document.getElementById('tier-' + encodeURIComponent(button.dataset.tier))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      });
     }
 
     function toggleHeadSelection(key) {
@@ -6565,12 +6646,9 @@
       return '<option value="' + month + '">' + month + '월</option>';
     }).join('');
 
-    ['liveOnly', 'raceSplit', 'raceFilter', 'searchInput'].forEach(function(id) {
+    ['liveOnly', 'raceSplit', 'raceFilter', 'tierFilter', 'searchInput'].forEach(function(id) {
       document.getElementById(id).addEventListener(id === 'searchInput' ? 'input' : 'change', render);
     });
-    document.getElementById('openTierList').addEventListener('click', function() { tierDialog.showModal(); });
-    document.getElementById('openTierListFloat')?.addEventListener('click', function() { tierDialog.showModal(); });
-    document.getElementById('closeTierList').addEventListener('click', function() { tierDialog.close(); });
     document.getElementById('clearSelection').addEventListener('click', clearHeadSelection);
     document.getElementById('closeRecord').addEventListener('click', function() { recordDialog.close(); });
     headPeriod.addEventListener('change', loadHeadToHead);
