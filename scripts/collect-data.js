@@ -594,12 +594,67 @@ function initFirebase() {
   return admin.database();
 }
 
+aasync function uploadObjectInChunks(ref, object, chunkSize, label) {
+  const entries = Object.entries(object || {});
+  const total = entries.length;
+
+  console.log(`[firebase] clear ${label}`);
+  await ref.remove();
+
+  if (total === 0) {
+    console.log(`[firebase] ${label} empty`);
+    return;
+  }
+
+  for (let i = 0; i < total; i += chunkSize) {
+    const batch = {};
+
+    entries.slice(i, i + chunkSize).forEach(([key, value]) => {
+      batch[key] = value;
+    });
+
+    await ref.update(batch);
+
+    console.log(
+      `[firebase] ${label} uploaded ${Math.min(i + chunkSize, total)}/${total}`
+    );
+  }
+}
+
 async function uploadToFirebase(payload) {
   const db = initFirebase();
   const cleanPayload = removeUndefined(payload);
+  const rootRef = db.ref(FIREBASE_ROOT);
 
-  await db.ref(FIREBASE_ROOT).set(cleanPayload);
+  console.log("[firebase] upload meta");
+  await rootRef.child("meta").set(cleanPayload.meta || {});
 
+  console.log("[firebase] upload players");
+  await rootRef.child("players").set(cleanPayload.players || []);
+
+  console.log("[firebase] upload liveStatus");
+  await rootRef.child("liveStatus").set(cleanPayload.liveStatus || {});
+
+  console.log("[firebase] upload winRates");
+  await rootRef.child("winRates").set(cleanPayload.winRates || {});
+
+  console.log("[firebase] upload records in chunks");
+  await uploadObjectInChunks(
+    rootRef.child("records"),
+    cleanPayload.records || {},
+    10,
+    "records"
+  );
+
+  console.log("[firebase] upload headToHead in chunks");
+  await uploadObjectInChunks(
+    rootRef.child("headToHead"),
+    cleanPayload.headToHead || {},
+    50,
+    "headToHead"
+  );
+
+  console.log("[firebase] upload public meta");
   await db.ref("starcraftTier/meta").set({
     lastSyncedAt: cleanPayload.meta.syncedAt,
     currentRoot: FIREBASE_ROOT,
@@ -607,11 +662,13 @@ async function uploadToFirebase(payload) {
     liveCount: cleanPayload.meta.liveCount,
     recordPlayerCount: cleanPayload.meta.recordPlayerCount,
     recordRowCount: cleanPayload.meta.recordRowCount,
+    recordFailCount: cleanPayload.meta.recordFailCount,
     headToHeadCount: cleanPayload.meta.headToHeadCount,
     sourceLastUpdatedAt: cleanPayload.meta.sourceLastUpdatedAt,
   });
-}
 
+  console.log("[firebase] upload complete");
+}
 async function main() {
   await Promise.all(
     [dataDir, recordDir, assetDir, profileDir, academyDir].map((dir) =>
