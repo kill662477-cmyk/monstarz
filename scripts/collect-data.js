@@ -216,7 +216,7 @@ async function main() {
 
   const indexPath = path.join(root, "tierboard_calm_tab.html");
   let html = await fs.readFile(indexPath, "utf8");
-  html = html.replace(/<script id="tier-data" type="application\\/json">[\\s\\S]*?<\\/script>/, `<script id="tier-data" type="application/json">${JSON.stringify(players)}</script>`);
+  html = html.replace(/<script id="tier-data" type="application\/json">[\s\S]*?<\/script>/, `<script id="tier-data" type="application/json">${JSON.stringify(players)}</script>`);
   html = html.replace(/https:\\/\\/www\\.cnine\\.kr\\/img\\/logo\\/logo-dark\\.png\\?v=1/g, "assets/logo-dark.png");
   await fs.writeFile(indexPath, html);
 
