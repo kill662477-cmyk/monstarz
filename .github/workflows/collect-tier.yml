@@ -1,0 +1,30 @@
+name: Collect Tier Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */8 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run collect
+        run: node scripts/collect-data.js
+
+      - name: Commit collected data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update tier data"
