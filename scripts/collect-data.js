@@ -594,7 +594,7 @@ function initFirebase() {
   return admin.database();
 }
 
-aasync function uploadObjectInChunks(ref, object, chunkSize, label) {
+async function uploadObjectInChunks(ref, object, chunkSize, label) {
   const entries = Object.entries(object || {});
   const total = entries.length;
 
