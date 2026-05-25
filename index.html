@@ -3935,6 +3935,18 @@ body.funding-overlay-host .funding-temp-frame{
 .member-card .avatar{
   visibility:visible!important;
 }
+
+
+/* ===== Funding temporary tab hide switch =====
+   복구할 때는 아래 #tabFunding 숨김 CSS를 제거하고,
+   스크립트의 FUNDING_TEMP_TAB_HIDDEN 값을 false로 바꾸면 됩니다. */
+#tabFunding[hidden],
+.site-header .tab-row #tabFunding[hidden],
+.site-header .tab-row .tab-btn#tabFunding[hidden]{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
 </style>
 
 
@@ -3966,12 +3978,13 @@ body.funding-overlay-host .funding-temp-frame{
         <button id="tabGame" class="tab-btn" type="button">오락실</button>
         <button id="tabDuckCalc" class="tab-btn" type="button">덕몽어스계산기</button>
         <button id="tabPinballDonation" class="tab-btn tab-pinball-donation-btn" type="button"><span class="pinball-tab-label"><span>핀볼연동</span><span>공사중</span></span></button>
-        <button id="tabFunding" class="tab-btn" type="button">펀딩(임시)</button>
+        <!-- 복구용: hidden/aria-hidden/tabindex 제거 + 스크립트의 FUNDING_TEMP_TAB_HIDDEN=false 변경 시 펀딩(임시) 탭 복구 -->
+        <button id="tabFunding" class="tab-btn" type="button" hidden aria-hidden="true" tabindex="-1">펀딩(임시)</button>
         <div class="nav-external" aria-label="외부 사이트">
           <a href="https://calm-hoxy.vercel.app/" target="_blank" rel="noopener noreferrer">💰 CALM HOXY</a>
           <a href="https://eloboard.com/" target="_blank" rel="noopener noreferrer">📊 ELOBOARD</a>
           <a href="https://machugi.io/quiz/GJQTMpLt4usVzZyeGMJO" target="_blank" rel="noopener noreferrer">🧠 모의고사</a>
-          <a href="https://monumental-dolphin-3ac88f.netlify.app/" target="_blank" rel="noopener noreferrer">📅 일정표</a>
+          <a href="https://monstarz-schedule.vercel.app/" target="_blank" rel="noopener noreferrer">📅 일정표</a>
           <a href="https://fmcalm.vercel.app/" target="_blank" rel="noopener noreferrer">그것이알고싶캄몬</a>
           <a href="https://www.sooplive.com/station/silver0love" target="_blank" rel="noopener noreferrer">made by 손실바 방송국</a>
         </div>
@@ -4087,7 +4100,7 @@ body.funding-overlay-host .funding-temp-frame{
           <div class="count">GAME</div>
         </div>
         <div class="game-wrap">
-          <iframe src="https://monstarzrun.vercel.app/" title="몬스타즈 오락실" loading="lazy" allow="fullscreen; gamepad" allowfullscreen></iframe>
+          <iframe src="https://monstarzrun.vercel.app/" title="캄몬스타즈 오락실" loading="lazy" allow="fullscreen; gamepad" allowfullscreen></iframe>
         </div>
       </section>
     </div>
@@ -4118,9 +4131,9 @@ body.funding-overlay-host .funding-temp-frame{
                 <button id="duckManualAddBtn" class="duckcalc-btn" type="button">입력</button>
               </div>
               <div class="duckcalc-manual-fields">
-                <input id="duckManualEntry" class="duckcalc-input" type="text" placeholder="닉네임 숫자 예) 토마토 10" autocomplete="off" />
+                <input id="duckManualEntry" class="duckcalc-input" type="text" placeholder="닉네임 숫자 예) 토마토 10 / 여러 명은 줄바꿈 붙여넣기" autocomplete="off" />
               </div>
-              <div class="duckcalc-manual-hint">닉네임을 쓰고 한 칸 띄운 뒤 숫자를 입력하고 Enter를 누르면 아래 목록에 추가됩니다. 아래 목록의 닉네임 또는 숫자를 클릭하면 바로 수정할 수 있습니다.</div>
+              <div class="duckcalc-manual-hint">기존처럼 닉네임을 쓰고 한 칸 띄운 뒤 숫자를 입력하고 Enter를 누르면 추가됩니다. 여러 명은 같은 칸에 줄바꿈으로 붙여넣으면 예) 토마토 10 / 지두두 20 형태를 한 번에 추가할 수 있습니다. 아래 목록의 닉네임 또는 숫자를 클릭하면 바로 수정할 수 있습니다.</div>
             </div>
             <div class="duckcalc-table">
               <div class="duckcalc-table-head">
@@ -4563,6 +4576,7 @@ body.funding-overlay-host .funding-temp-frame{
   const tabDuckCalc = document.getElementById("tabDuckCalc");
   const tabPinballDonation = document.getElementById("tabPinballDonation");
   const tabFunding = document.getElementById("tabFunding");
+  const FUNDING_TEMP_TAB_HIDDEN = true; // 복구 시 false로 변경하고 #tabFunding의 hidden/aria-hidden/tabindex를 제거
   const tabInout = document.getElementById("tabInout");
   const themeToggle = document.getElementById("themeToggle");
   const themeIcon = document.getElementById("themeIcon");
@@ -4572,6 +4586,12 @@ body.funding-overlay-host .funding-temp-frame{
   const pinballDonationScreen = document.getElementById("pinballDonationScreen");
   const fundingScreen = document.getElementById("fundingScreen");
   const fundingTempFrame = document.getElementById("fundingTempFrame");
+  if (FUNDING_TEMP_TAB_HIDDEN && tabFunding) {
+    tabFunding.hidden = true;
+    tabFunding.setAttribute("aria-hidden", "true");
+    tabFunding.setAttribute("tabindex", "-1");
+    tabFunding.classList.remove("active");
+  }
   const youtubeList = document.getElementById("youtubeList");
   const youtubeCount = document.getElementById("youtubeCount");
   const youtubePlayer = document.getElementById("youtubePlayer");
@@ -5549,11 +5569,16 @@ function createMemberCard(member) {
     }
   }
 
+  function isFundingTempTabHidden() {
+    return FUNDING_TEMP_TAB_HIDDEN || !tabFunding || tabFunding.hidden || tabFunding.getAttribute("aria-hidden") === "true";
+  }
+
   function setActiveTab(activeTab) {
     [tabMain, tabProfile, tabInout, tabBoja, tabYoutube, tabGame, tabDuckCalc, tabPinballDonation, tabFunding].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
-    activeTab.classList.add("active");
-    document.body.classList.toggle("main-tab-active", activeTab === tabMain);
-    document.body.classList.toggle("pinball-donation-mode", activeTab === tabPinballDonation);
+    const safeActiveTab = activeTab === tabFunding && isFundingTempTabHidden() ? tabMain : activeTab;
+    if (safeActiveTab) safeActiveTab.classList.add("active");
+    document.body.classList.toggle("main-tab-active", safeActiveTab === tabMain);
+    document.body.classList.toggle("pinball-donation-mode", safeActiveTab === tabPinballDonation);
   }
 
   function hideAllScreens() {
@@ -5625,6 +5650,11 @@ function createMemberCard(member) {
 
 
   function showFundingScreen() {
+    if (isFundingTempTabHidden()) {
+      setFundingPageMode(false);
+      showMainScreen();
+      return;
+    }
     setFundingPageMode(true);
     setActiveTab(tabFunding);
     updateSummaryVisibility(false);
@@ -5644,6 +5674,7 @@ function createMemberCard(member) {
   }
 
   function shouldOpenFundingForSoopAuth() {
+    if (isFundingTempTabHidden()) return false;
     try {
       const params = new URLSearchParams(window.location.search || "");
       const returnTab = sessionStorage.getItem("soopReturnTab") || "";
@@ -7190,21 +7221,74 @@ ${line}` : line;
     return { name, score };
   }
 
+  function isManualScoreToken(value) {
+    const score = normalizeScoreValue(value);
+    return !!score && Number.isFinite(parseScore(score));
+  }
+
+  function parseManualEntries(value) {
+    const raw = String(value == null ? "" : value).trim();
+    if (!raw) return [];
+
+    const lines = raw
+      .split(/\r?\n+/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    if (lines.length > 1) {
+      const entries = lines.map(parseManualEntry).filter(Boolean);
+      return entries.length === lines.length ? entries : [];
+    }
+
+    const normalized = raw.replace(/\s+/g, " ").trim();
+    const tokens = normalized.split(" ").filter(Boolean);
+    const entries = [];
+    let nameParts = [];
+
+    tokens.forEach((token) => {
+      if (isManualScoreToken(token) && nameParts.length) {
+        entries.push({ name: nameParts.join(" ").trim(), score: normalizeScoreValue(token) });
+        nameParts = [];
+      } else {
+        nameParts.push(token);
+      }
+    });
+
+    if (entries.length > 1 && !nameParts.length) return entries;
+
+    const single = parseManualEntry(normalized);
+    return single ? [single] : [];
+  }
+
+  function addManualRows(entries) {
+    if (!entries || !entries.length) return false;
+    entries.forEach(addRow);
+    invalidateRanks();
+    if (els.manualEntry) els.manualEntry.value = "";
+    renderRows();
+    renderAll();
+    if (els.manualEntry) els.manualEntry.focus();
+    return true;
+  }
+
   function addManualRow() {
-    const parsed = parseManualEntry(els.manualEntry && els.manualEntry.value);
-    if (!parsed) {
+    const parsed = parseManualEntries(els.manualEntry && els.manualEntry.value);
+    if (!parsed.length) {
       if (els.manualEntry) {
         els.manualEntry.focus();
         els.manualEntry.select();
       }
       return;
     }
-    addRow(parsed);
-    invalidateRanks();
-    if (els.manualEntry) els.manualEntry.value = "";
-    renderRows();
-    renderAll();
-    if (els.manualEntry) els.manualEntry.focus();
+    addManualRows(parsed);
+  }
+
+  function handleManualPaste(event) {
+    const text = event.clipboardData && event.clipboardData.getData("text");
+    const parsed = parseManualEntries(text);
+    if (parsed.length <= 1) return;
+    event.preventDefault();
+    addManualRows(parsed);
   }
 
   function focusManualInput() {
@@ -7957,7 +8041,10 @@ window.__DUCK_ROULETTE_CONFIG__=${configJson};
   });
   els.sample.addEventListener("click", setSample);
   if (els.manualAdd) els.manualAdd.addEventListener("click", addManualRow);
-  if (els.manualEntry) els.manualEntry.addEventListener("keydown", handleManualKeydown);
+  if (els.manualEntry) {
+    els.manualEntry.addEventListener("keydown", handleManualKeydown);
+    els.manualEntry.addEventListener("paste", handleManualPaste);
+  }
   els.clear.addEventListener("click", () => {
     state.rows = [];
     invalidateRanks();
