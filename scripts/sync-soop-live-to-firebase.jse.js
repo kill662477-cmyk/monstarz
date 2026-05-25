@@ -1,0 +1,367 @@
+const admin = require("firebase-admin");
+
+const FIREBASE_DATABASE_URL =
+  process.env.FIREBASE_DATABASE_URL ||
+  "https://jddcontens-default-rtdb.asia-southeast1.firebasedatabase.app";
+
+const FIREBASE_TIER_ROOT = process.env.FIREBASE_TIER_ROOT || "starcraftTier/current";
+
+const SOOP_CLIENT_ID = process.env.SOOP_CLIENT_ID || "";
+
+const FETCH_TIMEOUT_MS = Math.max(3000, Number(process.env.FETCH_TIMEOUT_MS || 8000));
+const SOOP_LIVE_MAX_PAGES = Math.max(1, Number(process.env.SOOP_LIVE_MAX_PAGES || 100));
+const SOOP_LIVE_PAGE_BATCH = Math.max(1, Number(process.env.SOOP_LIVE_PAGE_BATCH || 3));
+
+function safeKey(value) {
+  return String(value || "").replace(/[.#$/[\]]/g, "_");
+}
+
+function normalizeUrl(url) {
+  if (!url) return "";
+  const value = String(url);
+  if (value.startsWith("//")) return `https:${value}`;
+  return value;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchWithTimeout(url, options = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+
+    const text = await response.text();
+
+    if (!response.ok) {
+      throw new Error(`${response.status} ${url}`);
+    }
+
+    return text ? JSON.parse(text) : null;
+  } catch (error) {
+    if (error && error.name === "AbortError") {
+      throw new Error(`timeout after ${FETCH_TIMEOUT_MS}ms: ${url}`);
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function firebaseCredential() {
+  const rawJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+
+  if (rawJson) {
+    const parsed = JSON.parse(rawJson);
+
+    if (parsed.private_key) {
+      parsed.private_key = parsed.private_key.replace(/\\n/g, "\n");
+    }
+
+    return admin.credential.cert(parsed);
+  }
+
+  if (
+    process.env.FIREBASE_PROJECT_ID &&
+    process.env.FIREBASE_CLIENT_EMAIL &&
+    process.env.FIREBASE_PRIVATE_KEY
+  ) {
+    return admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    });
+  }
+
+  return admin.credential.applicationDefault();
+}
+
+function initFirebase() {
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: firebaseCredential(),
+      databaseURL: FIREBASE_DATABASE_URL,
+    });
+  }
+
+  return admin.database();
+}
+
+async function closeFirebase() {
+  await Promise.all(
+    admin.apps.map((app) =>
+      app.delete().catch((error) => {
+        console.warn("[firebase] close failed:", error.message);
+      })
+    )
+  );
+}
+
+async function fetchSoopBroadList(pageNo = 1) {
+  if (!SOOP_CLIENT_ID) {
+    throw new Error("SOOP_CLIENT_ID is missing");
+  }
+
+  const params = new URLSearchParams({
+    client_id: SOOP_CLIENT_ID,
+    page_no: String(pageNo),
+  });
+
+  return fetchWithTimeout(`https://openapi.sooplive.com/broad/list?${params}`, {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "*/*",
+      "User-Agent": "Mozilla/5.0",
+    },
+  });
+}
+
+async function loadPlayersFromFirebase(db) {
+  const snapshot = await db.ref(`${FIREBASE_TIER_ROOT}/players`).get();
+  const value = snapshot.val();
+
+  if (!value) return [];
+
+  const list = Array.isArray(value) ? value : Object.values(value);
+
+  return list
+    .filter((player) => player && player.userId)
+    .map((player, index) => ({
+      index,
+      userId: String(player.userId),
+      name: player.name || player.userId,
+      race: player.race || "",
+      tier: player.tier || "",
+      tierCode: player.tierCode || "",
+    }));
+}
+
+async function fetchSoopLiveMap(players) {
+  const targets = players
+    .filter((player) => player && player.userId)
+    .map((player) => String(player.userId));
+
+  const displayNames = Object.fromEntries(
+    players.map((player) => [String(player.userId), player.name || player.userId])
+  );
+
+  const remaining = new Set(targets);
+  const liveMap = new Map();
+
+  if (!remaining.size) return liveMap;
+
+  console.log(`[soop] live check start targets=${remaining.size}`);
+
+  let pagesChecked = 0;
+
+  for (let startPage = 1; startPage <= SOOP_LIVE_MAX_PAGES; startPage += SOOP_LIVE_PAGE_BATCH) {
+    const pageNumbers = [];
+
+    for (let i = 0; i < SOOP_LIVE_PAGE_BATCH; i += 1) {
+      const pageNo = startPage + i;
+      if (pageNo <= SOOP_LIVE_MAX_PAGES) {
+        pageNumbers.push(pageNo);
+      }
+    }
+
+    const results = await Promise.all(
+      pageNumbers.map((pageNo) =>
+        fetchSoopBroadList(pageNo).catch((error) => {
+          console.warn(`[soop] broad/list fail page=${pageNo}: ${error.message}`);
+          return null;
+        })
+      )
+    );
+
+    for (const data of results) {
+      if (!data) continue;
+
+      const broadList = Array.isArray(data.broad) ? data.broad : [];
+      pagesChecked += 1;
+
+      if (!broadList.length) continue;
+
+      for (const item of broadList) {
+        const id = String(item.user_id || "");
+        if (!id || !remaining.has(id)) continue;
+
+        const broadNo = String(item.broad_no || "");
+
+        liveMap.set(id, {
+          live: true,
+          status: "live",
+          userId: id,
+          name: displayNames[id] || item.user_nick || id,
+          userNick: item.user_nick || displayNames[id] || id,
+          title: item.broad_title || "",
+          broadNo,
+          thumbnail: normalizeUrl(item.broad_thumb),
+          startAt: item.broad_start || "",
+          categoryTags: [],
+          totalViewCount: Number(item.total_view_cnt || 0),
+          profileImg: normalizeUrl(item.profile_img),
+          stationUrl: `https://www.sooplive.com/station/${id}`,
+          broadcastUrl: broadNo
+            ? `https://play.sooplive.com/${id}/${broadNo}`
+            : `https://play.sooplive.com/${id}`,
+          checkedAt: new Date().toISOString(),
+        });
+
+        remaining.delete(id);
+      }
+    }
+
+    if (remaining.size === 0) {
+      break;
+    }
+
+    await sleep(80);
+  }
+
+  console.log(
+    `[soop] live check done pages=${pagesChecked}, live=${liveMap.size}/${targets.length}`
+  );
+
+  return liveMap;
+}
+
+function buildLiveStatus(players, liveMap) {
+  const checkedAt = new Date().toISOString();
+  const liveStatus = {};
+
+  players.forEach((player) => {
+    const info = liveMap.get(String(player.userId));
+
+    if (info) {
+      liveStatus[safeKey(player.userId)] = {
+        ...info,
+        race: player.race || "",
+        tier: player.tier || "",
+        tierCode: player.tierCode || "",
+        checkedAt,
+      };
+      return;
+    }
+
+    liveStatus[safeKey(player.userId)] = {
+      live: false,
+      status: "offline",
+      userId: player.userId,
+      name: player.name || player.userId,
+      race: player.race || "",
+      tier: player.tier || "",
+      tierCode: player.tierCode || "",
+      broadNo: "",
+      title: "",
+      startAt: "",
+      categoryTags: [],
+      totalViewCount: 0,
+      thumbnail: "",
+      profileImg: "",
+      stationUrl: `https://www.sooplive.com/station/${player.userId}`,
+      broadcastUrl: "",
+      checkedAt,
+    };
+  });
+
+  return liveStatus;
+}
+
+function buildPlayerLiveUpdates(players, liveMap) {
+  const updates = {};
+
+  players.forEach((player) => {
+    const info = liveMap.get(String(player.userId));
+    const basePath = `${FIREBASE_TIER_ROOT}/players/${player.index}`;
+
+    updates[`${basePath}/live`] = Boolean(info);
+    updates[`${basePath}/broadcastUrl`] = info ? info.broadcastUrl : "";
+    updates[`${basePath}/broad`] = info
+      ? {
+          broadNo: info.broadNo || "",
+          title: info.title || "",
+          startAt: info.startAt || "",
+          categoryTags: info.categoryTags || [],
+          totalViewCount: info.totalViewCount || 0,
+          thumbnail: info.thumbnail || "",
+          profileImg: info.profileImg || "",
+        }
+      : null;
+  });
+
+  return updates;
+}
+
+async function main() {
+  console.log("[config]", {
+    FIREBASE_TIER_ROOT,
+    FETCH_TIMEOUT_MS,
+    SOOP_LIVE_MAX_PAGES,
+    SOOP_LIVE_PAGE_BATCH,
+  });
+
+  const db = initFirebase();
+
+  console.log("[firebase] load players");
+  const players = await loadPlayersFromFirebase(db);
+
+  if (!players.length) {
+    throw new Error(`${FIREBASE_TIER_ROOT}/players is empty`);
+  }
+
+  console.log(`[firebase] players loaded ${players.length}`);
+
+  const liveMap = await fetchSoopLiveMap(players);
+  const liveStatus = buildLiveStatus(players, liveMap);
+  const playerLiveUpdates = buildPlayerLiveUpdates(players, liveMap);
+
+  const checkedAt = new Date().toISOString();
+
+  console.log("[firebase] update liveStatus");
+  await db.ref(`${FIREBASE_TIER_ROOT}/liveStatus`).set(liveStatus);
+
+  console.log("[firebase] update players live fields");
+  await db.ref().update(playerLiveUpdates);
+
+  console.log("[firebase] update live meta");
+  await db.ref(`${FIREBASE_TIER_ROOT}/meta/liveSyncedAt`).set(checkedAt);
+  await db.ref(`${FIREBASE_TIER_ROOT}/meta/liveCount`).set(liveMap.size);
+  await db.ref("starcraftTier/liveMeta").set({
+    checkedAt,
+    root: FIREBASE_TIER_ROOT,
+    playerCount: players.length,
+    liveCount: liveMap.size,
+    source: "soop-openapi-broad-list",
+  });
+
+  console.log(
+    JSON.stringify(
+      {
+        ok: true,
+        playerCount: players.length,
+        liveCount: liveMap.size,
+        checkedAt,
+      },
+      null,
+      2
+    )
+  );
+}
+
+main()
+  .then(async () => {
+    await Promise.race([closeFirebase(), sleep(3000)]);
+    process.exit(0);
+  })
+  .catch(async (error) => {
+    console.error(error);
+    await Promise.race([closeFirebase(), sleep(3000)]);
+    process.exit(1);
+  });
