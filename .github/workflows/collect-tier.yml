@@ -35,6 +35,7 @@ jobs:
           CACHE_LOCAL_JSON: "false"
           CACHE_LOCAL_ASSETS: "false"
 
-          FETCH_TIMEOUT_MS: "15000"
-          RECORD_CONCURRENCY: "3"
+          FETCH_TIMEOUT_MS: "20000"
+          RECORD_CONCURRENCY: "1"
           RECORD_MAX_PAGES: "30"
+          ELOBOARD_MAX_ROWS_PER_PLAYER: "5000"
