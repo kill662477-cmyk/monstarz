@@ -5,7 +5,8 @@
   "type": "commonjs",
   "scripts": {
     "collect": "node scripts/collect-data.js",
-    "sync-live": "node scripts/sync-soop-live-to-firebase.js"
+    "sync-live": "node scripts/sync-soop-live-to-firebase.js",
+    "export-players": "node scripts/export-manual-players.js"
   },
   "dependencies": {
     "firebase-admin": "^13.5.0"
