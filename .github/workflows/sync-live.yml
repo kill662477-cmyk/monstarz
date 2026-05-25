@@ -1,0 +1,26 @@
+name: Sync CNINE Live To Firebase
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/3 * * * *"
+
+jobs:
+  sync-live:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Sync live status
+        run: node scripts/sync-cnine-live-to-firebase.js
+        env:
+          FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+          FIREBASE_AUTH: ${{ secrets.FIREBASE_AUTH }}
+          FIREBASE_TIER_ROOT: starcraftTier/current
