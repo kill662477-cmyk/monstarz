@@ -2498,6 +2498,8 @@ body:not(.main-tab-active) .site-header{min-height:96px!important;}
   box-shadow:0 8px 18px rgba(0,0,0,.22)!important;
   overflow:hidden!important;
 }
+#leaderGrid .member-card.member-leader .member-banner,
+#leaderGrid .member-card .member-banner,
 #coachGrid .member-card.member-coach .member-banner,
 #coachGrid .member-card .member-banner,
 .tier-grid .member-card.member-player .member-banner,
@@ -2753,6 +2755,31 @@ body:not(.main-tab-active) .site-header{min-height:96px!important;}
 }
 #playerSection .tier-title{
   display:none!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  flex-direction:row!important;
+  min-height:34px!important;
+  margin:0 0 6px!important;
+  padding:7px 12px!important;
+  border-radius:8px!important;
+  clip-path:none!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  box-shadow:none!important;
+}
+#playerSection .tier-title h3{
+  font-size:15px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  letter-spacing:-.04em!important;
+}
+#playerSection .tier-title p{
+  display:none!important;
+}
+#playerSection .tier-title div:last-child{
+  font-size:11px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  color:rgba(255,255,255,.88)!important;
 }
 #playerSection .tier-grid{
   display:grid!important;
@@ -2810,6 +2837,41 @@ body:not(.main-tab-active) .site-header{min-height:96px!important;}
   line-height:1.12!important;
   margin-top:3px!important;
 }
+#playerSection .tier-grid .member-card .tier-line,
+#playerSection .tier-grid .member-card.member-player .tier-line,
+#leaderGrid .member-card .tier-line,
+#coachGrid .member-card .tier-line{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:auto!important;
+  max-width:max-content!important;
+  min-height:17px!important;
+  margin-top:4px!important;
+  padding:2px 7px!important;
+  border-radius:999px!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  background:rgba(255,255,255,.07)!important;
+  color:#ffffff!important;
+  font-size:10.5px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  letter-spacing:-.025em!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#playerSection .tier-grid .member-card .tier-line.t3{background:rgba(239,68,68,.24)!important;border-color:rgba(239,68,68,.46)!important;}
+#playerSection .tier-grid .member-card .tier-line.t4{background:rgba(245,158,11,.24)!important;border-color:rgba(245,158,11,.46)!important;}
+#playerSection .tier-grid .member-card .tier-line.t5{background:rgba(34,197,94,.22)!important;border-color:rgba(34,197,94,.44)!important;}
+#playerSection .tier-grid .member-card .tier-line.t6{background:rgba(59,130,246,.24)!important;border-color:rgba(59,130,246,.46)!important;}
+#playerSection .tier-grid .member-card .tier-line.t7{background:rgba(139,92,246,.24)!important;border-color:rgba(139,92,246,.46)!important;}
+#playerSection .tier-grid .member-card .tier-line.t8{background:rgba(236,72,153,.24)!important;border-color:rgba(236,72,153,.46)!important;}
+#playerSection .tier-grid .member-card .tier-line.t9{background:rgba(244,63,94,.24)!important;border-color:rgba(244,63,94,.46)!important;}
+#leaderGrid .member-card .tier-line.tGod,#coachGrid .member-card .tier-line.tGod{background:rgba(246,185,59,.24)!important;border-color:rgba(246,185,59,.48)!important;}
+#leaderGrid .member-card .tier-line.tKing,#coachGrid .member-card .tier-line.tKing{background:rgba(96,165,250,.24)!important;border-color:rgba(96,165,250,.48)!important;}
+#leaderGrid .member-card .tier-line.tJack,#coachGrid .member-card .tier-line.tJack{background:rgba(167,139,250,.24)!important;border-color:rgba(167,139,250,.48)!important;}
+#leaderGrid .member-card .tier-line.tSpade,#coachGrid .member-card .tier-line.tSpade{background:rgba(20,184,166,.24)!important;border-color:rgba(20,184,166,.48)!important;}
 #playerSection .tier-grid .member-card .meta-item,
 #playerSection .tier-grid .member-card.member-player .meta-item{
   font-size:12.1px!important;
@@ -4498,13 +4560,13 @@ body.funding-overlay-host .funding-temp-frame{
   ];
 
   const MEMBERS = [
-    { name: "김윤환", userId: "brainzerg7", type: "leader", role: "감독", tier: null, race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/br/brainzerg7/m/brainzerg7.webp", stream: "https://www.sooplive.com/station/brainzerg7", live: "https://play.sooplive.com/brainzerg7", youtube: "http://www.youtube.com/@calmtube2", profile: "#" },
-    { name: "박준오", userId: "h78ert", type: "coach", role: "코치", tier: null, race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/h7/h78ert/m/h78ert.webp", stream: "https://www.sooplive.com/station/h78ert", live: "https://play.sooplive.com/h78ert", youtube: "#", profile: "#" },
-    { name: "박수범", userId: "jihoon002", type: "coach", role: "코치", tier: null, race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ji/jihoon002/m/jihoon002.webp", stream: "https://www.sooplive.com/station/jihoon002", live: "https://play.sooplive.com/jihoon002", youtube: "#", profile: "#" },
-    { name: "사테", userId: "hoonykkk", type: "coach", role: "코치", tier: null, race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ho/hoonykkk/m/hoonykkk.webp", stream: "https://www.sooplive.com/station/hoonykkk", live: "https://play.sooplive.com/hoonykkk", youtube: "#", profile: "#" },
-    { name: "지동원", userId: "rondobba", type: "coach", role: "코치", tier: null, race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ro/rondobba/m/rondobba.webp", stream: "https://www.sooplive.com/station/rondobba", live: "https://play.sooplive.com/rondobba", youtube: "#", profile: "#" },
-    { name: "배성흠", userId: "goodzerg", type: "coach", role: "코치", tier: null, race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/go/goodzerg/m/goodzerg.webp", stream: "https://www.sooplive.com/station/goodzerg", live: "https://play.sooplive.com/goodzerg", youtube: "#", profile: "#" },
-    { name: "파도튜브", userId: "kthrs9207", type: "coach", role: "코치", tier: null, race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/kt/kthrs9207/m/kthrs9207.webp", stream: "https://www.sooplive.com/station/kthrs9207", live: "https://play.sooplive.com/kthrs9207", youtube: "http://www.youtube.com/@padotube9207", profile: "#" },
+    { name: "김윤환", userId: "brainzerg7", type: "leader", role: "감독", tier: "Jack", race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/br/brainzerg7/m/brainzerg7.webp", stream: "https://www.sooplive.com/station/brainzerg7", live: "https://play.sooplive.com/brainzerg7", youtube: "http://www.youtube.com/@calmtube2", profile: "#" },
+    { name: "사테", userId: "hoonykkk", type: "coach", role: "코치", tier: "God", race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ho/hoonykkk/m/hoonykkk.webp", stream: "https://www.sooplive.com/station/hoonykkk", live: "https://play.sooplive.com/hoonykkk", youtube: "#", profile: "#" },
+    { name: "박준오", userId: "h78ert", type: "coach", role: "코치", tier: "King", race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/h7/h78ert/m/h78ert.webp", stream: "https://www.sooplive.com/station/h78ert", live: "https://play.sooplive.com/h78ert", youtube: "#", profile: "#" },
+    { name: "박수범", userId: "jihoon002", type: "coach", role: "코치", tier: "King", race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ji/jihoon002/m/jihoon002.webp", stream: "https://www.sooplive.com/station/jihoon002", live: "https://play.sooplive.com/jihoon002", youtube: "#", profile: "#" },
+    { name: "지동원", userId: "rondobba", type: "coach", role: "코치", tier: "Jack", race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ro/rondobba/m/rondobba.webp", stream: "https://www.sooplive.com/station/rondobba", live: "https://play.sooplive.com/rondobba", youtube: "#", profile: "#" },
+    { name: "배성흠", userId: "goodzerg", type: "coach", role: "코치", tier: "Jack", race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/go/goodzerg/m/goodzerg.webp", stream: "https://www.sooplive.com/station/goodzerg", live: "https://play.sooplive.com/goodzerg", youtube: "#", profile: "#" },
+    { name: "파도튜브", userId: "kthrs9207", type: "coach", role: "코치", tier: "Spade", race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/kt/kthrs9207/m/kthrs9207.webp", stream: "https://www.sooplive.com/station/kthrs9207", live: "https://play.sooplive.com/kthrs9207", youtube: "http://www.youtube.com/@padotube9207", profile: "#" },
 
     { name: "토마토", userId: "freshtomato", type: "player", role: "학생", tier: 3, race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/fr/freshtomato/m/freshtomato.webp", stream: "https://www.sooplive.com/station/freshtomato", live: "https://play.sooplive.com/freshtomato", youtube: "https://www.youtube.com/channel/UCoBw6khRoeei_tgSBueVUXw", profile: "#" },
     { name: "지두두", userId: "wjswlgns09", type: "player", role: "학생", tier: 3, race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/wj/wjswlgns09/m/wjswlgns09.webp", stream: "https://www.sooplive.com/station/wjswlgns09", live: "https://play.sooplive.com/wjswlgns09", youtube: "#", profile: "#" },
@@ -4632,6 +4694,15 @@ body.funding-overlay-host .funding-temp-frame{
   let selectedBojaCategory = "김윤환";
   let selectedBojaIndex = 0;
 
+  function formatTierLabel(tier) {
+    if (tier === null || tier === undefined || tier === "") return "";
+    const raw = String(tier).trim();
+    if (!raw) return "";
+    if (raw === "9") return "유스";
+    if (/^\d+$/.test(raw)) return `${raw}티어`;
+    return raw;
+  }
+
   const tierLabels = { 3: "3티어", 4: "4티어", 5: "5티어", 6: "6티어", 7: "7티어", 8: "8티어", 9: "유스" };
   const tierDescriptions = { 3: " ", 4: " ", 5: " ", 6: " ", 7: " ", 8: " ", 9: " " };
 
@@ -4709,7 +4780,7 @@ body.funding-overlay-host .funding-temp-frame{
         member.role,
         member.race,
         member.type,
-        member.tier ? `${member.tier}티어` : ""
+        formatTierLabel(member.tier)
       ].join(" ").toLowerCase();
 
       const matchQuery = !q || text.includes(q);
@@ -4783,7 +4854,7 @@ function createMemberCard(member) {
     const safeText = (value) => escapeHtml(value ?? "");
     const bannerClass = cleanClass(member.type === "leader" ? "leader" : member.type === "coach" ? "coach" : `t${member.tier}`);
     const typeClass = `member-${cleanClass(member.type)}`;
-    const tierText = member.type === "player" ? (member.tier === 9 ? "유스" : `${member.tier}티어`) : member.role;
+    const tierText = formatTierLabel(member.tier);
     const statusText = member.status === "live" ? "방송중" : "오프라인";
     const statusClass = member.status === "live" ? "live" : "offline";
     const category = (member.type === "leader" || member.type === "coach") ? getLeaderCoachCategory(member) : "";
@@ -4796,6 +4867,9 @@ function createMemberCard(member) {
     const statusHtml = member.status === "live" && liveLink && liveLink !== "#"
       ? `<a class="chip ${statusClass}" href="${safeLink(liveLink)}" target="_blank" rel="noopener noreferrer">${safeText(statusText)}</a>`
       : `<span class="chip ${statusClass}">${safeText(statusText)}</span>`;
+    const tierLineHtml = tierText
+      ? `<div class="role-line tier-line t${cleanClass(member.tier)}">${safeText(tierText)}</div>`
+      : "";
 
     return `
       <article class="member-card ${typeClass}"
@@ -4809,6 +4883,7 @@ function createMemberCard(member) {
           <div class="name-row">
             <div class="name">${safeText(member.name || "")}</div>
             <div class="race-badge">${safeText(raceText)}</div>
+            ${tierLineHtml}
           </div>
           <div class="meta-list"><div class="meta-item join-item"><span>입단일 : ${safeText(joinDateText || "-")}</span></div></div>
           <div class="links ${youtube ? "has-youtube" : "no-youtube"}">
@@ -4835,28 +4910,36 @@ function createMemberCard(member) {
     const players = list.filter((m) => m.type === "player");
     playerCount.textContent = `${players.length}명`;
 
+    if (!players.length) {
+      tierBoard.innerHTML = `<div class="empty">검색 결과가 없습니다.</div>`;
+      return;
+    }
+
     const groups = players.reduce((acc, cur) => {
-      if (!acc[cur.tier]) acc[cur.tier] = [];
-      acc[cur.tier].push(cur);
+      const tierKey = String(cur.tier ?? "").trim();
+      if (!acc[tierKey]) acc[tierKey] = [];
+      acc[tierKey].push(cur);
       return acc;
     }, {});
 
-    const tiers = [3, 4, 5, 6, 7, 8, 9];
-    tierBoard.innerHTML = tiers.map((tier) => {
-      const items = groups[tier] || [];
-      return `
-        <section class="tier-section">
-          <div class="tier-title t${tier}">
-            <div>
-              <h3>${tierLabels[tier]}</h3>
-              <p>${tierDescriptions[tier]}</p>
-            </div>
-            <div>${items.length}명</div>
-          </div>
-          ${items.length ? `<div class="tier-grid">${items.map(createMemberCard).join("")}</div>` : `<div class="empty">등록된 멤버가 없습니다.</div>`}
+    const tierOrder = ["3", "4", "5", "6", "7", "8", "9"];
+    const knownTierHtml = tierOrder
+      .filter((tier) => groups[tier]?.length)
+      .map((tier) => `
+        <section class="tier-section tier-section-compact" data-tier="${tier}">
+          <div class="tier-grid">${groups[tier].map(createMemberCard).join("")}</div>
         </section>
-      `;
-    }).join("");
+      `);
+
+    const extraTierHtml = Object.keys(groups)
+      .filter((tier) => !tierOrder.includes(tier))
+      .map((tier) => `
+        <section class="tier-section tier-section-compact" data-tier="${escapeHtml(tier)}">
+          <div class="tier-grid">${groups[tier].map(createMemberCard).join("")}</div>
+        </section>
+      `);
+
+    tierBoard.innerHTML = [...knownTierHtml, ...extraTierHtml].join("");
   }
 
   function prepareRosterLayout() {
