@@ -4030,7 +4030,7 @@ body.funding-overlay-host .funding-temp-frame{
 #tabTier:before { content: "☷"; }
 .tier-tab-shell {
   display: grid;
-  gap: 10px;
+  gap: 0;
 }
 .tier-tab-head {
   position: relative;
@@ -4079,6 +4079,9 @@ body.funding-overlay-host .funding-temp-frame{
   border-radius: 18px;
   background: #08182c;
   box-shadow: var(--shadow);
+}
+.tier-tab-shell-compact .tier-tab-frame {
+  margin-top: 0;
 }
 body.light-mode .tier-tab-head {
   background: radial-gradient(circle at 16% 22%, rgba(37,99,235,.14), transparent 34%),
@@ -4188,14 +4191,7 @@ body.light-mode .tier-tab-head:after { color: rgba(37,99,235,.08) !important; }
     </div>
 
     <div id="tierScreen" class="screen hidden">
-      <section class="tier-tab-shell">
-        <div class="section-head tier-tab-head">
-          <div>
-            <h2>스타크래프트 티어표</h2>
-            <div class="tier-tab-sub">캄몬스타즈 페이지 안에서 확인하는 전체 스타크래프트 티어/방송 상태 보드</div>
-          </div>
-          <div class="count">Firebase 동기화</div>
-        </div>
+      <section class="tier-tab-shell tier-tab-shell-compact">
         <iframe id="tierFrame" class="tier-tab-frame" src="tierboard_calm_tab.html" title="스타크래프트 티어표" loading="lazy"></iframe>
       </section>
     </div>
