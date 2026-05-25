@@ -15,6 +15,10 @@ const FIREBASE_DATABASE_URL =
 
 const FIREBASE_ROOT = process.env.FIREBASE_ROOT || "starcraftTier/current";
 
+const FETCH_TIMEOUT_MS = Math.max(3000, Number(process.env.FETCH_TIMEOUT_MS || 15000));
+const RECORD_CONCURRENCY = Math.max(1, Number(process.env.RECORD_CONCURRENCY || 3));
+const RECORD_MAX_PAGES = Math.max(1, Number(process.env.RECORD_MAX_PAGES || 30));
+
 const CACHE_LOCAL_JSON = process.env.CACHE_LOCAL_JSON !== "false";
 const CACHE_LOCAL_ASSETS = process.env.CACHE_LOCAL_ASSETS === "true";
 
@@ -57,11 +61,15 @@ function normalizeUrl(url) {
 }
 
 function safeKey(value) {
-  return String(value || "").replace(/[.#$/[\]]/g, "_");
+  return String(value || "").replace(/[.#$\/\[\]]/g, "_");
 }
 
 function localPath(file) {
   return file.split(path.sep).join("/");
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function eloboardUrl(key, race) {
@@ -90,31 +98,72 @@ function eloboardUrl(key, race) {
   return "";
 }
 
+async function fetchBodyWithTimeout(url, options = {}, readBody) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+
+    const body = readBody ? await readBody(response) : null;
+
+    return {
+      response,
+      body,
+    };
+  } catch (error) {
+    if (error && error.name === "AbortError") {
+      throw new Error(`timeout after ${FETCH_TIMEOUT_MS}ms: ${url}`);
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function getJson(url) {
-  const response = await fetch(url, {
-    headers: {
-      "user-agent": "Mozilla/5.0",
-      accept: "application/json,text/plain,*/*",
+  const { response, body } = await fetchBodyWithTimeout(
+    url,
+    {
+      headers: {
+        "user-agent": "Mozilla/5.0",
+        accept: "application/json,text/plain,*/*",
+      },
     },
-  });
+    (res) => res.text()
+  );
 
   if (!response.ok) {
     throw new Error(`${response.status} ${url}`);
   }
 
-  return response.json();
+  if (!body) return null;
+
+  try {
+    return JSON.parse(body);
+  } catch (error) {
+    throw new Error(`JSON parse failed: ${url}`);
+  }
 }
 
 async function getText(url) {
-  const response = await fetch(url, {
-    headers: {
-      "user-agent": "Mozilla/5.0",
+  const { response, body } = await fetchBodyWithTimeout(
+    url,
+    {
+      headers: {
+        "user-agent": "Mozilla/5.0",
+      },
     },
-  });
+    (res) => res.text()
+  );
 
   return {
     status: response.status,
-    text: await response.text(),
+    text: body || "",
   };
 }
 
@@ -122,15 +171,19 @@ async function download(url, target) {
   const fullUrl = normalizeUrl(url);
   if (!fullUrl) return false;
 
-  const response = await fetch(fullUrl, {
-    headers: {
-      "user-agent": "Mozilla/5.0",
+  const { response, body } = await fetchBodyWithTimeout(
+    fullUrl,
+    {
+      headers: {
+        "user-agent": "Mozilla/5.0",
+      },
     },
-  });
+    (res) => res.arrayBuffer()
+  );
 
-  if (!response.ok) return false;
+  if (!response.ok || !body) return false;
 
-  await fs.writeFile(target, Buffer.from(await response.arrayBuffer()));
+  await fs.writeFile(target, Buffer.from(body));
   return true;
 }
 
@@ -156,7 +209,7 @@ async function fetchRecords(player) {
   let page = 1;
   let total = 0;
 
-  do {
+  while (page <= RECORD_MAX_PAGES) {
     const params = new URLSearchParams({
       soopUserId: player.userId,
       race: player.race,
@@ -166,14 +219,22 @@ async function fetchRecords(player) {
       order: "desc",
     });
 
-    const result = await getJson(
-      `https://www.cnine.kr/api/v2/p/starcraft/eloboard?${params}`
-    );
+    const url = `https://www.cnine.kr/api/v2/p/starcraft/eloboard?${params}`;
+    const result = await getJson(url);
 
-    rows.push(...(result.data || []));
-    total = result.total || rows.length;
+    const pageRows = Array.isArray(result && result.data) ? result.data : [];
+
+    rows.push(...pageRows);
+
+    total = Number((result && result.total) || rows.length || 0);
+
+    if (pageRows.length === 0) break;
+    if (rows.length >= total) break;
+
     page += 1;
-  } while (rows.length < total);
+
+    await sleep(80);
+  }
 
   return rows;
 }
@@ -185,6 +246,7 @@ function rowDate(row) {
       row.playedAt ||
       row.createdAt ||
       row.updatedAt ||
+      row.matchDate ||
       ""
   ).slice(0, 10);
 }
@@ -195,6 +257,8 @@ function rowWinnerId(row) {
       row.winnerUserId ||
       row.winnerId ||
       row.winner ||
+      row.winSoopUserId ||
+      row.winUserId ||
       ""
   );
 }
@@ -212,27 +276,50 @@ function rowLoserId(row) {
   );
 }
 
+function rowWinnerName(row) {
+  return String(row.winnerPlayer || row.winnerName || row.winPlayer || row.winName || "");
+}
+
+function rowLoserName(row) {
+  return String(row.losePlayer || row.loserPlayer || row.loseName || row.loserName || "");
+}
+
+function rowWinnerRace(row) {
+  return String(row.winnerRace || row.winRace || "");
+}
+
+function rowLoserRace(row) {
+  return String(row.loseRace || row.loserRace || "");
+}
+
 function rowOpponentName(row, userId) {
   const winnerId = rowWinnerId(row);
-  const isWin = winnerId && winnerId === String(userId);
+  const loserId = rowLoserId(row);
 
-  return isWin
-    ? row.losePlayer ||
-        row.loserPlayer ||
-        row.loseName ||
-        row.loserName ||
-        row.opponentName ||
-        ""
-    : row.winnerPlayer || row.winnerName || row.opponentName || "";
+  if (winnerId && winnerId === String(userId)) {
+    return rowLoserName(row) || row.opponentName || "";
+  }
+
+  if (loserId && loserId === String(userId)) {
+    return rowWinnerName(row) || row.opponentName || "";
+  }
+
+  return row.opponentName || "";
 }
 
 function rowOpponentRace(row, userId) {
   const winnerId = rowWinnerId(row);
-  const isWin = winnerId && winnerId === String(userId);
+  const loserId = rowLoserId(row);
 
-  return isWin
-    ? row.loseRace || row.loserRace || row.opponentRace || ""
-    : row.winnerRace || row.opponentRace || "";
+  if (winnerId && winnerId === String(userId)) {
+    return rowLoserRace(row) || row.opponentRace || "";
+  }
+
+  if (loserId && loserId === String(userId)) {
+    return rowWinnerRace(row) || row.opponentRace || "";
+  }
+
+  return row.opponentRace || "";
 }
 
 function rowOpponentId(row, userId) {
@@ -242,17 +329,23 @@ function rowOpponentId(row, userId) {
   if (winnerId && winnerId === String(userId)) return loserId;
   if (loserId && loserId === String(userId)) return winnerId;
 
-  return "";
+  return String(row.opponentSoopUserId || row.opponentUserId || "");
 }
 
 function rowIsWin(row, userId) {
   const winnerId = rowWinnerId(row);
+  const loserId = rowLoserId(row);
 
   if (winnerId) {
     return winnerId === String(userId);
   }
 
-  const result = String(row.result || row.win || "").toLowerCase();
+  if (loserId) {
+    return loserId !== String(userId);
+  }
+
+  const result = String(row.result || row.win || row.status || "").toLowerCase();
+
   return result === "win" || result === "w" || row.isWin === true;
 }
 
@@ -306,6 +399,7 @@ function buildHeadToHead(players, records) {
     if (!byNameRace.has(nameRaceKey)) {
       byNameRace.set(nameRaceKey, []);
     }
+
     byNameRace.get(nameRaceKey).push(player);
   });
 
@@ -519,13 +613,20 @@ async function uploadToFirebase(payload) {
 }
 
 async function main() {
-  await Promise.all([
-    dataDir,
-    recordDir,
-    assetDir,
-    profileDir,
-    academyDir,
-  ].map((dir) => fs.mkdir(dir, { recursive: true })));
+  await Promise.all(
+    [dataDir, recordDir, assetDir, profileDir, academyDir].map((dir) =>
+      fs.mkdir(dir, { recursive: true })
+    )
+  );
+
+  console.log("[config]", {
+    FIREBASE_ROOT,
+    FETCH_TIMEOUT_MS,
+    RECORD_CONCURRENCY,
+    RECORD_MAX_PAGES,
+    CACHE_LOCAL_JSON,
+    CACHE_LOCAL_ASSETS,
+  });
 
   console.log("[1/6] CNINE 기본 데이터 수집 시작");
 
@@ -561,7 +662,7 @@ async function main() {
   const playerList = playersResult.data || [];
   const academyPlayerList = academyPlayersResult.data || [];
   const winRateList = winRatesResult.data || [];
-  const broadList = broadResult || [];
+  const broadList = Array.isArray(broadResult) ? broadResult : [];
 
   const academies = new Map(academyList.map((item) => [item.id, item]));
 
@@ -593,7 +694,10 @@ async function main() {
       const ok = await download(url, target).catch(() => false);
 
       if (ok) {
-        academyLocal.set(academy.id, localPath(path.join("assets", "academy", `${academy.id}.jpg`)));
+        academyLocal.set(
+          academy.id,
+          localPath(path.join("assets", "academy", `${academy.id}.jpg`))
+        );
       }
     });
 
@@ -709,11 +813,13 @@ async function main() {
   const records = {};
   let recordPlayerCount = 0;
   let recordRowCount = 0;
+  let recordFailCount = 0;
 
-  await mapLimit(players, 6, async (player, index) => {
+  await mapLimit(players, RECORD_CONCURRENCY, async (player, index) => {
     const key = safeKey(`${player.userId}_${player.race}`);
 
     const rows = await fetchRecords(player).catch((error) => {
+      recordFailCount += 1;
       console.warn(
         `[records fail] ${player.name}(${player.userId}/${player.race}): ${error.message}`
       );
@@ -757,7 +863,11 @@ async function main() {
     ).length,
     recordPlayerCount,
     recordRowCount,
+    recordFailCount,
     headToHeadCount: Object.keys(headToHead).length,
+    fetchTimeoutMs: FETCH_TIMEOUT_MS,
+    recordConcurrency: RECORD_CONCURRENCY,
+    recordMaxPages: RECORD_MAX_PAGES,
     source: "cnine.kr",
   };
 
