@@ -3136,6 +3136,21 @@ body.light-mode .profile-awards{background:linear-gradient(135deg,rgba(245,158,1
   transition:transform .15s ease, border-color .15s ease, background .15s ease, color .15s ease;
 }
 .nav-external a:hover{transform:translateY(-1px);border-color:rgba(86,161,255,.58);background:linear-gradient(180deg,rgba(29,102,255,.26),rgba(29,102,255,.10));color:#fff;}
+.nav-external a.external-link-with-image{
+  gap:7px;
+}
+.nav-external a.external-link-with-image span{
+  min-width:0;
+}
+.nav-external a.external-link-with-image img{
+  width:24px;
+  height:24px;
+  flex:0 0 24px;
+  object-fit:cover;
+  border-radius:6px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.08);
+}
 .game-wrap{margin-top:0;border:1px solid var(--sr-line);background:var(--sr-board-bg);box-shadow:var(--sr-shadow);overflow:hidden;}
 .game-wrap iframe{display:block;width:100%;height:min(760px,72vh);min-height:620px;border:0;background:#000;}
 .game-section-head{border-bottom:0!important;}
@@ -3985,7 +4000,7 @@ body.funding-overlay-host .funding-temp-frame{
           <a href="https://eloboard.com/" target="_blank" rel="noopener noreferrer">📊 ELOBOARD</a>
           <a href="https://machugi.io/quiz/GJQTMpLt4usVzZyeGMJO" target="_blank" rel="noopener noreferrer">🧠 모의고사</a>
           <a href="https://monumental-dolphin-3ac88f.netlify.app/" target="_blank" rel="noopener noreferrer">📅 일정표</a>
-          <a href="https://fmcalm.vercel.app/" target="_blank" rel="noopener noreferrer">그것이알고싶캄몬</a>
+          <a class="external-link-with-image" href="https://fmcalm.vercel.app/" target="_blank" rel="noopener noreferrer"><img src="https://stimg.sooplive.com/COMMENT/0/12635700/94781779671461797.png" alt="그것이알고싶캄몬 이미지" loading="lazy" /><span>그것이알고싶캄몬</span></a>
           <a href="https://www.sooplive.com/station/silver0love" target="_blank" rel="noopener noreferrer">made by 손실바 방송국</a>
         </div>
       </nav>
