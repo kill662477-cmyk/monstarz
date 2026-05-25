@@ -4,7 +4,8 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "collect": "node scripts/collect-data.js"
+    "collect": "node scripts/collect-data.js",
+    "sync-live": "node scripts/sync-soop-live-to-firebase.js"
   },
   "dependencies": {
     "firebase-admin": "^13.5.0"
