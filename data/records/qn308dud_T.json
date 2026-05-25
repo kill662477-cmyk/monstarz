@@ -1,0 +1,145 @@
+[
+  {
+    "id": 349232,
+    "date": "2026-04-11",
+    "winnerRace": "P",
+    "winnerSoopUserId": "moguleave",
+    "winnerPlayer": "아링",
+    "loseRace": "T",
+    "loseSoopUserId": "qn308dud",
+    "losePlayer": "한둬얼",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 347514,
+    "date": "2026-03-29",
+    "winnerRace": "P",
+    "winnerSoopUserId": "dbwjdcool1",
+    "winnerPlayer": "찡찡시아",
+    "loseRace": "T",
+    "loseSoopUserId": "qn308dud",
+    "losePlayer": "한둬얼",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 347110,
+    "date": "2026-03-25",
+    "winnerRace": "T",
+    "winnerSoopUserId": "qn308dud",
+    "winnerPlayer": "한둬얼",
+    "loseRace": "P",
+    "loseSoopUserId": "jesus3054",
+    "losePlayer": "히요코",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 346848,
+    "date": "2026-03-22",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "hckkhc21",
+    "winnerPlayer": "퀸주",
+    "loseRace": "T",
+    "loseSoopUserId": "qn308dud",
+    "losePlayer": "한둬얼",
+    "map": "투혼"
+  },
+  {
+    "id": 61980,
+    "date": "2021-12-28",
+    "winnerRace": "P",
+    "winnerSoopUserId": "skarbwhgc",
+    "winnerPlayer": "마꼬",
+    "loseRace": "T",
+    "loseSoopUserId": "qn308dud",
+    "losePlayer": "한둬얼",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 61734,
+    "date": "2021-12-27",
+    "winnerRace": "T",
+    "winnerSoopUserId": "qn308dud",
+    "winnerPlayer": "한둬얼",
+    "loseRace": "P",
+    "loseSoopUserId": "skarbwhgc",
+    "losePlayer": "마꼬",
+    "map": "투혼"
+  },
+  {
+    "id": 61275,
+    "date": "2021-12-25",
+    "winnerRace": "P",
+    "winnerSoopUserId": "flqhs105",
+    "winnerPlayer": "하두링",
+    "loseRace": "T",
+    "loseSoopUserId": "qn308dud",
+    "losePlayer": "한둬얼",
+    "map": "투혼"
+  },
+  {
+    "id": 60966,
+    "date": "2021-12-23",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "alswnghd1",
+    "winnerPlayer": "오렌지",
+    "loseRace": "T",
+    "loseSoopUserId": "qn308dud",
+    "losePlayer": "한둬얼",
+    "map": "투혼"
+  },
+  {
+    "id": 60740,
+    "date": "2021-12-22",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "tgzbest",
+    "winnerPlayer": "천사윤",
+    "loseRace": "T",
+    "loseSoopUserId": "qn308dud",
+    "losePlayer": "한둬얼",
+    "map": "투혼"
+  },
+  {
+    "id": 60739,
+    "date": "2021-12-22",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "tgzbest",
+    "winnerPlayer": "천사윤",
+    "loseRace": "T",
+    "loseSoopUserId": "qn308dud",
+    "losePlayer": "한둬얼",
+    "map": "투혼"
+  },
+  {
+    "id": 60724,
+    "date": "2021-12-22",
+    "winnerRace": "T",
+    "winnerSoopUserId": "qn308dud",
+    "winnerPlayer": "한둬얼",
+    "loseRace": "P",
+    "loseSoopUserId": "flqhs105",
+    "losePlayer": "하두링",
+    "map": "투혼"
+  },
+  {
+    "id": 60715,
+    "date": "2021-12-22",
+    "winnerRace": "T",
+    "winnerSoopUserId": "qn308dud",
+    "winnerPlayer": "한둬얼",
+    "loseRace": "T",
+    "loseSoopUserId": "seogeonwoo",
+    "losePlayer": "서건우",
+    "map": "투혼"
+  },
+  {
+    "id": 60325,
+    "date": "2021-12-20",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "osim0408",
+    "winnerPlayer": "홍혜리",
+    "loseRace": "T",
+    "loseSoopUserId": "qn308dud",
+    "losePlayer": "한둬얼",
+    "map": "투혼"
+  }
+]

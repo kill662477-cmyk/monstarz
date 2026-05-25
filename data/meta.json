@@ -1,1 +1,10 @@
-
+{
+  "collectedAt": "2026-05-25T08:05:54.745Z",
+  "sourceLastUpdatedAt": "2026-05-25T06:31:00",
+  "playerCount": 360,
+  "stationVisitedCount": 360,
+  "imageCachedCount": 360,
+  "recordPlayerCount": 344,
+  "recordErrorCount": 0,
+  "recordErrors": []
+}

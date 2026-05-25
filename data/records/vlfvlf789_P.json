@@ -1,0 +1,210 @@
+[
+  {
+    "id": 338996,
+    "date": "2026-01-28",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "kalmian",
+    "winnerPlayer": "나무늘봉순",
+    "loseRace": "P",
+    "loseSoopUserId": "vlfvlf789",
+    "losePlayer": "빵훈",
+    "map": "라데온"
+  },
+  {
+    "id": 302946,
+    "date": "2025-08-01",
+    "winnerRace": "P",
+    "winnerSoopUserId": "vlfvlf789",
+    "winnerPlayer": "빵훈",
+    "loseRace": "Z",
+    "loseSoopUserId": "kbsgoltong",
+    "losePlayer": "또봉순",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 302945,
+    "date": "2025-08-01",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "kbsgoltong",
+    "winnerPlayer": "또봉순",
+    "loseRace": "P",
+    "loseSoopUserId": "vlfvlf789",
+    "losePlayer": "빵훈",
+    "map": "데자 뷰"
+  },
+  {
+    "id": 302944,
+    "date": "2025-08-01",
+    "winnerRace": "P",
+    "winnerSoopUserId": "vlfvlf789",
+    "winnerPlayer": "빵훈",
+    "loseRace": "Z",
+    "loseSoopUserId": "kbsgoltong",
+    "losePlayer": "또봉순",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 187365,
+    "date": "2023-11-06",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "gef456",
+    "winnerPlayer": "늑대채린",
+    "loseRace": "P",
+    "loseSoopUserId": "vlfvlf789",
+    "losePlayer": "빵훈",
+    "map": "네오실피드"
+  },
+  {
+    "id": 187364,
+    "date": "2023-11-06",
+    "winnerRace": "P",
+    "winnerSoopUserId": "vlfvlf789",
+    "winnerPlayer": "빵훈",
+    "loseRace": "Z",
+    "loseSoopUserId": "gef456",
+    "losePlayer": "늑대채린",
+    "map": "투혼"
+  },
+  {
+    "id": 99439,
+    "date": "2022-07-17",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "alswnghd1",
+    "winnerPlayer": "오렌지",
+    "loseRace": "P",
+    "loseSoopUserId": "vlfvlf789",
+    "losePlayer": "빵훈",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 99438,
+    "date": "2022-07-17",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "alswnghd1",
+    "winnerPlayer": "오렌지",
+    "loseRace": "P",
+    "loseSoopUserId": "vlfvlf789",
+    "losePlayer": "빵훈",
+    "map": "투혼"
+  },
+  {
+    "id": 54891,
+    "date": "2021-11-20",
+    "winnerRace": "P",
+    "winnerSoopUserId": "vlfvlf789",
+    "winnerPlayer": "빵훈",
+    "loseRace": "T",
+    "loseSoopUserId": "llqqqq",
+    "losePlayer": "추르미",
+    "map": "투혼"
+  },
+  {
+    "id": 54890,
+    "date": "2021-11-20",
+    "winnerRace": "P",
+    "winnerSoopUserId": "vlfvlf789",
+    "winnerPlayer": "빵훈",
+    "loseRace": "T",
+    "loseSoopUserId": "llqqqq",
+    "losePlayer": "추르미",
+    "map": "투혼"
+  },
+  {
+    "id": 50479,
+    "date": "2021-10-22",
+    "winnerRace": "P",
+    "winnerSoopUserId": "vlfvlf789",
+    "winnerPlayer": "빵훈",
+    "loseRace": "T",
+    "loseSoopUserId": "gef456",
+    "losePlayer": "따냥잉",
+    "map": "투혼"
+  },
+  {
+    "id": 50477,
+    "date": "2021-10-22",
+    "winnerRace": "P",
+    "winnerSoopUserId": "vlfvlf789",
+    "winnerPlayer": "빵훈",
+    "loseRace": "T",
+    "loseSoopUserId": "gef456",
+    "losePlayer": "따냥잉",
+    "map": "투혼"
+  },
+  {
+    "id": 41464,
+    "date": "2021-08-21",
+    "winnerRace": "P",
+    "winnerSoopUserId": "vlfvlf789",
+    "winnerPlayer": "빵훈",
+    "loseRace": "T",
+    "losePlayer": "또봉순",
+    "map": "투혼"
+  },
+  {
+    "id": 41444,
+    "date": "2021-08-21",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "kbsgoltong",
+    "winnerPlayer": "또봉순",
+    "loseRace": "P",
+    "loseSoopUserId": "vlfvlf789",
+    "losePlayer": "빵훈",
+    "map": "투혼"
+  },
+  {
+    "id": 33332,
+    "date": "2021-06-28",
+    "winnerRace": "P",
+    "winnerSoopUserId": "vlfvlf789",
+    "winnerPlayer": "빵훈",
+    "loseRace": "Z",
+    "loseSoopUserId": "kissday621",
+    "losePlayer": "롤선생",
+    "map": "투혼"
+  },
+  {
+    "id": 33330,
+    "date": "2021-06-28",
+    "winnerRace": "P",
+    "winnerSoopUserId": "vlfvlf789",
+    "winnerPlayer": "빵훈",
+    "loseRace": "Z",
+    "loseSoopUserId": "kissday621",
+    "losePlayer": "롤선생",
+    "map": "투혼"
+  },
+  {
+    "id": 33329,
+    "date": "2021-06-28",
+    "winnerRace": "P",
+    "winnerSoopUserId": "vlfvlf789",
+    "winnerPlayer": "빵훈",
+    "loseRace": "Z",
+    "loseSoopUserId": "rkeltptkd",
+    "losePlayer": "하블리",
+    "map": "투혼"
+  },
+  {
+    "id": 33328,
+    "date": "2021-06-28",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "rkeltptkd",
+    "winnerPlayer": "하블리",
+    "loseRace": "P",
+    "loseSoopUserId": "vlfvlf789",
+    "losePlayer": "빵훈",
+    "map": "투혼"
+  },
+  {
+    "id": 33327,
+    "date": "2021-06-28",
+    "winnerRace": "P",
+    "winnerSoopUserId": "vlfvlf789",
+    "winnerPlayer": "빵훈",
+    "loseRace": "Z",
+    "loseSoopUserId": "rkeltptkd",
+    "losePlayer": "하블리",
+    "map": "투혼"
+  }
+]

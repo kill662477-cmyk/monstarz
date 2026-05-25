@@ -1,0 +1,57 @@
+[
+  {
+    "id": 288277,
+    "date": "2025-04-22",
+    "winnerRace": "P",
+    "winnerSoopUserId": "comcmxx",
+    "winnerPlayer": "윤준석",
+    "loseRace": "Z",
+    "loseSoopUserId": "leegang7",
+    "losePlayer": "이강진",
+    "map": "라데온"
+  },
+  {
+    "id": 288118,
+    "date": "2025-04-21",
+    "winnerRace": "P",
+    "winnerSoopUserId": "comcmxx",
+    "winnerPlayer": "윤준석",
+    "loseRace": "Z",
+    "loseSoopUserId": "leegang7",
+    "losePlayer": "이강진",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 288117,
+    "date": "2025-04-21",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "leegang7",
+    "winnerPlayer": "이강진",
+    "loseRace": "P",
+    "loseSoopUserId": "comcmxx",
+    "losePlayer": "윤준석",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 288116,
+    "date": "2025-04-21",
+    "winnerRace": "P",
+    "winnerSoopUserId": "comcmxx",
+    "winnerPlayer": "윤준석",
+    "loseRace": "Z",
+    "loseSoopUserId": "leegang7",
+    "losePlayer": "이강진",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 288115,
+    "date": "2025-04-21",
+    "winnerRace": "P",
+    "winnerSoopUserId": "comcmxx",
+    "winnerPlayer": "윤준석",
+    "loseRace": "Z",
+    "loseSoopUserId": "leegang7",
+    "losePlayer": "이강진",
+    "map": "데자 뷰"
+  }
+]

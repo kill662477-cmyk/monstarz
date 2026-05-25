@@ -1,0 +1,90 @@
+[
+  {
+    "id": 334486,
+    "date": "2026-01-10",
+    "winnerRace": "T",
+    "winnerSoopUserId": "byromantic",
+    "winnerPlayer": "최재성",
+    "loseRace": "P",
+    "loseSoopUserId": "momjin",
+    "losePlayer": "서기수",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 290201,
+    "date": "2025-05-06",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "julyzerg",
+    "winnerPlayer": "박성준",
+    "loseRace": "P",
+    "loseSoopUserId": "momjin",
+    "losePlayer": "서기수",
+    "map": "네오 기요틴"
+  },
+  {
+    "id": 235680,
+    "date": "2024-06-29",
+    "winnerRace": "P",
+    "winnerSoopUserId": "erosrainbow",
+    "winnerPlayer": "김성제",
+    "loseRace": "P",
+    "loseSoopUserId": "momjin",
+    "losePlayer": "서기수",
+    "map": "버미어"
+  },
+  {
+    "id": 235132,
+    "date": "2024-06-27",
+    "winnerRace": "P",
+    "winnerSoopUserId": "erosrainbow",
+    "winnerPlayer": "김성제",
+    "loseRace": "P",
+    "loseSoopUserId": "momjin",
+    "losePlayer": "서기수",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 235123,
+    "date": "2024-06-27",
+    "winnerRace": "P",
+    "winnerSoopUserId": "momjin",
+    "winnerPlayer": "서기수",
+    "loseRace": "P",
+    "loseSoopUserId": "erosrainbow",
+    "losePlayer": "김성제",
+    "map": "레트로"
+  },
+  {
+    "id": 235118,
+    "date": "2024-06-27",
+    "winnerRace": "P",
+    "winnerSoopUserId": "erosrainbow",
+    "winnerPlayer": "김성제",
+    "loseRace": "P",
+    "loseSoopUserId": "momjin",
+    "losePlayer": "서기수",
+    "map": "레트로"
+  },
+  {
+    "id": 232866,
+    "date": "2024-06-18",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "cztaemin",
+    "winnerPlayer": "박태민",
+    "loseRace": "P",
+    "loseSoopUserId": "momjin",
+    "losePlayer": "서기수",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 232865,
+    "date": "2024-06-18",
+    "winnerRace": "P",
+    "winnerSoopUserId": "momjin",
+    "winnerPlayer": "서기수",
+    "loseRace": "Z",
+    "loseSoopUserId": "cztaemin",
+    "losePlayer": "박태민",
+    "map": "폴리포이드"
+  }
+]

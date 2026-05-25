@@ -1,0 +1,68 @@
+[
+  {
+    "id": 321024,
+    "date": "2025-10-17",
+    "winnerRace": "T",
+    "winnerSoopUserId": "xellosmagic1",
+    "winnerPlayer": "스타용",
+    "loseRace": "Z",
+    "loseSoopUserId": "5eulgii",
+    "losePlayer": "면추가",
+    "map": "녹아웃"
+  },
+  {
+    "id": 313383,
+    "date": "2025-09-19",
+    "winnerRace": "P",
+    "winnerSoopUserId": "anchjjj",
+    "winnerPlayer": "팡린",
+    "loseRace": "T",
+    "loseSoopUserId": "xellosmagic1",
+    "losePlayer": "스타용",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 313381,
+    "date": "2025-09-19",
+    "winnerRace": "Z",
+    "winnerSoopUserId": "2me2na",
+    "winnerPlayer": "루다",
+    "loseRace": "T",
+    "loseSoopUserId": "xellosmagic1",
+    "losePlayer": "스타용",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 285747,
+    "date": "2025-04-06",
+    "winnerRace": "T",
+    "winnerSoopUserId": "xellosmagic1",
+    "winnerPlayer": "스타용",
+    "loseRace": "Z",
+    "loseSoopUserId": "jaeparkk",
+    "losePlayer": "여누띠",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 285746,
+    "date": "2025-04-06",
+    "winnerRace": "T",
+    "winnerSoopUserId": "xellosmagic1",
+    "winnerPlayer": "스타용",
+    "loseRace": "Z",
+    "loseSoopUserId": "jaeparkk",
+    "losePlayer": "여누띠",
+    "map": "폴리포이드"
+  },
+  {
+    "id": 280986,
+    "date": "2025-03-09",
+    "winnerRace": "T",
+    "winnerSoopUserId": "xellosmagic1",
+    "winnerPlayer": "스타용",
+    "loseRace": "Z",
+    "loseSoopUserId": "jaeparkk",
+    "losePlayer": "여누띠",
+    "map": "폴리포이드"
+  }
+]
