@@ -6211,8 +6211,11 @@
       appId: "1:173723966783:web:ccd54e5417327b2600478a",
       measurementId: "G-5WCBP7YDRW"
     };
-    const firebaseState = { ready: false, meta: {}, records: {}, winRates: {}, headToHead: {}, liveStatus: {} };
+    const firebaseState = { ready: false, meta: {}, records: {}, winRates: {}, headToHead: {}, liveStatus: {}, recordLoaded: {} };
+    const recordLoadPromises = {};
     let firebaseDb = null;
+    let recordLoadSeq = 0;
+    let headLoadSeq = 0;
 
     function safeKey(value) {
       return String(value || '').replace(/[.#$/\[\]]/g, '_');
@@ -6348,7 +6351,10 @@
       if (Array.isArray(entry.rows)) return entry.rows;
       if (Array.isArray(entry.list)) return entry.list;
       if (Array.isArray(entry.records)) return entry.records;
-      return [];
+
+      const collected = [];
+      collectRecordRows(entry, collected, 0);
+      return collected;
     }
 
     function lookupRecordEntry(records, keys, race, depth) {
@@ -6430,13 +6436,68 @@
       if (directRows.length) return directRows;
 
       const allRows = [];
-      collectRecordRows(records, allRows, 0);
+      keys.forEach(function(key) {
+        if (!Object.prototype.hasOwnProperty.call(records, key)) return;
+        collectRecordRows(records[key], allRows, 0);
+      });
       if (!allRows.length) return [];
       return allRows.filter(function(row) {
         if (!rowContainsPlayer(row, hydratedPlayer)) return false;
         const ownRace = String(rowPlayerRace(row, hydratedPlayer) || '').trim();
         return !ownRace || ownRace === race;
       });
+    }
+
+    async function fetchRecordBucket(player, race) {
+      if (!firebaseDb) return [];
+      const hydratedPlayer = player.userId ? player : { ...player, userId: extractSoopUserId(player) };
+      const keys = recordKeysFor(hydratedPlayer, race);
+      const primaryKey = keys[0];
+
+      for (const key of keys) {
+        const cachedRows = normalizeRecordEntry(firebaseState.records[key], race);
+        if (cachedRows.length) return cachedRows;
+      }
+
+      for (const key of keys) {
+        if (!key) continue;
+
+        if (!recordLoadPromises[key]) {
+          recordLoadPromises[key] = firebaseDb.ref(FIREBASE_ROOT + '/records/' + key).once('value')
+            .then(function(snapshot) {
+              const value = snapshot.val();
+              firebaseState.recordLoaded[key] = true;
+              if (value !== null && value !== undefined) {
+                firebaseState.records[key] = value;
+              } else if (!Object.prototype.hasOwnProperty.call(firebaseState.records, key)) {
+                firebaseState.records[key] = [];
+              }
+              return normalizeRecordEntry(firebaseState.records[key], race);
+            })
+            .catch(function() {
+              firebaseState.recordLoaded[key] = true;
+              return [];
+            })
+            .finally(function() {
+              delete recordLoadPromises[key];
+            });
+        }
+
+        const rows = await recordLoadPromises[key];
+        if (rows.length) return rows;
+
+        if (key === primaryKey && rows.length === 0) {
+          continue;
+        }
+      }
+
+      return recordBucket(hydratedPlayer, race);
+    }
+
+    async function ensureRecordBucket(player, race) {
+      const cachedRows = recordBucket(player, race);
+      if (cachedRows.length) return cachedRows;
+      return fetchRecordBucket(player, race);
     }
 
     function rowDate(row) {
@@ -6516,18 +6577,30 @@
       return null;
     }
 
-    function normalizeFirebaseSnapshot(data) {
-      const players = normalizeList(data.players || data.tierData || data.members);
-      firebaseState.meta = data.meta || {};
-      firebaseState.records = data.records || {};
-      firebaseState.winRates = data.winRates || data.winRate || {};
-      firebaseState.headToHead = data.headToHead || data.headToHeadSummary || {};
-      firebaseState.liveStatus = data.liveStatus || data.statuses || {};
-      if (players.length) {
+    function applyFirebasePlayers(players) {
+      if (Array.isArray(players) && players.length) {
         tierData = applyLiveStatus(players, firebaseState.liveStatus);
       } else {
         tierData = applyLiveStatus(tierData, firebaseState.liveStatus);
       }
+    }
+
+    function refreshFirebaseView(options) {
+      const opts = options || {};
+      render();
+      if (activeRecordKey && opts.reloadRecord !== false) loadRecord();
+      if (selection.playerKey && selection.opponentKey && opts.reloadHead !== false) loadHeadToHead();
+    }
+
+    function normalizeFirebaseSnapshot(data) {
+      const players = normalizeList(data.players || data.tierData || data.members);
+      firebaseState.meta = data.meta || {};
+      firebaseState.records = {};
+      firebaseState.recordLoaded = {};
+      firebaseState.winRates = data.winRates || data.winRate || {};
+      firebaseState.headToHead = data.headToHead || data.headToHeadSummary || {};
+      firebaseState.liveStatus = data.liveStatus || data.statuses || {};
+      applyFirebasePlayers(players);
     }
 
     function initFirebaseTierData() {
@@ -6536,10 +6609,32 @@
         if (!window.firebase.apps.length) window.firebase.initializeApp(firebaseConfig);
         firebaseDb = window.firebase.database();
         firebaseState.ready = true;
-        firebaseDb.ref(FIREBASE_ROOT).on('value', function(snapshot) {
-          normalizeFirebaseSnapshot(snapshot.val() || {});
-          render();
-          if (activeRecordKey) loadRecord();
+
+        const rootRef = firebaseDb.ref(FIREBASE_ROOT);
+
+        rootRef.child('meta').on('value', function(snapshot) {
+          firebaseState.meta = snapshot.val() || {};
+          refreshFirebaseView({ reloadRecord: false, reloadHead: false });
+        });
+
+        rootRef.child('players').on('value', function(snapshot) {
+          const players = normalizeList(snapshot.val());
+          applyFirebasePlayers(players);
+          refreshFirebaseView({ reloadRecord: false, reloadHead: false });
+        });
+
+        rootRef.child('liveStatus').on('value', function(snapshot) {
+          firebaseState.liveStatus = snapshot.val() || {};
+          applyFirebasePlayers(tierData);
+          refreshFirebaseView({ reloadRecord: false, reloadHead: false });
+        });
+
+        rootRef.child('winRates').on('value', function(snapshot) {
+          firebaseState.winRates = snapshot.val() || {};
+        });
+
+        rootRef.child('headToHead').on('value', function(snapshot) {
+          firebaseState.headToHead = snapshot.val() || {};
           if (selection.playerKey && selection.opponentKey) loadHeadToHead();
         });
       } catch (error) {
@@ -6736,9 +6831,12 @@
       return prefixes.some(function(prefix) { return date.startsWith(prefix); });
     }
 
-    function loadHeadToHead() {
-      const player = playerByKey(selection.playerKey);
-      const opponent = playerByKey(selection.opponentKey);
+    async function loadHeadToHead() {
+      const seq = ++headLoadSeq;
+      const playerKeySnapshot = selection.playerKey;
+      const opponentKeySnapshot = selection.opponentKey;
+      const player = playerByKey(playerKeySnapshot);
+      const opponent = playerByKey(opponentKeySnapshot);
       if (!player || !opponent) {
         renderSelection();
         return;
@@ -6747,6 +6845,7 @@
       renderSelection();
       const stored = storedHeadToHead(player, opponent, headPeriod.value);
       if (stored) {
+        if (seq !== headLoadSeq || selection.playerKey !== playerKeySnapshot || selection.opponentKey !== opponentKeySnapshot) return;
         selection.result = stored;
         selection.loading = false;
         renderSelection();
@@ -6754,7 +6853,9 @@
       }
       const score = { player1Wins: 0, player2Wins: 0, hasData: false, source: 'computed' };
       let matchedRows = 0;
-      recordBucket(player, player.race).forEach(function(row) {
+      const rows = await ensureRecordBucket(player, player.race);
+      if (seq !== headLoadSeq || selection.playerKey !== playerKeySnapshot || selection.opponentKey !== opponentKeySnapshot) return;
+      rows.forEach(function(row) {
         if (!inHeadPeriod(row, headPeriod.value) || !rowMatchesOpponent(row, player, opponent)) return;
         matchedRows += 1;
         if (rowIsWin(row, player)) score.player1Wins += 1;
@@ -6781,19 +6882,28 @@
       return recordYear.value + '-' + String(recordMonth.value).padStart(2, '0') + '-01';
     }
 
-    function loadRecord() {
+    async function loadRecord() {
+      const seq = ++recordLoadSeq;
       const player = playerByKey(activeRecordKey);
       if (!player) return;
+
       recordTitle.textContent = player.name + ' ' + recordYear.value + '년 ' + recordMonth.value + '월 전적';
-      const rows = recordBucket(player, recordRace.value)
+      recordUpdated.textContent = '불러오는 중';
+      recordStats.innerHTML = '<div class="record-empty">Firebase에서 해당 선수 전적만 불러오는 중입니다.</div>';
+      recordTable.innerHTML = '<div class="record-empty">잠시만 기다려주세요.</div>';
+
+      const rows = (await ensureRecordBucket(player, recordRace.value))
         .slice()
         .sort(function(a, b) { return rowDate(b).localeCompare(rowDate(a)); });
+
+      if (seq !== recordLoadSeq || !activeRecordKey) return;
+
       const monthlyRows = monthRows(rows, standardMonth());
       recordUpdated.textContent = formatDateTime(firebaseState.meta.eloboardUpdatedAt || firebaseState.meta.updatedAt || firebaseState.meta.syncedAt || '');
       if (!rows.length) {
         const link = playerEloLink(player, player.name + ' ELOBOARD 전적 보기');
-        recordStats.innerHTML = '<div class="record-empty record-fallback">이 페이지 내부에 동기화된 전적 데이터가 없습니다.' + (link ? '<div>' + link + '</div>' : '') + '</div>';
-        recordTable.innerHTML = '<div class="record-empty record-fallback">Firebase records/headToHead 데이터가 들어오면 여기서 자동으로 표기됩니다.' + (link ? '<div>' + link + '</div>' : '') + '</div>';
+        recordStats.innerHTML = '<div class="record-empty record-fallback">이 선수의 동기화된 전적 데이터가 없습니다.' + (link ? '<div>' + link + '</div>' : '') + '</div>';
+        recordTable.innerHTML = '<div class="record-empty record-fallback">전적은 전체 records가 아니라 선택한 선수 경로만 읽도록 최적화되어 있습니다.' + (link ? '<div>' + link + '</div>' : '') + '</div>';
         return;
       }
       renderRecordStats(computeRecordStats(monthlyRows, player));
@@ -6884,7 +6994,8 @@
       document.getElementById(id).addEventListener(id === 'searchInput' ? 'input' : 'change', render);
     });
     document.getElementById('clearSelection').addEventListener('click', clearHeadSelection);
-    document.getElementById('closeRecord').addEventListener('click', function() { recordDialog.close(); });
+    document.getElementById('closeRecord').addEventListener('click', function() { activeRecordKey = ''; recordLoadSeq += 1; recordDialog.close(); });
+    recordDialog.addEventListener('close', function() { activeRecordKey = ''; recordLoadSeq += 1; });
     headPeriod.addEventListener('change', loadHeadToHead);
     [recordRace, recordYear, recordMonth].forEach(function(control) { control.addEventListener('change', loadRecord); });
     tierStack.addEventListener('click', function(event) {
