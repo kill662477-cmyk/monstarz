@@ -593,6 +593,7 @@ function initFirebase() {
 
   return admin.database();
 }
+
 async function closeFirebase() {
   await Promise.all(
     admin.apps.map((app) =>
@@ -602,12 +603,42 @@ async function closeFirebase() {
     )
   );
 }
+
+async function clearChildrenInChunks(ref, chunkSize, label) {
+  let cleared = 0;
+
+  while (true) {
+    const snap = await ref.orderByKey().limitToFirst(chunkSize).once("value");
+
+    if (!snap.exists()) {
+      break;
+    }
+
+    const updates = {};
+    snap.forEach((child) => {
+      if (child.key != null) {
+        updates[child.key] = null;
+      }
+    });
+
+    const keys = Object.keys(updates);
+    if (keys.length === 0) {
+      break;
+    }
+
+    await ref.update(updates);
+
+    cleared += keys.length;
+    console.log(`[firebase] ${label} cleared ${cleared}`);
+  }
+}
+
 async function uploadObjectInChunks(ref, object, chunkSize, label) {
   const entries = Object.entries(object || {});
   const total = entries.length;
 
-  console.log(`[firebase] clear ${label}`);
-  await ref.remove();
+  console.log(`[firebase] clear ${label} in child chunks`);
+  await clearChildrenInChunks(ref, Math.max(1, chunkSize), label);
 
   if (total === 0) {
     console.log(`[firebase] ${label} empty`);
@@ -629,6 +660,49 @@ async function uploadObjectInChunks(ref, object, chunkSize, label) {
   }
 }
 
+async function uploadArrayRowsInChunks(ref, rows, chunkSize, label) {
+  const list = Array.isArray(rows) ? rows : [];
+
+  console.log(`[firebase] clear ${label} rows`);
+  await clearChildrenInChunks(ref, Math.max(1, chunkSize), label);
+
+  if (list.length === 0) {
+    console.log(`[firebase] ${label} empty`);
+    return;
+  }
+
+  for (let i = 0; i < list.length; i += chunkSize) {
+    const batch = {};
+
+    list.slice(i, i + chunkSize).forEach((row, offset) => {
+      batch[String(i + offset)] = row;
+    });
+
+    await ref.update(batch);
+
+    console.log(
+      `[firebase] ${label} rows uploaded ${Math.min(i + chunkSize, list.length)}/${list.length}`
+    );
+  }
+}
+
+async function uploadRecordsInChunks(ref, records, rowChunkSize, label) {
+  const entries = Object.entries(records || {});
+  const total = entries.length;
+
+  if (total === 0) {
+    console.log(`[firebase] ${label} empty`);
+    return;
+  }
+
+  for (let i = 0; i < total; i += 1) {
+    const [key, rows] = entries[i];
+    await uploadArrayRowsInChunks(ref.child(key), rows, rowChunkSize, `${label}/${key}`);
+
+    console.log(`[firebase] ${label} players uploaded ${i + 1}/${total}`);
+  }
+}
+
 async function uploadToFirebase(payload) {
   const db = initFirebase();
   const cleanPayload = removeUndefined(payload);
@@ -646,11 +720,11 @@ async function uploadToFirebase(payload) {
   console.log("[firebase] upload winRates");
   await rootRef.child("winRates").set(cleanPayload.winRates || {});
 
-  console.log("[firebase] upload records in chunks");
-  await uploadObjectInChunks(
+  console.log("[firebase] upload records in row chunks");
+  await uploadRecordsInChunks(
     rootRef.child("records"),
     cleanPayload.records || {},
-    10,
+    100,
     "records"
   );
 
@@ -658,7 +732,7 @@ async function uploadToFirebase(payload) {
   await uploadObjectInChunks(
     rootRef.child("headToHead"),
     cleanPayload.headToHead || {},
-    50,
+    100,
     "headToHead"
   );
 
@@ -677,6 +751,7 @@ async function uploadToFirebase(payload) {
 
   console.log("[firebase] upload complete");
 }
+
 async function main() {
   await Promise.all(
     [dataDir, recordDir, assetDir, profileDir, academyDir].map((dir) =>
