@@ -4,10 +4,13 @@ const path = require("path");
 const root = path.resolve(__dirname, "..");
 const manualPlayersPath = path.join(root, "data", "manual", "players.json");
 const outputPath = path.join(root, "data", "test-eloboard-records.json");
+const debugDir = path.join(root, "data", "debug-eloboard");
 
 const FETCH_TIMEOUT_MS = Math.max(3000, Number(process.env.FETCH_TIMEOUT_MS || 20000));
 const TEST_LIMIT = Math.max(1, Number(process.env.TEST_LIMIT || 5));
 const MAX_ROWS_PER_PLAYER = Math.max(1, Number(process.env.MAX_ROWS_PER_PLAYER || 30));
+const SAVE_DEBUG_HTML = process.env.SAVE_DEBUG_HTML === "true";
+
 const TEST_NAMES = String(process.env.TEST_NAMES || "")
   .split(",")
   .map((item) => item.trim())
@@ -18,6 +21,10 @@ function normalizeUrl(url) {
   const value = String(url);
   if (value.startsWith("//")) return `https:${value}`;
   return value;
+}
+
+function safeFileName(value) {
+  return String(value || "unknown").replace(/[\\/:*?"<>|\s]+/g, "_");
 }
 
 function sleep(ms) {
@@ -57,8 +64,9 @@ async function fetchTextWithTimeout(url) {
   try {
     const response = await fetch(url, {
       headers: {
-        "user-agent": "Mozilla/5.0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36",
         accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "accept-language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
       },
       signal: controller.signal,
     });
@@ -96,6 +104,16 @@ function decodeHtml(value) {
     .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)));
 }
 
+function stripTags(html) {
+  return decodeHtml(
+    String(html || "")
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<br\s*\/?>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+  ).replace(/\s+/g, " ").trim();
+}
+
 function htmlToTextLines(html) {
   const text = decodeHtml(
     String(html || "")
@@ -127,22 +145,9 @@ function normalizeRace(value) {
   return text.slice(0, 1);
 }
 
-function parseRecordLine(line, player) {
-  const match = String(line || "").match(
-    /^(\d{4}-\d{2}-\d{2})\s+(.+?)\s*\((T|Z|P|테란|저그|토스|프로토스)\)\s+(.+?)\s+([+-]\d+(?:\.\d+)?)\s+(.+)$/
-  );
-
-  if (!match) return null;
-
-  const date = match[1];
-  const opponentName = match[2].trim();
-  const opponentRace = normalizeRace(match[3]);
-  const map = match[4].trim();
-  const eloChange = Number(match[5]);
-  const memo = match[6].trim();
-  const isWin = eloChange > 0;
-
+function makeRecord({ player, date, opponentName, opponentRace, map, eloChange, matchType, memo }) {
   const ownRace = normalizeRace(player.race);
+  const isWin = Number(eloChange) > 0;
 
   const winnerPlayer = isWin ? player.name : opponentName;
   const winnerRace = isWin ? ownRace : opponentRace;
@@ -150,7 +155,9 @@ function parseRecordLine(line, player) {
   const loseRace = isWin ? opponentRace : ownRace;
 
   return {
-    id: `${player.userId || player.name}_${date}_${opponentName}_${opponentRace}_${map}_${eloChange}_${memo}`.replace(/\s+/g, "_"),
+    id: `${player.userId || player.name}_${date}_${opponentName}_${opponentRace}_${map}_${eloChange}_${matchType}_${memo}`
+      .replace(/\s+/g, "_")
+      .slice(0, 240),
     date,
     standardDate: date,
     playedAt: date,
@@ -160,10 +167,10 @@ function parseRecordLine(line, player) {
     opponentName,
     opponentRace,
     map,
-    elo: eloChange,
-    eloChange,
-    matchType: memo.split(" ").slice(0, 1).join(" "),
-    memo,
+    elo: Number(eloChange),
+    eloChange: Number(eloChange),
+    matchType: matchType || "",
+    memo: memo || "",
     result: isWin ? "win" : "lose",
     isWin,
 
@@ -183,7 +190,110 @@ function parseRecordLine(line, player) {
   };
 }
 
-function parseEloboardRecords(html, player) {
+function parseOpponentCell(text) {
+  const cleaned = String(text || "").replace(/\s+/g, " ").trim();
+  const match = cleaned.match(/^(.+?)\s*\((T|Z|P|테란|저그|토스|프로토스)\)$/i);
+
+  if (match) {
+    return {
+      opponentName: match[1].trim(),
+      opponentRace: normalizeRace(match[2]),
+    };
+  }
+
+  const compact = cleaned.match(/^(.+?)([TZP])$/i);
+
+  if (compact) {
+    return {
+      opponentName: compact[1].trim(),
+      opponentRace: normalizeRace(compact[2]),
+    };
+  }
+
+  return {
+    opponentName: cleaned,
+    opponentRace: "",
+  };
+}
+
+function parseRecordCells(cells, player) {
+  const clean = cells.map((cell) => String(cell || "").replace(/\s+/g, " ").trim()).filter(Boolean);
+  if (clean.length < 5) return null;
+
+  const dateMatch = clean[0].match(/\d{4}-\d{2}-\d{2}/);
+  if (!dateMatch) return null;
+
+  const eloIndex = clean.findIndex((cell, index) => index >= 3 && /^[+-]\d+(?:\.\d+)?$/.test(cell));
+  if (eloIndex < 3) return null;
+
+  const date = dateMatch[0];
+  const { opponentName, opponentRace } = parseOpponentCell(clean[1]);
+  const map = clean.slice(2, eloIndex).join(" ").trim();
+  const eloChange = Number(clean[eloIndex]);
+  const matchType = clean[eloIndex + 1] || "";
+  const memo = clean.slice(eloIndex + 2).join(" ").trim();
+
+  if (!opponentName || !opponentRace || !map || !Number.isFinite(eloChange)) return null;
+
+  return makeRecord({
+    player,
+    date,
+    opponentName,
+    opponentRace,
+    map,
+    eloChange,
+    matchType,
+    memo,
+  });
+}
+
+function parseRowsByTable(html, player) {
+  const records = [];
+  const trRegex = /<tr\b[\s\S]*?<\/tr>/gi;
+  const cellRegex = /<t[dh]\b[\s\S]*?<\/t[dh]>/gi;
+
+  let trMatch;
+  while ((trMatch = trRegex.exec(html))) {
+    const rowHtml = trMatch[0];
+    if (!/\d{4}-\d{2}-\d{2}/.test(rowHtml)) continue;
+
+    const cells = [];
+    let cellMatch;
+    while ((cellMatch = cellRegex.exec(rowHtml))) {
+      cells.push(stripTags(cellMatch[0]));
+    }
+
+    const record = parseRecordCells(cells, player);
+    if (record) {
+      records.push(record);
+      if (records.length >= MAX_ROWS_PER_PLAYER) break;
+    }
+  }
+
+  return records;
+}
+
+function parseRecordLine(line, player) {
+  const compact = String(line || "").replace(/\s+/g, " ").trim();
+  const match = compact.match(
+    /^(\d{4}-\d{2}-\d{2})\s+(.+?)\s*\((T|Z|P|테란|저그|토스|프로토스)\)\s+(.+?)\s+([+-]\d+(?:\.\d+)?)\s+([0-9/()]+|단판)\s*(.*)$/
+  );
+
+  if (!match) return null;
+
+  return makeRecord({
+    player,
+    date: match[1],
+    opponentName: match[2].trim(),
+    opponentRace: normalizeRace(match[3]),
+    map: match[4].trim(),
+    eloChange: Number(match[5]),
+    matchType: match[6] || "",
+    memo: match[7] || "",
+  });
+}
+
+function parseRowsByText(html, player) {
   const lines = htmlToTextLines(html);
   const records = [];
 
@@ -199,6 +309,19 @@ function parseEloboardRecords(html, player) {
   }
 
   return records;
+}
+
+function findDebugLines(html) {
+  return htmlToTextLines(html)
+    .filter((line) => /\d{4}-\d{2}-\d{2}/.test(line) || /날짜\s+상대\s+맵\s+ELO/.test(line))
+    .slice(0, 30);
+}
+
+function parseEloboardRecords(html, player) {
+  const byTable = parseRowsByTable(html, player);
+  if (byTable.length > 0) return byTable;
+
+  return parseRowsByText(html, player);
 }
 
 async function readManualPlayers() {
@@ -270,6 +393,8 @@ async function main() {
     targets: [],
   };
 
+  await fs.mkdir(debugDir, { recursive: true });
+
   for (const player of targets) {
     console.log("");
     console.log(`[test] fetch ${player.name}/${player.race}: ${player.elo}`);
@@ -277,17 +402,29 @@ async function main() {
     try {
       const html = await fetchTextWithTimeout(player.elo);
 
+      if (SAVE_DEBUG_HTML) {
+        await fs.writeFile(path.join(debugDir, `${safeFileName(player.name)}_${player.race}.html`), html);
+      }
+
       if (/max_user_connections|Too many connections|DB Connect Error/i.test(html)) {
         throw new Error("ELOBOARD connection limit page detected");
       }
 
       const rows = parseEloboardRecords(html, player);
+      const debugLines = rows.length === 0 ? findDebugLines(html) : [];
 
       console.log(`[test] parsed rows: ${rows.length}`);
 
+      if (rows.length === 0) {
+        console.log("[test] debug date lines:");
+        debugLines.slice(0, 10).forEach((line, index) => {
+          console.log(`  line ${index + 1}: ${line}`);
+        });
+      }
+
       rows.slice(0, 5).forEach((row, index) => {
         console.log(
-          `  ${index + 1}. ${row.date} vs ${row.opponentName}(${row.opponentRace}) ${row.map} ${row.eloChange} ${row.result} / ${row.memo}`
+          `  ${index + 1}. ${row.date} vs ${row.opponentName}(${row.opponentRace}) ${row.map} ${row.eloChange} ${row.result} / ${row.matchType} ${row.memo}`
         );
       });
 
@@ -296,9 +433,10 @@ async function main() {
         name: player.name,
         race: player.race,
         url: player.elo,
-        ok: true,
+        ok: rows.length > 0,
         count: rows.length,
         sample: rows.slice(0, 10),
+        debugLines,
       });
     } catch (error) {
       console.warn(`[test] failed ${player.name}/${player.race}: ${error.message}`);
@@ -313,7 +451,7 @@ async function main() {
       });
     }
 
-    await sleep(700);
+    await sleep(1000);
   }
 
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
