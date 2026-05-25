@@ -880,8 +880,50 @@
       color: #eef6ff;
       border-bottom-color: rgba(137,192,255,.12);
     }
-    .record-win { color: #7db7ff; }
-    .record-lose { color: #c5d7ee; }
+    .record-table tr.record-row-win td {
+      background: rgba(37, 99, 235, .10);
+    }
+    .record-table tr.record-row-lose td {
+      background: rgba(248, 113, 113, .10);
+    }
+    .record-table tr.record-row-win:hover td {
+      background: rgba(37, 99, 235, .16);
+    }
+    .record-table tr.record-row-lose:hover td {
+      background: rgba(248, 113, 113, .16);
+    }
+    .record-win {
+      color: #72c7ff;
+      font-weight: 950;
+    }
+    .record-lose {
+      color: #ff7d8a;
+      font-weight: 950;
+    }
+    .record-result-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: -.02em;
+    }
+    .record-result-badge.win {
+      color: #dff4ff;
+      background: rgba(37, 99, 235, .42);
+      border: 1px solid rgba(125, 183, 255, .48);
+      box-shadow: 0 0 14px rgba(37, 99, 235, .18);
+    }
+    .record-result-badge.lose {
+      color: #ffe8eb;
+      background: rgba(239, 68, 68, .38);
+      border: 1px solid rgba(255, 125, 138, .50);
+      box-shadow: 0 0 14px rgba(239, 68, 68, .16);
+    }
     .record-empty {
       color: #b8d8ff;
       background: rgba(2, 10, 24, .42);
@@ -6952,13 +6994,17 @@
         recordTable.innerHTML = '<div class="record-empty">표시할 전적이 없습니다.</div>';
         return;
       }
-      recordTable.innerHTML = '<table class="record-table"><thead><tr><th>날짜</th><th>상대</th><th>맵</th></tr></thead><tbody>' +
+      recordTable.innerHTML = '<table class="record-table"><thead><tr><th>날짜</th><th>승패</th><th>상대</th><th>맵</th></tr></thead><tbody>' +
         rows.map(function(row) {
           const win = rowIsWin(row, player);
           const opponent = rowOpponentName(row, player);
           const opponentRace = rowOpponentRace(row, player);
-          return '<tr><td class="' + (win ? 'record-win' : 'record-lose') + '">' + formatDate(row.date || row.standardDate) + '</td>' +
-            '<td>' + escapeHtml((opponent || '') + ' ' + (opponentRace || '')) + '</td>' +
+          const resultClass = win ? 'record-win' : 'record-lose';
+          const resultText = win ? '승' : '패';
+          return '<tr class="' + (win ? 'record-row-win' : 'record-row-lose') + '">' +
+            '<td class="' + resultClass + '">' + formatDate(row.date || row.standardDate) + '</td>' +
+            '<td><span class="record-result-badge ' + (win ? 'win' : 'lose') + '">' + resultText + '</span></td>' +
+            '<td class="' + resultClass + '">' + escapeHtml((opponent || '') + ' ' + (opponentRace || '')) + '</td>' +
             '<td>' + escapeHtml(row.map || row.mapName || '') + '</td></tr>';
         }).join('') + '</tbody></table>';
     }
