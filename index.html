@@ -4024,6 +4024,71 @@ body.funding-overlay-host .funding-temp-frame{
   visibility:hidden !important;
   pointer-events:none !important;
 }
+
+
+/* 티어표 탭: 씨나인 복제 페이지를 직접 합치지 않고 iframe으로 격리해 기존 캄몬 index와 충돌 방지 */
+#tabTier:before { content: "☷"; }
+.tier-tab-shell {
+  display: grid;
+  gap: 10px;
+}
+.tier-tab-head {
+  position: relative;
+  overflow: hidden;
+  padding: 14px 16px;
+  border: 1px solid rgba(96,165,250,.24);
+  border-radius: 18px;
+  background: radial-gradient(circle at 14% 24%, rgba(37,99,235,.22), transparent 34%),
+              radial-gradient(circle at 90% 10%, rgba(255,214,59,.12), transparent 28%),
+              linear-gradient(135deg, rgba(8,20,38,.96), rgba(12,46,82,.94));
+  box-shadow: var(--shadow);
+}
+.tier-tab-head:after {
+  content: "TIER BOARD";
+  position: absolute;
+  right: 18px;
+  bottom: -10px;
+  color: rgba(255,255,255,.045);
+  font-size: 42px;
+  font-weight: 950;
+  letter-spacing: -.06em;
+  pointer-events: none;
+}
+.tier-tab-head h2 {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 950;
+  letter-spacing: -.04em;
+}
+.tier-tab-sub {
+  position: relative;
+  z-index: 1;
+  margin-top: 4px;
+  color: #9fc7ff;
+  font-size: 11px;
+  font-weight: 900;
+}
+.tier-tab-frame {
+  display: block;
+  width: 100%;
+  min-height: 1580px;
+  border: 1px solid rgba(137,192,255,.22);
+  border-radius: 18px;
+  background: #08182c;
+  box-shadow: var(--shadow);
+}
+body.light-mode .tier-tab-head {
+  background: radial-gradient(circle at 16% 22%, rgba(37,99,235,.14), transparent 34%),
+              radial-gradient(circle at 88% 12%, rgba(255,214,59,.20), transparent 28%),
+              linear-gradient(135deg, #ffffff, #dbeafe) !important;
+  border-color: rgba(37,99,235,.20) !important;
+}
+body.light-mode .tier-tab-head h2 { color: #0f172a !important; }
+body.light-mode .tier-tab-sub { color: #1e40af !important; }
+body.light-mode .tier-tab-head:after { color: rgba(37,99,235,.08) !important; }
 </style>
 
 
@@ -4049,6 +4114,7 @@ body.funding-overlay-host .funding-temp-frame{
       <nav class="tab-row" aria-label="상단 메뉴">
         <button id="tabMain" class="tab-btn active" type="button">현황판</button>
         <button id="tabProfile" class="tab-btn" type="button">프로필</button>
+        <button id="tabTier" class="tab-btn" type="button">티어표</button>
         <button id="tabInout" class="tab-btn" type="button">IN&OUT</button>
         <button id="tabBoja" class="tab-btn" type="button">보자충</button>
         <button id="tabYoutube" class="tab-btn" type="button">팬튜브</button>
@@ -4118,6 +4184,19 @@ body.funding-overlay-host .funding-temp-frame{
           <div class="profile-name-grid" id="profileNameGrid" aria-label="멤버 선택"></div>
           <div class="profile-detail-card" id="profileDetailCard"></div>
         </div>
+      </section>
+    </div>
+
+    <div id="tierScreen" class="screen hidden">
+      <section class="tier-tab-shell">
+        <div class="section-head tier-tab-head">
+          <div>
+            <h2>스타크래프트 티어표</h2>
+            <div class="tier-tab-sub">캄몬스타즈 페이지 안에서 확인하는 전체 스타크래프트 티어/방송 상태 보드</div>
+          </div>
+          <div class="count">Firebase 동기화</div>
+        </div>
+        <iframe id="tierFrame" class="tier-tab-frame" src="tierboard_calm_tab.html" title="스타크래프트 티어표" loading="lazy"></iframe>
       </section>
     </div>
 
@@ -4635,9 +4714,11 @@ body.funding-overlay-host .funding-temp-frame{
   const playerCount = document.getElementById("playerCount");
   const tabMain = document.getElementById("tabMain");
   const tabProfile = document.getElementById("tabProfile");
+  const tabTier = document.getElementById("tabTier");
   const tabBoja = document.getElementById("tabBoja");
   const mainScreen = document.getElementById("mainScreen");
   const profileScreen = document.getElementById("profileScreen");
+  const tierScreen = document.getElementById("tierScreen");
   const bojaScreen = document.getElementById("bojaScreen");
   const bojaCategoryRow = document.getElementById("bojaCategoryRow");
   const bojaCategoryTitle = document.getElementById("bojaCategoryTitle");
@@ -5672,7 +5753,7 @@ function createMemberCard(member) {
   }
 
   function setActiveTab(activeTab) {
-    [tabMain, tabProfile, tabInout, tabBoja, tabYoutube, tabGame, tabDuckCalc, tabPinballDonation, tabFunding].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
+    [tabMain, tabProfile, tabTier, tabInout, tabBoja, tabYoutube, tabGame, tabDuckCalc, tabPinballDonation, tabFunding].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
     const safeActiveTab = activeTab === tabFunding && isFundingTempTabHidden() ? tabMain : activeTab;
     if (safeActiveTab) safeActiveTab.classList.add("active");
     document.body.classList.toggle("main-tab-active", safeActiveTab === tabMain);
@@ -5680,7 +5761,7 @@ function createMemberCard(member) {
   }
 
   function hideAllScreens() {
-    [mainScreen, profileScreen, inoutScreen, bojaScreen, youtubeScreen, gameScreen, duckCalcScreen, pinballDonationScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
+    [mainScreen, profileScreen, tierScreen, inoutScreen, bojaScreen, youtubeScreen, gameScreen, duckCalcScreen, pinballDonationScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
   }
 
   function showMainScreen() {
@@ -5697,6 +5778,14 @@ function createMemberCard(member) {
     updateSummaryVisibility(false);
     hideAllScreens();
     profileScreen.classList.remove("hidden");
+  }
+
+  function showTierScreen() {
+    setFundingPageMode(false);
+    setActiveTab(tabTier);
+    updateSummaryVisibility(false);
+    hideAllScreens();
+    tierScreen.classList.remove("hidden");
   }
 
   function showBojaScreen() {
@@ -5836,6 +5925,7 @@ function createMemberCard(member) {
   statusFilter.addEventListener("change", render);
   tabMain.addEventListener("click", showMainScreen);
   tabProfile.addEventListener("click", showProfileScreen);
+  tabTier.addEventListener("click", showTierScreen);
   tabBoja.addEventListener("click", showBojaScreen);
   tabYoutube.addEventListener("click", showYoutubeScreen);
   if (tabGame) tabGame.addEventListener("click", showGameScreen);
