@@ -1,6 +1,6 @@
 {
   "meta": {
-    "collectedAt": "2026-05-25T08:05:54.745Z",
+    "collectedAt": "2026-05-25T08:59:46.120Z",
     "sourceLastUpdatedAt": "2026-05-25T06:31:00",
     "playerCount": 360,
     "stationVisitedCount": 360,
@@ -170,9 +170,17 @@
       "monthWinRate": 56.2,
       "yearWinRate": 47.3,
       "winRate": "56%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290511,
+        "title": "스타 테란 김지성",
+        "startAt": "2026-05-25T17:45:37",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 11
+      },
+      "broadcastUrl": "https://play.sooplive.com/ho1godme/294290511"
     },
     {
       "id": 33,
@@ -276,9 +284,17 @@
       "monthWinRate": 57.1,
       "yearWinRate": 51.4,
       "winRate": "57%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290193,
+        "title": "[JSA] 조기석 방갑습니다",
+        "startAt": "2026-05-25T17:32:04",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 50
+      },
+      "broadcastUrl": "https://play.sooplive.com/sharpragu/294290193"
     },
     {
       "id": 7,
@@ -467,12 +483,12 @@
       "live": true,
       "broad": {
         "broadNo": 294288071,
-        "title": "[뉴캣슬] 박성균 vs 왜냐맨 3/2 이시각최고의 테프전",
+        "title": "[뉴캣슬] 박성균 vs 퀸주 이사테란으로이기기 200개빵",
         "startAt": "2026-05-25T16:08:42",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 99
+        "totalViewCount": 123
       },
       "broadcastUrl": "https://play.sooplive.com/peros777/294288071"
     },
@@ -528,12 +544,12 @@
       "live": true,
       "broad": {
         "broadNo": 294288801,
-        "title": "[캄 몬스타즈]스타 저그 박준오 안녕하세요",
+        "title": "[캄 몬스타즈]스타 저그 박준오 vs 땅콩이 일꾼 한마리",
         "startAt": "2026-05-25T16:39:50",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 433
+        "totalViewCount": 1142
       },
       "broadcastUrl": "https://play.sooplive.com/h78ert/294288801"
     },
@@ -657,7 +673,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 216
+        "totalViewCount": 330
       },
       "broadcastUrl": "https://play.sooplive.com/dpfgc3/294288181"
     },
@@ -739,9 +755,17 @@
       "monthWinRate": 54.2,
       "yearWinRate": 55.3,
       "winRate": "54%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290811,
+        "title": "스타 김정우 안녕하세요",
+        "startAt": "2026-05-25T17:57:27",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 15
+      },
+      "broadcastUrl": "https://play.sooplive.com/momo130/294290811"
     },
     {
       "id": 19,
@@ -850,9 +874,17 @@
       "monthWinRate": 62.5,
       "yearWinRate": 52.4,
       "winRate": "63%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290407,
+        "title": "[뉴캣슬]스타 샤이니 테란 vs 왜냐맨 3/2",
+        "startAt": "2026-05-25T17:41:04",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 22
+      },
+      "broadcastUrl": "https://play.sooplive.com/onlysibar/294290407"
     },
     {
       "id": 29,
@@ -1168,9 +1200,17 @@
       "monthWinRate": 44.6,
       "yearWinRate": 57.1,
       "winRate": "45%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290429,
+        "title": "스타 저그 김성대",
+        "startAt": "2026-05-25T17:42:38",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 97
+      },
+      "broadcastUrl": "https://play.sooplive.com/tjdeosks/294290429"
     },
     {
       "id": 38,
@@ -1345,7 +1385,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 254
+        "totalViewCount": 478
       },
       "broadcastUrl": "https://play.sooplive.com/firebathero/294288943"
     },
@@ -1435,12 +1475,12 @@
       "live": true,
       "broad": {
         "broadNo": 294288841,
-        "title": "[씨나인⭐️]스타 박재혁 스타워즈컵 우리 상대는;;;조추첨 목도^^",
+        "title": "[씨나인⭐️]스타 박재혁vs기뉴다 3/2",
         "startAt": "2026-05-25T16:41:40",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 428
+        "totalViewCount": 1433
       },
       "broadcastUrl": "https://play.sooplive.com/rlekfu6/294288841"
     },
@@ -1517,9 +1557,17 @@
       "monthWinRate": 37.5,
       "yearWinRate": 28.2,
       "winRate": "38%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294289775,
+        "title": "📦박스헌터📦  김범수",
+        "startAt": "2026-05-25T17:15:17",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 7
+      },
+      "broadcastUrl": "https://play.sooplive.com/bumsoo552/294289775"
     },
     {
       "id": 507,
@@ -1607,7 +1655,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 352
+        "totalViewCount": 206
       },
       "broadcastUrl": "https://play.sooplive.com/bwstar/294286783"
     },
@@ -1639,12 +1687,12 @@
       "live": true,
       "broad": {
         "broadNo": 294285125,
-        "title": "[씨나인] 왜냐맨 vs 박성균 3/2",
+        "title": "[씨나인] 왜냐맨   vs 샤이니 3/2",
         "startAt": "2026-05-25T13:57:17",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 135
+        "totalViewCount": 110
       },
       "broadcastUrl": "https://play.sooplive.com/jmc06170/294285125"
     },
@@ -1710,7 +1758,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 8
+        "totalViewCount": 167
       },
       "broadcastUrl": "https://play.sooplive.com/goodzerg/294289461"
     },
@@ -1800,7 +1848,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 51
+        "totalViewCount": 225
       },
       "broadcastUrl": "https://play.sooplive.com/dgh9641/294288281"
     },
@@ -1890,12 +1938,12 @@
       "live": true,
       "broad": {
         "broadNo": 294287679,
-        "title": "수술대 스타 선우도현 4시 저그반점호 지각자 있을까요",
+        "title": "수술대 스타 선우도현 저그반점호",
         "startAt": "2026-05-25T15:53:52",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 21
+        "totalViewCount": 20
       },
       "broadcastUrl": "https://play.sooplive.com/dohyeon97/294287679"
     },
@@ -2076,12 +2124,12 @@
       "live": true,
       "broad": {
         "broadNo": 294269195,
-        "title": "스타 테란 래더^^",
+        "title": "스타 저그 vs 김범수 단판",
         "startAt": "2026-05-24T20:00:49",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 11
+        "totalViewCount": 16
       },
       "broadcastUrl": "https://play.sooplive.com/kss33325/294269195"
     },
@@ -2396,12 +2444,12 @@
       "live": true,
       "broad": {
         "broadNo": 294288109,
-        "title": "🤴🏿흑카데미🤴반갑읍니다",
+        "title": "🤴🏿흑카데미🤴끝장전구경",
         "startAt": "2026-05-25T16:10:03",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 24
+        "totalViewCount": 38
       },
       "broadcastUrl": "https://play.sooplive.com/ndudska620/294288109"
     },
@@ -2491,7 +2539,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 6
+        "totalViewCount": 46
       },
       "broadcastUrl": "https://play.sooplive.com/vhrtmspt/294289371"
     },
@@ -2523,7 +2571,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 22
+        "totalViewCount": 15
       },
       "broadcastUrl": "https://play.sooplive.com/zealotmaru/294281803"
     },
@@ -2666,7 +2714,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 13
+        "totalViewCount": 10
       },
       "broadcastUrl": "https://play.sooplive.com/parkjaehyeon/294285757"
     },
@@ -2727,7 +2775,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 6
+        "totalViewCount": 9
       },
       "broadcastUrl": "https://play.sooplive.com/wjswpalssla1/294288981"
     },
@@ -2783,12 +2831,12 @@
       "live": true,
       "broad": {
         "broadNo": 294284045,
-        "title": "[뉴캣슬]스타 토스 미동미동 뉴캣슬 배그1티어실력보여드립니다 치킨시1000개",
+        "title": "[뉴캣슬]스타 토스 미동미동 ㅇㅅㅇ",
         "startAt": "2026-05-25T12:59:44",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 15
+        "totalViewCount": 14
       },
       "broadcastUrl": "https://play.sooplive.com/qhkrwns12/294284045"
     },
@@ -2976,9 +3024,17 @@
       "monthWinRate": null,
       "yearWinRate": null,
       "winRate": "",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294289545,
+        "title": "[뉴캣슬] 이겻는데 아쉽당",
+        "startAt": "2026-05-25T17:06:25",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 16
+      },
+      "broadcastUrl": "https://play.sooplive.com/ywww123/294289545"
     },
     {
       "id": 474,
@@ -3005,9 +3061,17 @@
       "monthWinRate": 50,
       "yearWinRate": 46.2,
       "winRate": "50%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290359,
+        "title": "[뉴캣슬] 이기긴했다잉",
+        "startAt": "2026-05-25T17:37:58",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 11
+      },
+      "broadcastUrl": "https://play.sooplive.com/dbrbals/294290359"
     },
     {
       "id": 655,
@@ -3366,17 +3430,9 @@
       "monthWinRate": null,
       "yearWinRate": null,
       "winRate": "",
-      "live": true,
-      "broad": {
-        "broadNo": 294286371,
-        "title": "서기수 아웃도어 캠핑천국  킨텍스 고카프 행사  왔네요  같이 구경 ㄱ ㄱ",
-        "startAt": "2026-05-25T14:58:20",
-        "categoryTags": [
-          "낚시/아웃도어"
-        ],
-        "totalViewCount": 13
-      },
-      "broadcastUrl": "https://play.sooplive.com/momjin/294286371"
+      "live": false,
+      "broad": null,
+      "broadcastUrl": ""
     },
     {
       "id": 383,
@@ -3403,9 +3459,17 @@
       "monthWinRate": null,
       "yearWinRate": null,
       "winRate": "",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294289817,
+        "title": "[HM 스타부] 토스교수 김성제 어서 왔습니다 ><",
+        "startAt": "2026-05-25T17:16:59",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 10
+      },
+      "broadcastUrl": "https://play.sooplive.com/erosrainbow/294289817"
     },
     {
       "id": 114,
@@ -3551,7 +3615,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 45
+        "totalViewCount": 195
       },
       "broadcastUrl": "https://play.sooplive.com/ever316/294286823"
     },
@@ -3776,7 +3840,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 9
+        "totalViewCount": 12
       },
       "broadcastUrl": "https://play.sooplive.com/heksd/294286323"
     },
@@ -3916,9 +3980,17 @@
       "monthWinRate": null,
       "yearWinRate": null,
       "winRate": "",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290157,
+        "title": "♥수술대♥ 김애공 다녀와뜹니당 ><",
+        "startAt": "2026-05-25T17:31:07",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 77
+      },
+      "broadcastUrl": "https://play.sooplive.com/byebye22/294290157"
     },
     {
       "id": 131,
@@ -3945,9 +4017,17 @@
       "monthWinRate": null,
       "yearWinRate": null,
       "winRate": "",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294289543,
+        "title": "[흑카데미] 흑운장 뚜미 vs 김병수 라미 옵모기",
+        "startAt": "2026-05-25T17:06:22",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 105
+      },
+      "broadcastUrl": "https://play.sooplive.com/jhpark7712/294289543"
     },
     {
       "id": 134,
@@ -3996,12 +4076,12 @@
       "live": true,
       "broad": {
         "broadNo": 294287977,
-        "title": "스타 토스 앙상국 vs 라히 3/2",
+        "title": "스타 토스 앙상국",
         "startAt": "2026-05-25T16:04:28",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 8
+        "totalViewCount": 6
       },
       "broadcastUrl": "https://play.sooplive.com/measin/294287977"
     },
@@ -4052,12 +4132,12 @@
       "live": true,
       "broad": {
         "broadNo": 294286565,
-        "title": "[BGM:스타부]라히 vs양상국 3/2 스폰",
+        "title": "[BGM:스타부]라히",
         "startAt": "2026-05-25T15:03:38",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 15
+        "totalViewCount": 11
       },
       "broadcastUrl": "https://play.sooplive.com/khc2566/294286565"
     },
@@ -4123,7 +4203,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 74
+        "totalViewCount": 72
       },
       "broadcastUrl": "https://play.sooplive.com/llqqqq/294286883"
     },
@@ -4160,7 +4240,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 117
+        "totalViewCount": 242
       },
       "broadcastUrl": "https://play.sooplive.com/ehgmldud1233/294287021"
     },
@@ -4221,7 +4301,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 24
+        "totalViewCount": 19
       },
       "broadcastUrl": "https://play.sooplive.com/simcheong23/294285033"
     },
@@ -4282,12 +4362,12 @@
       "live": true,
       "broad": {
         "broadNo": 294284447,
-        "title": "[뉴캣슬] 나짱vs또봉순 3/2 여캠최고 저프전",
+        "title": "[뉴캣슬] 나짱vs소심",
         "startAt": "2026-05-25T13:21:16",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 42
+        "totalViewCount": 36
       },
       "broadcastUrl": "https://play.sooplive.com/cyj982002/294284447"
     },
@@ -4401,7 +4481,7 @@
         "categoryTags": [
           "발로란트"
         ],
-        "totalViewCount": 1227
+        "totalViewCount": 2171
       },
       "broadcastUrl": "https://play.sooplive.com/joey1114/294288965"
     },
@@ -4578,12 +4658,12 @@
       "live": true,
       "broad": {
         "broadNo": 294286605,
-        "title": "[흑카데미]조개 드실분",
+        "title": "[흑카데미]흑미 vs 병미",
         "startAt": "2026-05-25T15:04:55",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 55
+        "totalViewCount": 67
       },
       "broadcastUrl": "https://play.sooplive.com/eeceec/294286605"
     },
@@ -4620,7 +4700,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 116
+        "totalViewCount": 330
       },
       "broadcastUrl": "https://play.sooplive.com/dkfka8945/294288479"
     },
@@ -4758,12 +4838,12 @@
       "live": true,
       "broad": {
         "broadNo": 294283927,
-        "title": "[JSA] 소심 잉치원",
+        "title": "[JSA] 소심 vs 다나짱",
         "startAt": "2026-05-25T12:53:36",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 111
+        "totalViewCount": 91
       },
       "broadcastUrl": "https://play.sooplive.com/phh95426/294283927"
     },
@@ -4790,12 +4870,12 @@
       "live": true,
       "broad": {
         "broadNo": 294288683,
-        "title": "하이닉스 조끼구합니다  5시30분 예네티 우아한세계  [하킁프렌즈]",
+        "title": "예네티 우아한세계  [하킁프렌즈]",
         "startAt": "2026-05-25T16:34:40",
         "categoryTags": [
-          "토크/캠방"
+          "우아한 세계"
         ],
-        "totalViewCount": 74
+        "totalViewCount": 81
       },
       "broadcastUrl": "https://play.sooplive.com/ovoa3316/294288683"
     },
@@ -4904,12 +4984,12 @@
       "live": true,
       "broad": {
         "broadNo": 294284937,
-        "title": "수술대 저그디코점호있습니당",
+        "title": "수술대 토스전 쇼부막기 저그반!",
         "startAt": "2026-05-25T13:48:29",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 152
+        "totalViewCount": 100
       },
       "broadcastUrl": "https://play.sooplive.com/pazzy1/294284937"
     },
@@ -4999,12 +5079,12 @@
       "live": true,
       "broad": {
         "broadNo": 294288245,
-        "title": "무창클럽 상어녀",
+        "title": "무창클럽 상어녀 ews t1 vs dk 롤 dk 응원방 #EWCQUALIFIER",
         "startAt": "2026-05-25T16:15:35",
         "categoryTags": [
-          "스타크래프트"
+          "Road to EWC"
         ],
-        "totalViewCount": 187
+        "totalViewCount": 168
       },
       "broadcastUrl": "https://play.sooplive.com/595935/294288245"
     },
@@ -5036,7 +5116,7 @@
         "categoryTags": [
           "토크/캠방"
         ],
-        "totalViewCount": 1206
+        "totalViewCount": 886
       },
       "broadcastUrl": "https://play.sooplive.com/yoomingseo/294285749"
     },
@@ -5068,12 +5148,12 @@
       "live": true,
       "broad": {
         "broadNo": 294287327,
-        "title": "[수술대] 저그반 첫 디코점호 !",
+        "title": "[수술대] 저그반 첫 전체교육",
         "startAt": "2026-05-25T15:36:48",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 65
+        "totalViewCount": 51
       },
       "broadcastUrl": "https://play.sooplive.com/dmswls4565/294287327"
     },
@@ -5208,17 +5288,9 @@
       "monthWinRate": null,
       "yearWinRate": null,
       "winRate": "",
-      "live": true,
-      "broad": {
-        "broadNo": 294287179,
-        "title": "JSA)스타워즈 조추첨 하기전에 드릴말씀 있습니다.",
-        "startAt": "2026-05-25T15:30:15",
-        "categoryTags": [
-          "스타크래프트"
-        ],
-        "totalViewCount": 5432
-      },
-      "broadcastUrl": "https://play.sooplive.com/superbsw123/294287179"
+      "live": false,
+      "broad": null,
+      "broadcastUrl": ""
     },
     {
       "id": 447,
@@ -5240,9 +5312,17 @@
       "monthWinRate": null,
       "yearWinRate": null,
       "winRate": "",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290185,
+        "title": "해피월드 심야방송",
+        "startAt": "2026-05-25T17:31:55",
+        "categoryTags": [
+          "토크/캠방"
+        ],
+        "totalViewCount": 52
+      },
+      "broadcastUrl": "https://play.sooplive.com/imhappygood/294290185"
     },
     {
       "id": 164,
@@ -5364,7 +5444,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 26
+        "totalViewCount": 22
       },
       "broadcastUrl": "https://play.sooplive.com/haru1207/294282473"
     },
@@ -5589,7 +5669,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 12
+        "totalViewCount": 10
       },
       "broadcastUrl": "https://play.sooplive.com/totlllsz/294285543"
     },
@@ -5917,9 +5997,17 @@
       "monthWinRate": null,
       "yearWinRate": null,
       "winRate": "",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290537,
+        "title": "[YB]딕키즈 톰하딕 안녕하세용 고래시티",
+        "startAt": "2026-05-25T17:47:21",
+        "categoryTags": [
+          "그랜드 테프트 오토 V"
+        ],
+        "totalViewCount": 1368
+      },
+      "broadcastUrl": "https://play.sooplive.com/gksdidqksxn/294290537"
     },
     {
       "id": 206,
@@ -5978,12 +6066,12 @@
       "live": true,
       "broad": {
         "broadNo": 294287735,
-        "title": "[캄몬스타즈]소주양이 대신 먹어준다 \"미역불닭탕면\" 24시간 노방종",
+        "title": "[캄몬스타즈]스타워즈 조추점 구경!! 24시간 노방종",
         "startAt": "2026-05-25T15:56:25",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 609
+        "totalViewCount": 516
       },
       "broadcastUrl": "https://play.sooplive.com/soju2022/294287735"
     },
@@ -6097,12 +6185,12 @@
       "live": true,
       "broad": {
         "broadNo": 294288531,
-        "title": "[무창] ㅎㅇ^_^",
+        "title": "[무창] 숯불 닭갈비 + 볶음밥",
         "startAt": "2026-05-25T16:29:11",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 34
+        "totalViewCount": 38
       },
       "broadcastUrl": "https://play.sooplive.com/aram1213/294288531"
     },
@@ -6134,12 +6222,12 @@
       "live": true,
       "broad": {
         "broadNo": 294289031,
-        "title": "[엠비대] 하용",
+        "title": "[엠비대] 우등생의 먹방",
         "startAt": "2026-05-25T16:51:18",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 15
+        "totalViewCount": 42
       },
       "broadcastUrl": "https://play.sooplive.com/rabbitmiffy/294289031"
     },
@@ -6374,7 +6462,7 @@
         "categoryTags": [
           "Road to EWC"
         ],
-        "totalViewCount": 5260
+        "totalViewCount": 4927
       },
       "broadcastUrl": "https://play.sooplive.com/1004suna/294283111"
     },
@@ -6604,7 +6692,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 68
+        "totalViewCount": 109
       },
       "broadcastUrl": "https://play.sooplive.com/nylove276/294288745"
     },
@@ -6662,9 +6750,17 @@
       "monthWinRate": 42.5,
       "yearWinRate": 53.4,
       "winRate": "43%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290475,
+        "title": "[뉴캣슬]나는 이제 올라갈일만 남아쒀!!!",
+        "startAt": "2026-05-25T17:44:20",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 52
+      },
+      "broadcastUrl": "https://play.sooplive.com/zzzz809/294290475"
     },
     {
       "id": 287,
@@ -6694,12 +6790,12 @@
       "live": true,
       "broad": {
         "broadNo": 294287239,
-        "title": "[와플대]재히7 7시에 시빌워 합니댜 ㅎㅎ 32 이기면 1000개",
+        "title": "[와플대]재히7 7시에 시빌워 합니댜",
         "startAt": "2026-05-25T15:31:57",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 38
+        "totalViewCount": 35
       },
       "broadcastUrl": "https://play.sooplive.com/hee4343/294287239"
     },
@@ -6823,7 +6919,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 26
+        "totalViewCount": 109
       },
       "broadcastUrl": "https://play.sooplive.com/wlsdkd1/294289105"
     },
@@ -6852,9 +6948,17 @@
       "monthWinRate": 64.8,
       "yearWinRate": 55.6,
       "winRate": "65%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290733,
+        "title": "[캄 몬스타즈] 안녕하세용",
+        "startAt": "2026-05-25T17:55:00",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 104
+      },
+      "broadcastUrl": "https://play.sooplive.com/dlaguswl501/294290733"
     },
     {
       "id": 281,
@@ -6934,9 +7038,17 @@
       "monthWinRate": 60.4,
       "yearWinRate": 62.7,
       "winRate": "60%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290669,
+        "title": "[씨나인]모리 하이이",
+        "startAt": "2026-05-25T17:52:50",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 106
+      },
+      "broadcastUrl": "https://play.sooplive.com/moguleave/294290669"
     },
     {
       "id": 329,
@@ -6971,7 +7083,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 45
+        "totalViewCount": 43
       },
       "broadcastUrl": "https://play.sooplive.com/aybjc2319/294283169"
     },
@@ -7027,12 +7139,12 @@
       "live": true,
       "broad": {
         "broadNo": 294281195,
-        "title": "[JSA] 잉치원 지각자 잡습니다",
+        "title": "[JSA] 스타워즈 몰입합니다",
         "startAt": "2026-05-25T09:00:24",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 229
+        "totalViewCount": 309
       },
       "broadcastUrl": "https://play.sooplive.com/mooaoom/294281195"
     },
@@ -7093,7 +7205,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 28
+        "totalViewCount": 10
       },
       "broadcastUrl": "https://play.sooplive.com/ynblbee/294287461"
     },
@@ -7180,9 +7292,17 @@
       "monthWinRate": 51.2,
       "yearWinRate": 54.1,
       "winRate": "51%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290419,
+        "title": "[씨나인⭐] 효일웅 =_=.oO",
+        "startAt": "2026-05-25T17:42:03",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 175
+      },
+      "broadcastUrl": "https://play.sooplive.com/queen030/294290419"
     },
     {
       "id": 259,
@@ -7238,17 +7358,9 @@
       "monthWinRate": 0,
       "yearWinRate": 21.1,
       "winRate": "0%",
-      "live": true,
-      "broad": {
-        "broadNo": 294286297,
-        "title": "[YB]일본 미야코지마 냉복동이 간다 w.빵지니",
-        "startAt": "2026-05-25T14:55:54",
-        "categoryTags": [
-          "여행"
-        ],
-        "totalViewCount": 1842
-      },
-      "broadcastUrl": "https://play.sooplive.com/rhakdncjs90/294286297"
+      "live": false,
+      "broad": null,
+      "broadcastUrl": ""
     },
     {
       "id": 404,
@@ -7457,7 +7569,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 118
+        "totalViewCount": 78
       },
       "broadcastUrl": "https://play.sooplive.com/wlgua7272/294287781"
     },
@@ -7565,15 +7677,15 @@
       "winRate": "29%",
       "live": true,
       "broad": {
-        "broadNo": 294283827,
-        "title": "하이!!",
-        "startAt": "2026-05-25T12:46:34",
+        "broadNo": 294290247,
+        "title": "인터넷이 끊겻음..",
+        "startAt": "2026-05-25T17:33:52",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 10
+        "totalViewCount": 6
       },
-      "broadcastUrl": "https://play.sooplive.com/kangsinwoos/294283827"
+      "broadcastUrl": "https://play.sooplive.com/kangsinwoos/294290247"
     },
     {
       "id": 433,
@@ -7629,9 +7741,17 @@
       "monthWinRate": 52.5,
       "yearWinRate": 64,
       "winRate": "53%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294289887,
+        "title": "[케이대] 마늘보쌈 기다리는중 운세환영^^",
+        "startAt": "2026-05-25T17:20:27",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 99
+      },
+      "broadcastUrl": "https://play.sooplive.com/seols2/294289887"
     },
     {
       "id": 249,
@@ -7661,7 +7781,7 @@
         "categoryTags": [
           "토크/캠방"
         ],
-        "totalViewCount": 86
+        "totalViewCount": 128
       },
       "broadcastUrl": "https://play.sooplive.com/yunheehoho/294287029"
     },
@@ -7751,7 +7871,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 73
+        "totalViewCount": 44
       },
       "broadcastUrl": "https://play.sooplive.com/nreupne/294287501"
     },
@@ -7778,12 +7898,12 @@
       "live": true,
       "broad": {
         "broadNo": 294282683,
-        "title": "근간의 아침 x 일정 및 브리핑 이노레이블:지배인",
+        "title": "6티어 황이되어보겠습니다. 이노레이블:지배인",
         "startAt": "2026-05-25T11:19:09",
         "categoryTags": [
           "여행"
         ],
-        "totalViewCount": 350
+        "totalViewCount": 304
       },
       "broadcastUrl": "https://play.sooplive.com/dlrnf/294282683"
     },
@@ -8087,9 +8207,17 @@
       "monthWinRate": 29.6,
       "yearWinRate": 30.2,
       "winRate": "30%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294289583,
+        "title": "[HM] 세월잉!",
+        "startAt": "2026-05-25T17:08:03",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 53
+      },
+      "broadcastUrl": "https://play.sooplive.com/asdsa1113/294289583"
     },
     {
       "id": 339,
@@ -8391,9 +8519,17 @@
       "monthWinRate": 55,
       "yearWinRate": 58.8,
       "winRate": "55%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294289625,
+        "title": "[흑카데미] 돌아온 콩태식이",
+        "startAt": "2026-05-25T17:09:51",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 26
+      },
+      "broadcastUrl": "https://play.sooplive.com/rudzhd123/294289625"
     },
     {
       "id": 337,
@@ -8539,7 +8675,7 @@
         "categoryTags": [
           "토크/캠방"
         ],
-        "totalViewCount": 12
+        "totalViewCount": 9
       },
       "broadcastUrl": "https://play.sooplive.com/dduuccu/294286633"
     },
@@ -8595,12 +8731,12 @@
       "live": true,
       "broad": {
         "broadNo": 294288563,
-        "title": "👻[흑카] 반가읍미다",
+        "title": "👻[흑카] 운장x뚜미 vs 병수x라미 / 운뚜 응원",
         "startAt": "2026-05-25T16:30:05",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 78
+        "totalViewCount": 148
       },
       "broadcastUrl": "https://play.sooplive.com/gangeda/294288563"
     },
@@ -8714,12 +8850,12 @@
       "live": true,
       "broad": {
         "broadNo": 294282965,
-        "title": "[뉴캣슬] 저그반 벽킬;; 벌칙 룰렛 50개로 돌려삐!!!",
+        "title": "[뉴캣슬] 낑 vs 성균쌤.....",
         "startAt": "2026-05-25T11:44:49",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 76
+        "totalViewCount": 130
       },
       "broadcastUrl": "https://play.sooplive.com/queenzu/294282965"
     },
@@ -8756,7 +8892,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 3
+        "totalViewCount": 18
       },
       "broadcastUrl": "https://play.sooplive.com/bangsong12/294289499"
     },
@@ -8880,7 +9016,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 106
+        "totalViewCount": 702
       },
       "broadcastUrl": "https://play.sooplive.com/wlswn6565/294289385"
     },
@@ -8970,12 +9106,12 @@
       "live": true,
       "broad": {
         "broadNo": 294282783,
-        "title": "[뉴캣슬] 저그반 보라배그+벽킬내기 갑니다잉",
+        "title": "[뉴캣슬] 마음 아픈 리아들..",
         "startAt": "2026-05-25T11:28:45",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 24
+        "totalViewCount": 27
       },
       "broadcastUrl": "https://play.sooplive.com/corgi1102/294282783"
     },
@@ -9168,9 +9304,17 @@
       "monthWinRate": null,
       "yearWinRate": null,
       "winRate": "",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290813,
+        "title": "신입여캠 [HM엑셀부:신입]안녕하세여 !! 세교살려줄오빠..",
+        "startAt": "2026-05-25T17:57:29",
+        "categoryTags": [
+          "토크/캠방"
+        ],
+        "totalViewCount": 2
+      },
+      "broadcastUrl": "https://play.sooplive.com/jsg0301/294290813"
     },
     {
       "id": 638,
@@ -9197,9 +9341,17 @@
       "monthWinRate": null,
       "yearWinRate": null,
       "winRate": "",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290109,
+        "title": "[BGM]★코인 데이★ 허공X홍임X브로X채쁨X아킬X소라X흑설X체토X유녜X태운X보나X영애",
+        "startAt": "2026-05-25T17:30:08",
+        "categoryTags": [
+          "뮤직/댄스"
+        ],
+        "totalViewCount": 554
+      },
+      "broadcastUrl": "https://play.sooplive.com/jhw1729/294290109"
     },
     {
       "id": 556,
@@ -9306,12 +9458,12 @@
       "live": true,
       "broad": {
         "broadNo": 294287027,
-        "title": "[수술대] 떡쪽이 드등장 대가리박기 vs 1000개빵",
+        "title": "[수술대] 떡쪽이 드등장 애공터치 VS 쌍디님",
         "startAt": "2026-05-25T15:25:20",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 144
+        "totalViewCount": 137
       },
       "broadcastUrl": "https://play.sooplive.com/heyyo0123/294287027"
     },
@@ -9372,12 +9524,12 @@
       "live": true,
       "broad": {
         "broadNo": 294268635,
-        "title": "[DM] 은조 4시반에 옵니당 48시간 노방종",
+        "title": "[DM] 은조 72시간...?",
         "startAt": "2026-05-24T19:49:29",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 36
+        "totalViewCount": 50
       },
       "broadcastUrl": "https://play.sooplive.com/eunjo0105/294268635"
     },
@@ -9435,9 +9587,17 @@
       "monthWinRate": 50,
       "yearWinRate": 66.2,
       "winRate": "50%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290809,
+        "title": "[HM:⭐️] 메이드복 고요",
+        "startAt": "2026-05-25T17:57:21",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 11
+      },
+      "broadcastUrl": "https://play.sooplive.com/goyo030/294290809"
     },
     {
       "id": 547,
@@ -9459,9 +9619,17 @@
       "monthWinRate": null,
       "yearWinRate": null,
       "winRate": "",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294290175,
+        "title": "좌표-뽀현욱/오늘무섭습니다...플단구해요ㅠㅠ![BGM]",
+        "startAt": "2026-05-25T17:31:39",
+        "categoryTags": [
+          "토크/캠방"
+        ],
+        "totalViewCount": 0
+      },
+      "broadcastUrl": "https://play.sooplive.com/cheto1206/294290175"
     },
     {
       "id": 651,
@@ -9549,7 +9717,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 994
+        "totalViewCount": 1023
       },
       "broadcastUrl": "https://play.sooplive.com/dlqudgk1227/294285769"
     },
@@ -9605,12 +9773,12 @@
       "live": true,
       "broad": {
         "broadNo": 294283305,
-        "title": "[HM] 권아온님과 단판스폰",
+        "title": "[HM] 7시 2부합니당...... 방셀 사실분 5장 500개 민소매 ''ㅅ''",
         "startAt": "2026-05-25T12:06:39",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 71
+        "totalViewCount": 49
       },
       "broadcastUrl": "https://play.sooplive.com/yeom1020/294283305"
     },
@@ -9668,9 +9836,17 @@
       "monthWinRate": 100,
       "yearWinRate": 50.6,
       "winRate": "100%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294289857,
+        "title": "한국복귀 시빌워 전에 드릴말씀이 있습니다. ------와플대,GD컴퍼니,투신 박성준",
+        "startAt": "2026-05-25T17:18:17",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 268
+      },
+      "broadcastUrl": "https://play.sooplive.com/tkdduddb06/294289857"
     },
     {
       "id": 330,
@@ -9729,12 +9905,12 @@
       "live": true,
       "broad": {
         "broadNo": 294285157,
-        "title": "[HM]단솔이랑 3/2스폰",
+        "title": "[HM]미진이 님과 단판 스폰~~!",
         "startAt": "2026-05-25T13:58:28",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 22
+        "totalViewCount": 17
       },
       "broadcastUrl": "https://play.sooplive.com/onzzang/294285157"
     },
@@ -9766,12 +9942,12 @@
       "live": true,
       "broad": {
         "broadNo": 294260227,
-        "title": "[뉴캣슬] 맘마묵자",
+        "title": "[뉴캣슬] vs 햄희(Z)님 단판스폰",
         "startAt": "2026-05-24T14:16:48",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 58
+        "totalViewCount": 50
       },
       "broadcastUrl": "https://play.sooplive.com/haeun5513/294260227"
     },
@@ -9803,12 +9979,12 @@
       "live": true,
       "broad": {
         "broadNo": 294282795,
-        "title": "[뉴캣슬] 저그반 벽킬 + 보라 룰렛 배그   (재밌음 한 번 돌려보셈)   !벽킬보라",
+        "title": "[뉴캣슬] 훔",
         "startAt": "2026-05-25T11:29:49",
         "categoryTags": [
           "PUBG: 배틀그라운드"
         ],
-        "totalViewCount": 47
+        "totalViewCount": 169
       },
       "broadcastUrl": "https://play.sooplive.com/yuzzzz/294282795"
     },
@@ -9898,12 +10074,12 @@
       "live": true,
       "broad": {
         "broadNo": 294289221,
-        "title": "큰 드릴 말씀이 있습니다 [무수]",
+        "title": "둬릴 말씀 [무수]",
         "startAt": "2026-05-25T16:58:15",
         "categoryTags": [
           "여행"
         ],
-        "totalViewCount": 525
+        "totalViewCount": 1710
       },
       "broadcastUrl": "https://play.sooplive.com/qn308dud/294289221"
     },
@@ -9993,7 +10169,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 47
+        "totalViewCount": 31
       },
       "broadcastUrl": "https://play.sooplive.com/qwer1317/294287933"
     },
@@ -10020,12 +10196,12 @@
       "live": true,
       "broad": {
         "broadNo": 294286425,
-        "title": "테란전 연습해보깅 스폰환ㅇ용 ><",
+        "title": "vs 이응씨님 (t)",
         "startAt": "2026-05-25T15:00:08",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 15
+        "totalViewCount": 20
       },
       "broadcastUrl": "https://play.sooplive.com/kjhanna824/294286425"
     },
@@ -10086,12 +10262,12 @@
       "live": true,
       "broad": {
         "broadNo": 294284853,
-        "title": "[뉴캣슬:유스] 단소루🦊 이응씨와 32 스폰",
+        "title": "[뉴캣슬:유스] 단소루🦊 묘묫님과 32스폰",
         "startAt": "2026-05-25T13:44:00",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 26
+        "totalViewCount": 35
       },
       "broadcastUrl": "https://play.sooplive.com/1004yomi/294284853"
     },
@@ -10152,12 +10328,12 @@
       "live": true,
       "broad": {
         "broadNo": 294285463,
-        "title": "[수술대 유스] 유스 묘묘시 숙제하는듕이에오",
+        "title": "[수술대 유스] 유스 묘묘시 단솔님 3/2",
         "startAt": "2026-05-25T14:10:53",
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 46
+        "totalViewCount": 43
       },
       "broadcastUrl": "https://play.sooplive.com/miiing0620/294285463"
     },
@@ -10426,7 +10602,7 @@
         "categoryTags": [
           "스타크래프트"
         ],
-        "totalViewCount": 65
+        "totalViewCount": 70
       },
       "broadcastUrl": "https://play.sooplive.com/kidsaoq/294287061"
     },
@@ -10503,9 +10679,17 @@
       "monthWinRate": 42.1,
       "yearWinRate": 42.1,
       "winRate": "42%",
-      "live": false,
-      "broad": null,
-      "broadcastUrl": ""
+      "live": true,
+      "broad": {
+        "broadNo": 294289823,
+        "title": "[HM] 드릴말씀이있습니다",
+        "startAt": "2026-05-25T17:17:15",
+        "categoryTags": [
+          "스타크래프트"
+        ],
+        "totalViewCount": 616
+      },
+      "broadcastUrl": "https://play.sooplive.com/suhi370erw/294289823"
     }
   ]
 }
