@@ -593,7 +593,15 @@ function initFirebase() {
 
   return admin.database();
 }
-
+async function closeFirebase() {
+  await Promise.all(
+    admin.apps.map((app) =>
+      app.delete().catch((error) => {
+        console.warn("[firebase] close failed:", error.message);
+      })
+    )
+  );
+}
 async function uploadObjectInChunks(ref, object, chunkSize, label) {
   const entries = Object.entries(object || {});
   const total = entries.length;
@@ -968,7 +976,13 @@ async function main() {
   );
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+main()
+  .then(async () => {
+    await Promise.race([closeFirebase(), sleep(3000)]);
+    process.exit(0);
+  })
+  .catch(async (error) => {
+    console.error(error);
+    await Promise.race([closeFirebase(), sleep(3000)]);
+    process.exit(1);
+  });
