@@ -1,0 +1,36 @@
+name: Export Manual Players
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  export-players:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Export players from Firebase
+        run: npm run export-players
+        env:
+          FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          FIREBASE_TIER_ROOT: starcraftTier/current
+
+      - name: Commit manual players
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Export manual tier players"
+          file_pattern: data/manual/players.json package.json scripts/export-manual-players.js
