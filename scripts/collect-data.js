@@ -604,11 +604,46 @@ async function closeFirebase() {
   );
 }
 
+function isWriteTooBigError(error) {
+  const text = `${error && error.code ? error.code : ""} ${error && error.message ? error.message : error}`;
+  return /WRITE_TOO_BIG|write_too_big/i.test(text);
+}
+
+function isTransientFirebaseError(error) {
+  const text = `${error && error.code ? error.code : ""} ${error && error.message ? error.message : error}`;
+  return /operation was canceled|cancelled|canceled|timeout|ETIMEDOUT|ECONNRESET|EAI_AGAIN|socket hang up|network/i.test(text);
+}
+
+async function withRetry(label, worker, maxAttempts = 4) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return await worker();
+    } catch (error) {
+      lastError = error;
+
+      if (isWriteTooBigError(error) || !isTransientFirebaseError(error) || attempt >= maxAttempts) {
+        throw error;
+      }
+
+      const waitMs = 1000 * attempt;
+      console.warn(`[firebase] ${label} failed (${error.message}). retry ${attempt}/${maxAttempts - 1} after ${waitMs}ms`);
+      await sleep(waitMs);
+    }
+  }
+
+  throw lastError;
+}
+
 async function clearChildrenInChunks(ref, chunkSize, label) {
   let cleared = 0;
 
   while (true) {
-    const snap = await ref.orderByKey().limitToFirst(chunkSize).once("value");
+    const snap = await withRetry(
+      `${label} read children for clear`,
+      () => ref.orderByKey().limitToFirst(chunkSize).once("value")
+    );
 
     if (!snap.exists()) {
       break;
@@ -626,7 +661,7 @@ async function clearChildrenInChunks(ref, chunkSize, label) {
       break;
     }
 
-    await ref.update(updates);
+    await withRetry(`${label} clear batch`, () => ref.update(updates));
 
     cleared += keys.length;
     console.log(`[firebase] ${label} cleared ${cleared}`);
@@ -652,7 +687,7 @@ async function uploadObjectInChunks(ref, object, chunkSize, label) {
       batch[key] = value;
     });
 
-    await ref.update(batch);
+    await withRetry(`${label} upload ${i + 1}-${Math.min(i + chunkSize, total)}`, () => ref.update(batch));
 
     console.log(
       `[firebase] ${label} uploaded ${Math.min(i + chunkSize, total)}/${total}`
@@ -678,12 +713,33 @@ async function uploadArrayRowsInChunks(ref, rows, chunkSize, label) {
       batch[String(i + offset)] = row;
     });
 
-    await ref.update(batch);
+    await withRetry(`${label} rows upload ${i + 1}-${Math.min(i + chunkSize, list.length)}`, () => ref.update(batch));
 
     console.log(
       `[firebase] ${label} rows uploaded ${Math.min(i + chunkSize, list.length)}/${list.length}`
     );
   }
+}
+
+async function uploadPlayerRecordsSmart(ref, key, rows, rowChunkSize, label) {
+  const list = Array.isArray(rows) ? rows : [];
+  const playerRef = ref.child(key);
+
+  try {
+    await withRetry(`${label}/${key} set`, () => playerRef.set(list));
+    console.log(`[firebase] ${label}/${key} set uploaded ${list.length}`);
+    return;
+  } catch (error) {
+    if (!isWriteTooBigError(error)) {
+      throw error;
+    }
+
+    console.warn(
+      `[firebase] ${label}/${key} set too big. fallback to row chunks: ${error.message}`
+    );
+  }
+
+  await uploadArrayRowsInChunks(playerRef, list, rowChunkSize, `${label}/${key}`);
 }
 
 async function uploadRecordsInChunks(ref, records, rowChunkSize, label) {
@@ -697,7 +753,8 @@ async function uploadRecordsInChunks(ref, records, rowChunkSize, label) {
 
   for (let i = 0; i < total; i += 1) {
     const [key, rows] = entries[i];
-    await uploadArrayRowsInChunks(ref.child(key), rows, rowChunkSize, `${label}/${key}`);
+
+    await uploadPlayerRecordsSmart(ref, key, rows, rowChunkSize, label);
 
     console.log(`[firebase] ${label} players uploaded ${i + 1}/${total}`);
   }
