@@ -480,45 +480,6 @@ function buildHeadToHead(players, records) {
   return headToHead;
 }
 
-function buildLiveStatus(players) {
-  const liveStatus = {};
-  const checkedAt = new Date().toISOString();
-
-  players.forEach((player) => {
-    liveStatus[safeKey(player.userId)] = player.live
-      ? {
-          live: true,
-          status: "live",
-          userId: player.userId,
-          name: player.name,
-          race: player.race,
-          broadNo: player.broad ? player.broad.broadNo : "",
-          title: player.broad ? player.broad.title : "",
-          startAt: player.broad ? player.broad.startAt : "",
-          categoryTags: player.broad ? player.broad.categoryTags || [] : [],
-          totalViewCount: player.broad ? player.broad.totalViewCount || 0 : 0,
-          broadcastUrl: player.broadcastUrl || "",
-          checkedAt,
-        }
-      : {
-          live: false,
-          status: "offline",
-          userId: player.userId,
-          name: player.name,
-          race: player.race,
-          broadNo: "",
-          title: "",
-          startAt: "",
-          categoryTags: [],
-          totalViewCount: 0,
-          broadcastUrl: "",
-          checkedAt,
-        };
-  });
-
-  return liveStatus;
-}
-
 function buildWinRates(players) {
   const winRates = {};
 
@@ -605,13 +566,21 @@ async function closeFirebase() {
 }
 
 function isWriteTooBigError(error) {
-  const text = `${error && error.code ? error.code : ""} ${error && error.message ? error.message : error}`;
+  const text = `${error && error.code ? error.code : ""} ${
+    error && error.message ? error.message : error
+  }`;
+
   return /WRITE_TOO_BIG|write_too_big/i.test(text);
 }
 
 function isTransientFirebaseError(error) {
-  const text = `${error && error.code ? error.code : ""} ${error && error.message ? error.message : error}`;
-  return /operation was canceled|cancelled|canceled|timeout|ETIMEDOUT|ECONNRESET|EAI_AGAIN|socket hang up|network/i.test(text);
+  const text = `${error && error.code ? error.code : ""} ${
+    error && error.message ? error.message : error
+  }`;
+
+  return /operation was canceled|cancelled|canceled|timeout|ETIMEDOUT|ECONNRESET|EAI_AGAIN|socket hang up|network/i.test(
+    text
+  );
 }
 
 async function withRetry(label, worker, maxAttempts = 4) {
@@ -628,7 +597,13 @@ async function withRetry(label, worker, maxAttempts = 4) {
       }
 
       const waitMs = 1000 * attempt;
-      console.warn(`[firebase] ${label} failed (${error.message}). retry ${attempt}/${maxAttempts - 1} after ${waitMs}ms`);
+
+      console.warn(
+        `[firebase] ${label} failed (${error.message}). retry ${attempt}/${
+          maxAttempts - 1
+        } after ${waitMs}ms`
+      );
+
       await sleep(waitMs);
     }
   }
@@ -640,9 +615,8 @@ async function clearChildrenInChunks(ref, chunkSize, label) {
   let cleared = 0;
 
   while (true) {
-    const snap = await withRetry(
-      `${label} read children for clear`,
-      () => ref.orderByKey().limitToFirst(chunkSize).once("value")
+    const snap = await withRetry(`${label} read children for clear`, () =>
+      ref.orderByKey().limitToFirst(chunkSize).once("value")
     );
 
     if (!snap.exists()) {
@@ -650,6 +624,7 @@ async function clearChildrenInChunks(ref, chunkSize, label) {
     }
 
     const updates = {};
+
     snap.forEach((child) => {
       if (child.key != null) {
         updates[child.key] = null;
@@ -687,11 +662,11 @@ async function uploadObjectInChunks(ref, object, chunkSize, label) {
       batch[key] = value;
     });
 
-    await withRetry(`${label} upload ${i + 1}-${Math.min(i + chunkSize, total)}`, () => ref.update(batch));
-
-    console.log(
-      `[firebase] ${label} uploaded ${Math.min(i + chunkSize, total)}/${total}`
+    await withRetry(`${label} upload ${i + 1}-${Math.min(i + chunkSize, total)}`, () =>
+      ref.update(batch)
     );
+
+    console.log(`[firebase] ${label} uploaded ${Math.min(i + chunkSize, total)}/${total}`);
   }
 }
 
@@ -713,11 +688,11 @@ async function uploadArrayRowsInChunks(ref, rows, chunkSize, label) {
       batch[String(i + offset)] = row;
     });
 
-    await withRetry(`${label} rows upload ${i + 1}-${Math.min(i + chunkSize, list.length)}`, () => ref.update(batch));
-
-    console.log(
-      `[firebase] ${label} rows uploaded ${Math.min(i + chunkSize, list.length)}/${list.length}`
+    await withRetry(`${label} rows upload ${i + 1}-${Math.min(i + chunkSize, list.length)}`, () =>
+      ref.update(batch)
     );
+
+    console.log(`[firebase] ${label} rows uploaded ${Math.min(i + chunkSize, list.length)}/${list.length}`);
   }
 }
 
@@ -734,9 +709,7 @@ async function uploadPlayerRecordsSmart(ref, key, rows, rowChunkSize, label) {
       throw error;
     }
 
-    console.warn(
-      `[firebase] ${label}/${key} set too big. fallback to row chunks: ${error.message}`
-    );
+    console.warn(`[firebase] ${label}/${key} set too big. fallback to row chunks: ${error.message}`);
   }
 
   await uploadArrayRowsInChunks(playerRef, list, rowChunkSize, `${label}/${key}`);
@@ -760,53 +733,99 @@ async function uploadRecordsInChunks(ref, records, rowChunkSize, label) {
   }
 }
 
+async function readExistingLiveState(rootRef) {
+  console.log("[firebase] read existing liveStatus");
+
+  const snap = await withRetry("liveStatus read", () =>
+    rootRef.child("liveStatus").once("value")
+  );
+
+  const liveStatus = snap.val() || {};
+
+  const liveCount = Object.values(liveStatus).filter(
+    (item) => item && item.live === true
+  ).length;
+
+  return {
+    liveStatus,
+    liveCount,
+  };
+}
+
+function applyExistingLiveToPlayers(players, liveStatus) {
+  return (players || []).map((player) => {
+    const liveInfo = liveStatus[safeKey(player.userId)] || null;
+    const isLive = Boolean(liveInfo && liveInfo.live);
+
+    return {
+      ...player,
+      live: isLive,
+      broad: isLive
+        ? {
+            broadNo: liveInfo.broadNo || "",
+            title: liveInfo.title || "",
+            startAt: liveInfo.startAt || "",
+            categoryTags: liveInfo.categoryTags || [],
+            totalViewCount: liveInfo.totalViewCount || 0,
+            thumbnail: liveInfo.thumbnail || "",
+            profileImg: liveInfo.profileImg || "",
+          }
+        : null,
+      broadcastUrl: isLive ? liveInfo.broadcastUrl || "" : "",
+    };
+  });
+}
+
 async function uploadToFirebase(payload) {
   const db = initFirebase();
   const cleanPayload = removeUndefined(payload);
   const rootRef = db.ref(FIREBASE_ROOT);
 
+  const { liveStatus: existingLiveStatus, liveCount: existingLiveCount } =
+    await readExistingLiveState(rootRef);
+
+  const playersWithPreservedLive = applyExistingLiveToPlayers(
+    cleanPayload.players || [],
+    existingLiveStatus
+  );
+
+  const metaWithPreservedLive = {
+    ...(cleanPayload.meta || {}),
+    liveCount: existingLiveCount,
+    liveSource: "preserved-from-soop-sync",
+  };
+
   console.log("[firebase] upload meta");
-  await rootRef.child("meta").set(cleanPayload.meta || {});
+  await rootRef.child("meta").set(metaWithPreservedLive);
 
   console.log("[firebase] upload players");
-  await rootRef.child("players").set(cleanPayload.players || []);
-
-  console.log("[firebase] upload liveStatus");
-  await rootRef.child("liveStatus").set(cleanPayload.liveStatus || {});
+  await rootRef.child("players").set(playersWithPreservedLive);
 
   console.log("[firebase] upload winRates");
   await rootRef.child("winRates").set(cleanPayload.winRates || {});
 
   console.log("[firebase] upload records in row chunks");
-  await uploadRecordsInChunks(
-    rootRef.child("records"),
-    cleanPayload.records || {},
-    100,
-    "records"
-  );
+  await uploadRecordsInChunks(rootRef.child("records"), cleanPayload.records || {}, 100, "records");
 
   console.log("[firebase] upload headToHead in chunks");
-  await uploadObjectInChunks(
-    rootRef.child("headToHead"),
-    cleanPayload.headToHead || {},
-    100,
-    "headToHead"
-  );
+  await uploadObjectInChunks(rootRef.child("headToHead"), cleanPayload.headToHead || {}, 100, "headToHead");
 
   console.log("[firebase] upload public meta");
   await db.ref("starcraftTier/meta").set({
-    lastSyncedAt: cleanPayload.meta.syncedAt,
+    lastSyncedAt: metaWithPreservedLive.syncedAt,
     currentRoot: FIREBASE_ROOT,
-    playerCount: cleanPayload.meta.playerCount,
-    liveCount: cleanPayload.meta.liveCount,
-    recordPlayerCount: cleanPayload.meta.recordPlayerCount,
-    recordRowCount: cleanPayload.meta.recordRowCount,
-    recordFailCount: cleanPayload.meta.recordFailCount,
-    headToHeadCount: cleanPayload.meta.headToHeadCount,
-    sourceLastUpdatedAt: cleanPayload.meta.sourceLastUpdatedAt,
+    playerCount: metaWithPreservedLive.playerCount,
+    liveCount: existingLiveCount,
+    recordPlayerCount: metaWithPreservedLive.recordPlayerCount,
+    recordRowCount: metaWithPreservedLive.recordRowCount,
+    recordFailCount: metaWithPreservedLive.recordFailCount,
+    headToHeadCount: metaWithPreservedLive.headToHeadCount,
+    sourceLastUpdatedAt: metaWithPreservedLive.sourceLastUpdatedAt,
   });
 
   console.log("[firebase] upload complete");
+
+  return metaWithPreservedLive;
 }
 
 async function main() {
@@ -827,43 +846,34 @@ async function main() {
 
   console.log("[1/6] CNINE 기본 데이터 수집 시작");
 
-  const [
-    playersResult,
-    academiesResult,
-    academyPlayersResult,
-    winRatesResult,
-    broadResult,
-    lastUpdated,
-  ] = await Promise.all([
-    getJson(
-      "https://www.cnine.kr/api/v2/p/starcraft/soop/player?page=1&size=1000&orderBy=sortOrder&order=asc&enabled=true"
-    ),
-    getJson(
-      "https://www.cnine.kr/api/v2/p/starcraft/soop/academy?page=1&size=1000&orderBy=sortOrder&order=asc&visible=true"
-    ),
-    getJson(
-      "https://www.cnine.kr/api/v2/p/starcraft/soop/academy/player?page=1&size=1000&orderBy=sortOrder&order=asc"
-    ),
-    getJson(
-      "https://www.cnine.kr/api/v2/p/starcraft/soop/player/win-rate?page=1&size=1000&orderBy=id&order=desc"
-    ),
-    getJson("https://www.cnine.kr/api/v2/p/starcraft/soop/player/broad?"),
-    getJson("https://www.cnine.kr/api/v2/p/starcraft/eloboard/last-updated-at").catch(
-      () => ({
+  const [playersResult, academiesResult, academyPlayersResult, winRatesResult, lastUpdated] =
+    await Promise.all([
+      getJson(
+        "https://www.cnine.kr/api/v2/p/starcraft/soop/player?page=1&size=1000&orderBy=sortOrder&order=asc&enabled=true"
+      ),
+      getJson(
+        "https://www.cnine.kr/api/v2/p/starcraft/soop/academy?page=1&size=1000&orderBy=sortOrder&order=asc&visible=true"
+      ),
+      getJson(
+        "https://www.cnine.kr/api/v2/p/starcraft/soop/academy/player?page=1&size=1000&orderBy=sortOrder&order=asc"
+      ),
+      getJson(
+        "https://www.cnine.kr/api/v2/p/starcraft/soop/player/win-rate?page=1&size=1000&orderBy=id&order=desc"
+      ),
+      getJson("https://www.cnine.kr/api/v2/p/starcraft/eloboard/last-updated-at").catch(() => ({
         lastUpdatedAt: null,
-      })
-    ),
-  ]);
+      })),
+    ]);
 
-  const academyList = academiesResult.data || [];
+  const academyList = playersResult && academiesResult ? academiesResult.data || [] : [];
   const playerList = playersResult.data || [];
   const academyPlayerList = academyPlayersResult.data || [];
   const winRateList = winRatesResult.data || [];
-  const broadList = Array.isArray(broadResult) ? broadResult : [];
 
   const academies = new Map(academyList.map((item) => [item.id, item]));
 
   const academyByPlayer = new Map();
+
   academyPlayerList.forEach((relation) => {
     if (!academyByPlayer.has(relation.playerId)) {
       academyByPlayer.set(relation.playerId, relation);
@@ -871,17 +881,15 @@ async function main() {
   });
 
   const winRateById = new Map(winRateList.map((item) => [item.id, item]));
-  const broadByUserId = new Map(broadList.map((item) => [item.userId, item]));
 
   console.log("[2/6] 선택적 이미지 캐시 처리");
 
   const academyLocal = new Map();
 
   if (CACHE_LOCAL_ASSETS) {
-    await download(
-      "https://www.cnine.kr/img/logo/logo-dark.png?v=1",
-      path.join(assetDir, "logo-dark.png")
-    ).catch(() => false);
+    await download("https://www.cnine.kr/img/logo/logo-dark.png?v=1", path.join(assetDir, "logo-dark.png")).catch(
+      () => false
+    );
 
     await mapLimit(academyList, 8, async (academy) => {
       const url = normalizeUrl(academy.logoImageUrl);
@@ -891,10 +899,7 @@ async function main() {
       const ok = await download(url, target).catch(() => false);
 
       if (ok) {
-        academyLocal.set(
-          academy.id,
-          localPath(path.join("assets", "academy", `${academy.id}.jpg`))
-        );
+        academyLocal.set(academy.id, localPath(path.join("assets", "academy", `${academy.id}.jpg`)));
       }
     });
 
@@ -932,7 +937,6 @@ async function main() {
       const academyRelation = academyByPlayer.get(player.id);
       const academy = academyRelation ? academies.get(academyRelation.academyId) : null;
       const rate = winRateById.get(player.id);
-      const broad = broadByUserId.get(player.userId) || null;
 
       const localProfileImage = localPath(path.join("assets", "profile", `${player.userId}.jpg`));
 
@@ -966,30 +970,13 @@ async function main() {
             }
           : null,
 
-        monthWinRate:
-          rate && rate.monthWinRate != null ? Number(rate.monthWinRate) : null,
-        yearWinRate:
-          rate && rate.yearWinRate != null ? Number(rate.yearWinRate) : null,
-        winRate:
-          rate && rate.monthWinRate != null
-            ? `${Number(rate.monthWinRate).toFixed(0)}%`
-            : "",
+        monthWinRate: rate && rate.monthWinRate != null ? Number(rate.monthWinRate) : null,
+        yearWinRate: rate && rate.yearWinRate != null ? Number(rate.yearWinRate) : null,
+        winRate: rate && rate.monthWinRate != null ? `${Number(rate.monthWinRate).toFixed(0)}%` : "",
 
-        live: Boolean(broad),
-
-        broad: broad
-          ? {
-              broadNo: broad.broadNo,
-              title: broad.broadTitle,
-              startAt: broad.broadStartAt,
-              categoryTags: broad.categoryTags || [],
-              totalViewCount: broad.totalViewCount || 0,
-            }
-          : null,
-
-        broadcastUrl: broad
-          ? `https://play.sooplive.com/${player.userId}/${broad.broadNo}`
-          : "",
+        live: false,
+        broad: null,
+        broadcastUrl: "",
       };
     })
     .sort((a, b) => {
@@ -1017,9 +1004,7 @@ async function main() {
 
     const rows = await fetchRecords(player).catch((error) => {
       recordFailCount += 1;
-      console.warn(
-        `[records fail] ${player.name}(${player.userId}/${player.race}): ${error.message}`
-      );
+      console.warn(`[records fail] ${player.name}(${player.userId}/${player.race}): ${error.message}`);
       return [];
     });
 
@@ -1041,7 +1026,6 @@ async function main() {
 
   console.log("[5/6] Firebase 업로드 데이터 구성");
 
-  const liveStatus = buildLiveStatus(players);
   const winRates = buildWinRates(players);
   const headToHead = buildHeadToHead(players, records);
 
@@ -1054,10 +1038,8 @@ async function main() {
     sourceLastUpdatedAt: lastUpdated.lastUpdatedAt || null,
     eloboardUpdatedAt: lastUpdated.lastUpdatedAt || null,
     playerCount: players.length,
-    liveCount: players.filter((player) => player.live).length,
-    stationVisitedCount: stationChecks.filter(
-      (item) => item.status >= 200 && item.status < 400
-    ).length,
+    liveCount: 0,
+    stationVisitedCount: stationChecks.filter((item) => item.status >= 200 && item.status < 400).length,
     recordPlayerCount,
     recordRowCount,
     recordFailCount,
@@ -1066,41 +1048,34 @@ async function main() {
     recordConcurrency: RECORD_CONCURRENCY,
     recordMaxPages: RECORD_MAX_PAGES,
     source: "cnine.kr",
+    liveSource: "preserved-from-soop-sync",
   };
 
   const payload = {
     meta,
     players,
     records,
-    liveStatus,
     winRates,
     headToHead,
   };
 
   if (CACHE_LOCAL_JSON) {
-    await fs.writeFile(
-      path.join(dataDir, "players.json"),
-      JSON.stringify({ meta, players }, null, 2)
-    );
+    await fs.writeFile(path.join(dataDir, "players.json"), JSON.stringify({ meta, players }, null, 2));
     await fs.writeFile(path.join(dataDir, "records.json"), JSON.stringify(records));
-    await fs.writeFile(
-      path.join(dataDir, "liveStatus.json"),
-      JSON.stringify(liveStatus, null, 2)
-    );
     await fs.writeFile(path.join(dataDir, "headToHead.json"), JSON.stringify(headToHead));
     await fs.writeFile(path.join(dataDir, "meta.json"), JSON.stringify(meta, null, 2));
   }
 
   console.log(`[6/6] Firebase 업로드 시작: ${FIREBASE_ROOT}`);
 
-  await uploadToFirebase(payload);
+  const uploadedMeta = await uploadToFirebase(payload);
 
   console.log(
     JSON.stringify(
       {
         ok: true,
         firebaseRoot: FIREBASE_ROOT,
-        meta,
+        meta: uploadedMeta,
       },
       null,
       2
