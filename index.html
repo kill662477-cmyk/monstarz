@@ -5725,18 +5725,87 @@ function createMemberCard(member) {
     return FUNDING_TEMP_TAB_HIDDEN || !tabFunding || tabFunding.hidden || tabFunding.getAttribute("aria-hidden") === "true";
   }
 
-  function setActiveTab(activeTab) {
+  const ACTIVE_TAB_STORAGE_KEY = "monstarz-active-tab";
+
+  function getTabKeyFromElement(tab) {
+    if (tab === tabProfile) return "profile";
+    if (tab === tabTier) return "tier";
+    if (tab === tabInout) return "inout";
+    if (tab === tabBoja) return "boja";
+    if (tab === tabYoutube) return "youtube";
+    if (tab === tabGame) return "game";
+    if (tab === tabDuckCalc) return "duckCalc";
+    if (tab === tabPinballDonation) return "pinballDonation";
+    if (tab === tabFunding) return "funding";
+    return "main";
+  }
+
+  function normalizeTabKey(tabKey) {
+    const key = String(tabKey || "").trim();
+    if (!key) return "";
+    const tabMap = {
+      main: tabMain,
+      profile: tabProfile,
+      tier: tabTier,
+      inout: tabInout,
+      boja: tabBoja,
+      youtube: tabYoutube,
+      game: tabGame,
+      duckCalc: tabDuckCalc,
+      pinballDonation: tabPinballDonation,
+      funding: tabFunding
+    };
+    if (!Object.prototype.hasOwnProperty.call(tabMap, key)) return "";
+    if (key === "funding" && isFundingTempTabHidden()) return "main";
+    return tabMap[key] ? key : "main";
+  }
+
+  function getInitialTabKey() {
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      const urlTabKey = normalizeTabKey(params.get("tab"));
+      if (urlTabKey) return urlTabKey;
+    } catch (error) {}
+
+    try {
+      const savedTabKey = normalizeTabKey(sessionStorage.getItem(ACTIVE_TAB_STORAGE_KEY));
+      if (savedTabKey) return savedTabKey;
+    } catch (error) {}
+
+    return "main";
+  }
+
+  function persistActiveTab(tabKey) {
+    const safeTabKey = normalizeTabKey(tabKey) || "main";
+
+    try {
+      sessionStorage.setItem(ACTIVE_TAB_STORAGE_KEY, safeTabKey);
+    } catch (error) {}
+
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("tab") !== safeTabKey) {
+        url.searchParams.set("tab", safeTabKey);
+        window.history.replaceState(window.history.state, "", url.toString());
+      }
+    } catch (error) {}
+  }
+
+  function setActiveTab(activeTab, options = {}) {
     [tabMain, tabProfile, tabTier, tabInout, tabBoja, tabYoutube, tabGame, tabDuckCalc, tabPinballDonation, tabFunding].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
     const safeActiveTab = activeTab === tabFunding && isFundingTempTabHidden() ? tabMain : activeTab;
     if (safeActiveTab) safeActiveTab.classList.add("active");
     document.body.classList.toggle("main-tab-active", safeActiveTab === tabMain);
     document.body.classList.toggle("tier-tab-active", safeActiveTab === tabTier);
     document.body.classList.toggle("pinball-donation-mode", safeActiveTab === tabPinballDonation);
+    if (options.persist !== false) persistActiveTab(getTabKeyFromElement(safeActiveTab));
   }
+  window.setActiveTab = setActiveTab;
 
   function hideAllScreens() {
     [mainScreen, profileScreen, tierScreen, inoutScreen, bojaScreen, youtubeScreen, gameScreen, duckCalcScreen, pinballDonationScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
   }
+  window.hideAllScreens = hideAllScreens;
 
   function showMainScreen() {
     setFundingPageMode(false);
@@ -5824,6 +5893,53 @@ function createMemberCard(member) {
     fundingScreen.classList.remove("hidden");
   }
   window.showFundingScreen = showFundingScreen;
+
+  function showDuckCalcScreenFromSavedTab() {
+    setFundingPageMode(false);
+    setActiveTab(tabDuckCalc);
+    updateSummaryVisibility(false);
+    hideAllScreens();
+    duckCalcScreen.classList.remove("hidden");
+  }
+
+  function showTabByKey(tabKey) {
+    switch (normalizeTabKey(tabKey) || "main") {
+      case "profile":
+        showProfileScreen();
+        break;
+      case "tier":
+        showTierScreen();
+        break;
+      case "inout":
+        showInoutScreen();
+        break;
+      case "boja":
+        showBojaScreen();
+        break;
+      case "youtube":
+        showYoutubeScreen();
+        break;
+      case "game":
+        showGameScreen();
+        break;
+      case "duckCalc":
+        showDuckCalcScreenFromSavedTab();
+        break;
+      case "pinballDonation":
+        showPinballDonationScreen();
+        break;
+      case "funding":
+        showFundingScreen();
+        break;
+      default:
+        showMainScreen();
+        break;
+    }
+  }
+
+  window.setFundingPageMode = setFundingPageMode;
+  window.updateSummaryVisibility = updateSummaryVisibility;
+  window.showTabByKey = showTabByKey;
 
   function shouldOpenPinballDonationForSoopAuth() {
     try {
@@ -5923,6 +6039,8 @@ function createMemberCard(member) {
     showPinballDonationScreen();
   } else if (shouldOpenFundingForSoopAuth()) {
     showFundingScreen();
+  } else {
+    showTabByKey(getInitialTabKey());
   }
 </script>
 
