@@ -5385,7 +5385,17 @@
     function contentCategory(player){ const v=String(getBroadValue(player,['category','categoryName','game','gameName','title','broadTitle'])||''); if(!player.live) return ''; if(v.includes('스타')||v.toLowerCase().includes('star')) return '스타크래프트'; if(v) return v.length>8?v.slice(0,8):v; return '방송중'; }
 
     function updateStats(){ const total=tierData.length; const live=tierData.filter(p=>p.live).length; document.getElementById('statTotal').textContent=total+'명'; document.getElementById('statLive').textContent=live+'명'; document.getElementById('statT').textContent=tierData.filter(p=>p.race==='T').length; document.getElementById('statZ').textContent=tierData.filter(p=>p.race==='Z').length; document.getElementById('statP').textContent=tierData.filter(p=>p.race==='P').length; document.getElementById('lastUpdated').textContent=formatDateTime(firebaseState.meta.eloboardUpdatedAt || firebaseState.meta.updatedAt || firebaseState.meta.syncedAt || new Date().toISOString()); }
-    function filteredData(){ const q=searchInput.value.trim().toLowerCase(); return tierData.filter(p=>{ if(filters.liveOnly&&!p.live) return false; if(filters.race!=='all'&&p.race!==filters.race) return false; if(filters.tier!=='all'&&p.tier!==filters.tier) return false; if(q){ const hay=[p.name,p.race,raceName[p.race],p.tier,extractSoopUserId(p)].join(' ').toLowerCase(); if(!hay.includes(q)) return false; } return true; }).sort((a,b)=>{ if(filters.liveFirst && a.tier===b.tier && a.live!==b.live) return a.live?-1:1; return 0; }); }
+    function filteredData(){ const q=searchInput.value.trim().toLowerCase(); return tierData.filter(p=>{ if(filters.liveOnly&&!p.live) return false; if(filters.race!=='all'&&p.race!==filters.race) return false; if(filters.tier!=='all'&&p.tier!==filters.tier) return false; if(q){ const hay=[p.name,p.race,raceName[p.race],p.tier,extractSoopUserId(p)].join(' ').toLowerCase(); if(!hay.includes(q)) return false; } return true; })..sort((a,b)=>{
+  // 같은 티어 안에서 종족별로 묶기: 프로토스 → 테란 → 저그
+  const raceOrder = ['P', 'T', 'Z'];
+  const raceDiff = raceOrder.indexOf(a.race) - raceOrder.indexOf(b.race);
+  if(raceDiff) return raceDiff;
+
+  // 같은 종족 안에서 방송중 우선 정렬
+  if(filters.liveFirst && a.live!==b.live) return a.live ? -1 : 1;
+
+  return 0;
+}); }
     function groupedByTier(players){ const groups=new Map(tierOrder.map(t=>[t,[]])); players.forEach(p=>{ if(!groups.has(p.tier)) groups.set(p.tier,[]); groups.get(p.tier).push(p); }); return groups; }
     function renderTierNav(){ tierNav.innerHTML=tierOrder.map(t=>'<button type="button" data-tier-nav="'+escapeAttr(t)+'" class="'+(filters.tier===t?'active':'')+'">'+escapeHtml(tierShort[t]||t.replace('티어',''))+'</button>').join(''); }
     function renderSummary(count){ const chips=[]; if(filters.liveOnly) chips.push(['방송중만 보기','live']); if(filters.race!=='all') chips.push(['종족: '+raceName[filters.race], 'race']); if(filters.tier!=='all') chips.push(['티어: '+filters.tier, 'tier']); if(searchInput.value.trim()) chips.push(['검색: '+searchInput.value.trim(), 'search']); filterSummary.innerHTML='<span class="summary-label">필터 적용 결과</span><span class="chip">'+count+'명 표시중</span>' + chips.map(c=>'<span class="chip">'+escapeHtml(c[0])+' <button type="button" data-remove-filter="'+c[1]+'">×</button></span>').join(''); }
