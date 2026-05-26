@@ -3,1030 +3,96 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>스타크래프트 티어표 | 캄몬스타즈</title>
+  <title>캄몬스타즈 티어표</title>
   <link rel="preconnect" href="https://www.gstatic.com">
   <link rel="preconnect" href="https://jddcontens-default-rtdb.asia-southeast1.firebasedatabase.app">
   <link rel="preconnect" href="https://profile.img.sooplive.co.kr">
   <style>
-    :root {
-      --brand: #3499cf;
-      --brand-dark: #277fb0;
-      --bg: #ffffff;
-      --surface: #ffffff;
-      --muted: #f6f8fa;
-      --line: rgba(15, 23, 42, .12);
-      --text: #111827;
-      --soft: #64748b;
-      --terran: #0878cf;
-      --zerg: #7d46c9;
-      --protoss: #f08917;
-      --live: #f43f5e;
-      --green: #65bd46;
-      --shadow: 0 1px 2px rgba(15, 23, 42, .06), 0 8px 24px rgba(15, 23, 42, .04);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
-      font-size: 14px;
-      line-height: 1.45;
-    }
-    a { color: inherit; }
-    button, input, select { font: inherit; }
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 40;
-      height: 62px;
-      display: flex;
-      align-items: center;
-      padding: 0 22px;
-      background: var(--brand);
-      color: #fff;
-      box-shadow: inset 0 -1px rgba(0,0,0,.12);
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      min-width: 210px;
-    }
-    .logo img { height: 32px; width: auto; object-fit: contain; }
-    .logo-mark {
-      height: 32px;
-      min-width: 88px;
-      padding: 0 12px;
-      border-radius: 8px;
-      background: #111827;
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      font-weight: 950;
-      letter-spacing: 0;
-    }
-    .icon-button {
-      width: 38px;
-      height: 38px;
-      border: 0;
-      border-radius: 8px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-      color: currentColor;
-      cursor: pointer;
-    }
-    .icon-button:hover { background: rgba(255,255,255,.12); }
-    .nav {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 46px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .nav span { display: inline-flex; align-items: center; gap: 8px; }
-    .actions { display: flex; align-items: center; gap: 8px; }
-    .subbar {
-      height: 60px;
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 28px;
-      background: #fff;
-    }
-    .crumb {
-      display: inline-flex;
-      align-items: center;
-      height: 34px;
-      padding: 0 14px;
-      border-radius: 999px;
-      background: #f4f6f8;
-      color: #374151;
-    }
-    main {
-      width: min(1180px, calc(100% - 48px));
-      margin: 26px auto 44px;
-    }
-    .sources {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
-      color: #374151;
-      margin: 0 0 18px;
-    }
-    .sources a { text-decoration: underline; text-underline-offset: 2px; }
-    .notice {
-      border-left: 4px solid #2196df;
-      background: #d9eaff;
-      border-radius: 8px;
-      padding: 16px 20px 14px;
-      display: grid;
-      grid-template-columns: 22px 1fr;
-      gap: 12px;
-      margin-bottom: 22px;
-    }
-    .notice-title { font-weight: 800; color: #1f4f93; margin-bottom: 8px; }
-    .notice p { margin: 8px 0 0; }
-    .notice strong.red { color: #d23b69; }
-    .notice strong.green { color: #1b9b72; }
-    .controls {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .switches, .filters { display: flex; align-items: center; gap: 12px; }
-    .switch-label { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: #111827; }
-    .switch-label input { position: absolute; opacity: 0; pointer-events: none; }
-    .switch-ui {
-      width: 42px;
-      height: 26px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      border: 1px solid rgba(15,23,42,.08);
-      position: relative;
-      transition: .2s ease;
-    }
-    .switch-ui::after {
-      content: "";
-      width: 22px;
-      height: 22px;
-      border-radius: 999px;
-      background: #fff;
-      position: absolute;
-      left: 1px;
-      top: 1px;
-      box-shadow: 0 1px 4px rgba(15,23,42,.22);
-      transition: .2s ease;
-    }
-    .switch-label input:checked + .switch-ui { background: #fb2f49; }
-    .switch-label input:checked + .switch-ui::after { transform: translateX(16px); }
-    .switch-label input:not(:checked) + .switch-ui.live-switch { background: #f1f5f9; box-shadow: inset 0 0 0 2px #49c2e8; }
-    select, .search {
-      height: 38px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      color: #334155;
-      padding: 0 14px;
-      outline: none;
-      box-shadow: 0 1px 2px rgba(15,23,42,.03);
-    }
-    .search { width: 206px; }
-    .tier-list-button {
-      height: 38px;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      background: #fff;
-      color: #374151;
-      font-weight: 800;
-      padding: 0 14px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-    .chevrons { color: #d59d32; font-weight: 900; }
-    .tier-stack { display: grid; gap: 16px; }
-    .tier-section {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-      box-shadow: var(--shadow);
-      padding: 24px 18px 20px;
-      min-height: 164px;
-      scroll-margin-top: 84px;
-    }
-    .tier-head {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      min-height: 34px;
-      margin-bottom: 28px;
-    }
-    .tier-title {
-      grid-column: 2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      font-size: 16px;
-      font-weight: 800;
-    }
-    .tier-tools { grid-column: 3; justify-self: end; display: inline-flex; align-items: center; gap: 10px; color: #111827; }
-    .timer { font-size: 13px; font-weight: 700; min-width: 58px; text-align: right; }
-    .players {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      min-height: 16px;
-    }
-    .race-group { width: 100%; display: contents; }
-    .race-group-title {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      color: #475569;
-      font-weight: 800;
-      margin: 4px 0 -2px;
-    }
-    .race-dot { width: 9px; height: 9px; border-radius: 99px; display: inline-block; }
-    .race-dot.T, .race-dot.테란 { background: var(--terran); }
-    .race-dot.Z, .race-dot.저그 { background: var(--zerg); }
-    .race-dot.P, .race-dot.프로토스 { background: var(--protoss); }
-    .player-card {
-      position: relative;
-      width: 142px;
-      height: 195px;
-      border: 4px solid var(--race-color);
-      border-radius: 8px;
-      background: var(--race-color);
-      overflow: hidden;
-      color: #fff;
-      box-shadow: 0 1px 4px rgba(15,23,42,.16);
-    }
-    .player-card:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(15,23,42,.16); }
-    .player-card.is-selected {
-      outline: 3px solid #22c55e;
-      outline-offset: 3px;
-    }
-    .player-card:hover .player-actions,
-    .player-card:focus-within .player-actions,
-    .player-card.actions-open .player-actions {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-    .player-image {
-      height: 145px;
-      position: relative;
-      background: #f3f4f6;
-      overflow: hidden;
-    }
-    .player-image > img.main-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: grayscale(1) contrast(1.05);
-      display: block;
-    }
-    .player-card.live .player-image > img.main-img { filter: none; }
-    .player-actions {
-      position: absolute;
-      inset: 0;
-      z-index: 6;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: center;
-      gap: 7px;
-      padding: 14px;
-      background: linear-gradient(180deg, rgba(15, 23, 42, .74), rgba(15, 23, 42, .88));
-      opacity: 0;
-      transform: translateY(8px);
-      pointer-events: none;
-      transition: opacity .16s ease, transform .16s ease;
-    }
-    .card-action {
-      min-height: 30px;
-      border: 1px solid rgba(255,255,255,.32);
-      border-radius: 7px;
-      background: rgba(255,255,255,.13);
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 0 8px;
-      font-size: 12px;
-      font-weight: 900;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .card-action:hover,
-    .card-action:focus-visible {
-      background: rgba(255,255,255,.23);
-      outline: none;
-    }
-    .card-action[aria-disabled="true"] {
-      cursor: not-allowed;
-      opacity: .48;
-      pointer-events: none;
-    }
-    .academy-badge {
-      position: absolute;
-      top: 7px;
-      left: 7px;
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      border: 2px solid rgba(255,255,255,.65);
-      box-shadow: 0 1px 5px rgba(0,0,0,.22);
-    }
-    .academy-badge img { width: 100%; height: 100%; object-fit: cover; }
-    .live-badge {
-      position: absolute;
-      top: 7px;
-      right: 7px;
-      height: 22px;
-      padding: 0 8px;
-      border-radius: 7px;
-      background: var(--live);
-      color: #fff;
-      font-size: 11px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      letter-spacing: 0;
-    }
-    .live-dot { width: 6px; height: 6px; border-radius: 999px; background: #fff; }
-    .win-rate {
-      position: absolute;
-      left: 8px;
-      bottom: 8px;
-      width: 42px;
-      height: 42px;
-      border-radius: 999px;
-      background: rgba(15,23,42,.72);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 900;
-      color: #fff;
-      border: 3px solid #27e30d;
-      box-shadow: inset 0 0 0 2px rgba(15,23,42,.55);
-    }
-    .player-info {
-      height: 42px;
-      display: grid;
-      grid-template-columns: 24px 1fr 24px;
-      align-items: center;
-      gap: 3px;
-      padding: 0 6px;
-      font-weight: 900;
-    }
-    .player-info a { display: inline-flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; }
-    .player-name { text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
-    .elo-badge {
-      width: 20px;
-      height: 20px;
-      border-radius: 5px;
-      background: #7ac346;
-      color: #f4ffe7;
-      font-size: 10px;
-      font-weight: 900;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      letter-spacing: 0;
-      text-decoration: none;
-    }
-    .elo-badge.disabled { opacity: .48; pointer-events: none; }
-    .race-T { --race-color: var(--terran); }
-    .race-Z { --race-color: var(--zerg); }
-    .race-P { --race-color: var(--protoss); }
-    .empty {
-      color: #94a3b8;
-      font-weight: 700;
-      padding: 20px 0;
-    }
-    .selection-panel {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      box-shadow: var(--shadow);
-      padding: 12px 14px;
-      margin: 0 0 16px;
-    }
-    .selection-panel[hidden] { display: none; }
-    .selection-head {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .selection-head select { height: 34px; }
-    .selection-body {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-      align-items: center;
-      gap: 12px;
-    }
-    .selection-player,
-    .selection-empty {
-      min-height: 42px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 8px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-weight: 900;
-      text-align: center;
-      background: #f8fafc;
-    }
-    .selection-score {
-      min-width: 112px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      color: #64748b;
-      font-weight: 900;
-    }
-    .selection-score strong {
-      color: #111827;
-      font-size: 18px;
-    }
-    .selection-tooltip {
-      color: #ef4444;
-      font-size: 12px;
-      font-weight: 800;
-      margin-top: 8px;
-      text-align: center;
-    }
-    .floating-tier {
-      position: fixed;
-      right: 28px;
-      bottom: 32px;
-      z-index: 30;
-      box-shadow: 0 8px 20px rgba(15,23,42,.12);
-    }
-    .contact-float {
-      position: fixed;
-      right: 24px;
-      bottom: 84px;
-      width: 42px;
-      height: 42px;
-      border-radius: 999px;
-      background: #20aeea;
-      color: #fff;
-      border: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 18px rgba(20, 155, 213, .28);
-    }
-    footer {
-      border-top: 1px solid var(--line);
-      padding: 22px 24px 28px;
-      color: #64748b;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    dialog {
-      border: 0;
-      border-radius: 8px;
-      padding: 0;
-      width: min(440px, calc(100% - 28px));
-      box-shadow: 0 28px 80px rgba(15,23,42,.26);
-    }
-    dialog::backdrop { background: rgba(15,23,42,.4); }
-    .modal-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 18px;
-      border-bottom: 1px solid var(--line);
-      font-weight: 900;
-    }
-    .modal-list { padding: 12px 14px 16px; display: grid; gap: 8px; }
-    .record-dialog { width: min(720px, calc(100% - 28px)); }
-    .record-body { padding: 14px 18px 18px; display: grid; gap: 12px; max-height: calc(100vh - 150px); overflow: auto; }
-    .record-alert {
-      border-radius: 8px;
-      border: 1px solid rgba(59,130,246,.2);
-      background: #eff6ff;
-      color: #334155;
-      padding: 12px;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: flex-start;
-      font-size: 13px;
-    }
-    .record-controls { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
-    .record-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-    .record-stat {
-      border-radius: 8px;
-      background: #fff;
-      border: 1px solid var(--line);
-      padding: 12px;
-      box-shadow: 0 1px 4px rgba(15,23,42,.05);
-    }
-    .record-stat-label { font-size: 12px; font-weight: 900; color: #64748b; }
-    .record-stat-total { font-size: 18px; font-weight: 900; margin-top: 4px; }
-    .record-stat-rate { font-weight: 900; margin-top: 2px; }
-    .record-stat-rate.high { color: #16a34a; }
-    .record-stat-rate.mid { color: #ca8a04; }
-    .record-stat-rate.low { color: #ef4444; }
-    .record-bar { height: 4px; border-radius: 99px; background: #e5e7eb; overflow: hidden; margin-top: 7px; }
-    .record-bar span { display: block; height: 100%; border-radius: inherit; }
-    .record-table-wrap { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-    .record-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .record-table th,
-    .record-table td { padding: 9px 10px; border-bottom: 1px solid #eef2f7; text-align: center; }
-    .record-table th { background: #f8fafc; color: #475569; font-weight: 900; }
-    .record-table tr:last-child td { border-bottom: 0; }
-    .record-win { color: #2563eb; font-weight: 900; }
-    .record-lose { color: #64748b; font-weight: 900; }
-    .record-empty { padding: 18px; text-align: center; color: #94a3b8; font-weight: 800; }
-    .tier-link {
-      width: 100%;
-      height: 38px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 12px;
-      cursor: pointer;
-      color: #1f2937;
-      font-weight: 800;
-    }
-    .tier-link:hover { background: #f8fafc; }
-    svg { width: 20px; height: 20px; stroke: currentColor; }
-    @media (max-width: 820px) {
-      .topbar { padding: 0 14px; }
-      .logo { min-width: auto; }
-      .logo img { height: 28px; }
-      .logo-mark { height: 28px; min-width: 74px; font-size: 13px; }
-      .nav { display: none; }
-      .actions { margin-left: auto; }
-      main { width: min(100% - 24px, 1180px); margin-top: 18px; }
-      .sources { align-items: flex-start; }
-      .controls { align-items: stretch; flex-direction: column; }
-      .switches, .filters { flex-wrap: wrap; }
-      .search { flex: 1; min-width: 180px; width: auto; }
-      .tier-head { grid-template-columns: 1fr; gap: 8px; }
-      .tier-title, .tier-tools { grid-column: auto; justify-self: center; }
-      .player-card { width: 132px; height: 184px; }
-      .player-image { height: 136px; }
-      .player-actions { padding: 12px; }
-      .card-action { min-height: 28px; font-size: 11px; }
-      .selection-body { grid-template-columns: 1fr; }
-      .selection-score { min-height: 26px; }
-      .record-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .floating-tier { right: 16px; bottom: 20px; }
-      .contact-float { right: 16px; bottom: 72px; }
-      footer { padding-bottom: 82px; }
-    }
-  
-
-    /* 캄몬스타즈 탭 전용 리디자인: 원본 공식홈 상단/푸터 느낌 제거 */
-    :root {
-      --brand: #2f89ff;
-      --brand-dark: #0f5bd3;
-      --bg: #08182c;
-      --surface: rgba(13, 33, 58, .92);
-      --muted: rgba(219, 234, 254, .78);
-      --line: rgba(142, 193, 255, .18);
-      --text: #eef6ff;
-      --soft: #9fb8d8;
-      --terran: #2f89ff;
-      --zerg: #a855f7;
-      --protoss: #f8bd38;
-      --live: #ff4d67;
-      --green: #34d399;
-      --shadow: 0 16px 36px rgba(0, 0, 0, .30);
-    }
-    html, body { min-height: 100%; overflow-x: hidden; }
-    body.calm-tier-page {
-      background:
-        radial-gradient(circle at 14% 0%, rgba(47,137,255,.34), transparent 32%),
-        radial-gradient(circle at 92% 10%, rgba(255,212,59,.12), transparent 24%),
-        linear-gradient(180deg, #07172a 0%, #0b2d58 48%, #061323 100%);
-      color: var(--text);
-      font-family: "Pretendard", "Inter", "Noto Sans KR", system-ui, sans-serif;
-      padding: 0;
-    }
-    main.calm-tier-main { width: min(100%, 1138px); margin: 0 auto; padding: 10px 0 24px; }
-    .calm-tier-hero {
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      min-height: 112px;
-      margin: 0 0 12px;
-      padding: 18px 20px;
-      border: 1px solid rgba(137,192,255,.24);
-      border-radius: 0 0 20px 20px;
-      background:
-        linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px),
-        radial-gradient(circle at 50% -18%, rgba(255,216,77,.18), transparent 35%),
-        linear-gradient(135deg, rgba(9,40,82,.97), rgba(11,67,127,.92));
-      background-size: 36px 100%, auto, auto;
-      box-shadow: 0 18px 38px rgba(0,0,0,.30);
-    }
-    .calm-tier-hero::after {
-      content: "TIER";
-      position: absolute;
-      right: 18px;
-      bottom: -22px;
-      color: rgba(255,255,255,.055);
-      font-size: 86px;
-      line-height: 1;
-      font-weight: 950;
-      letter-spacing: -.08em;
-      pointer-events: none;
-    }
-    .calm-tier-kicker { color: #9fd0ff; font-size: 11px; font-weight: 950; letter-spacing: .12em; }
-    .calm-tier-hero h1 { margin: 4px 0 4px; color: #fff; font-size: 28px; font-weight: 950; letter-spacing: -.055em; }
-    .calm-tier-hero p { max-width: 680px; margin: 0; color: #c9ddf5; font-size: 12px; font-weight: 800; line-height: 1.55; }
-    .calm-tier-mini-stats {
-      position: relative;
-      z-index: 1;
-      min-width: 150px;
-      padding: 12px 14px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.055);
-      border-radius: 14px;
-      text-align: right;
-    }
-    .calm-tier-mini-stats span { display: block; color: #aac4e4; font-size: 10px; font-weight: 900; }
-    .calm-tier-mini-stats strong { display: block; color: #fff; margin-top: 2px; font-size: 18px; font-weight: 950; }
-    .sources, .contact-float, .floating-tier, footer { display: none !important; }
-    #tierDialog { display: none !important; }
-
-    .tier-source-row {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 8px;
-      margin: -4px 2px 12px;
-      color: rgba(219, 234, 254, .68);
-      font-size: 11px;
-      font-weight: 850;
-      letter-spacing: -.01em;
-    }
-    .tier-source-row span:first-child {
-      color: rgba(219, 234, 254, .54);
-      font-weight: 950;
-    }
-    .tier-source-row a {
-      display: inline-flex;
-      align-items: center;
-      min-height: 22px;
-      padding: 0 8px;
-      border-radius: 999px;
-      color: #b8d8ff;
-      text-decoration: none;
-      background: rgba(96, 165, 250, .10);
-      border: 1px solid rgba(137, 192, 255, .16);
-    }
-    .tier-source-row a:hover {
-      color: #ffffff;
-      border-color: rgba(137, 192, 255, .34);
-      background: rgba(96, 165, 250, .18);
-    }
-    .notice {
-      margin: 0 0 12px;
-      padding: 14px 16px;
-      border: 1px solid rgba(137,192,255,.22);
-      border-left: 4px solid #58a6ff;
-      border-radius: 16px;
-      background: linear-gradient(135deg, rgba(21, 56, 100, .90), rgba(9, 29, 55, .92));
-      color: #dcecff;
-      box-shadow: var(--shadow);
-    }
-    .notice svg { color: #9fc7ff; }
-    .notice-title { color: #fff; font-weight: 950; letter-spacing: -.03em; }
-    .notice p { color: #c4d7ef; font-size: 12px; font-weight: 800; }
-    .controls {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px 14px;
-      margin-bottom: 10px;
-      padding: 10px;
-      border: 1px solid rgba(137,192,255,.18);
-      border-radius: 16px;
-      background: rgba(6, 19, 38, .60);
-      box-shadow: var(--shadow);
-    }
-    .switches,
-    .filters {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .filters { justify-content: flex-end; flex: 1 1 520px; }
-    .switch-label { color: #eaf3ff; font-weight: 950; }
-    select, .search, .tier-list-button {
-      height: 38px;
-      border-radius: 10px;
-      border: 1px solid rgba(137,192,255,.22);
-      background: rgba(2, 10, 24, .64);
-      color: #f7fbff;
-      box-shadow: none;
-      font-weight: 850;
-    }
-    #raceFilter { min-width: 118px; }
-    #tierFilter { min-width: 138px; }
-    .search { width: 220px; }
-    .tier-list-button { background: linear-gradient(135deg, rgba(39,134,255,.28), rgba(255,255,255,.06)); }
-    .tier-stack { gap: 12px; }
-    .tier-section {
-      min-height: 132px;
-      padding: 16px 14px 14px;
-      border-radius: 18px;
-      border-color: rgba(137,192,255,.18);
-      background: linear-gradient(180deg, rgba(16, 50, 91, .92), rgba(7, 25, 49, .94));
-      box-shadow: var(--shadow);
-    }
-    .tier-head { margin-bottom: 14px; }
-    .tier-title {
-      min-width: 180px;
-      padding: 7px 14px;
-      border-radius: 999px;
-      color: #fff;
-      background: linear-gradient(135deg, rgba(47,137,255,.34), rgba(255,255,255,.07));
-      border: 1px solid rgba(255,255,255,.12);
-      font-size: 15px;
-      font-weight: 950;
-      letter-spacing: -.03em;
-    }
-    .timer { color: #9fc7ff; font-weight: 950; }
-    .players { gap: 10px; }
-    .player-card {
-      width: 128px;
-      height: 178px;
-      border-width: 2px;
-      border-radius: 14px;
-      background: linear-gradient(180deg, rgba(18,37,61,.95), rgba(10,23,39,.96));
-      box-shadow: 0 10px 22px rgba(0,0,0,.22);
-      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
-    }
-    .player-card:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(0,0,0,.30); }
-    .player-image { height: 126px; }
-    .player-info { height: 48px; }
-    .player-name { font-size: 15px; font-weight: 950; letter-spacing: -.04em; }
-    .player-meta { font-size: 10px; font-weight: 850; color: rgba(255,255,255,.82); }
-    .live-badge { border-radius: 999px; font-weight: 950; }
-    .academy-badge { backdrop-filter: blur(4px); }
-    .modal-head, .record-body, .modal-list, dialog {
-      background: #0b203c;
-      color: #eef6ff;
-      border-color: rgba(137,192,255,.22);
-    }
-    dialog { border-radius: 18px; box-shadow: 0 24px 70px rgba(0,0,0,.55); }
-    .record-alert, .selection-panel {
-      background: linear-gradient(135deg, rgba(21, 56, 100, .90), rgba(9, 29, 55, .92));
-      color: #dcecff;
-      border-color: rgba(137,192,255,.22);
-    }
-    .selection-player,
-    .selection-empty,
-    .selection-score {
-      background: rgba(2, 10, 24, .56);
-      border: 1px solid rgba(137, 192, 255, .22);
-      color: #f7fbff;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-    }
-    .selection-score {
-      min-width: 138px;
-      min-height: 42px;
-      padding: 8px 12px;
-      border-radius: 10px;
-      color: #b8d8ff;
-    }
-    .selection-score strong { color: #ffffff; font-size: 19px; }
-    .selection-score.is-missing {
-      flex-direction: column;
-      gap: 2px;
-      color: #ffd166;
-      font-size: 12px;
-      line-height: 1.25;
-      text-align: center;
-    }
-    .selection-links {
-      margin-top: 8px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .record-link,
-    .selection-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 30px;
-      padding: 0 10px;
-      border-radius: 999px;
-      color: #d9ecff;
-      text-decoration: none;
-      font-size: 12px;
-      font-weight: 950;
-      background: rgba(96, 165, 250, .16);
-      border: 1px solid rgba(137, 192, 255, .24);
-    }
-    .record-link:hover,
-    .selection-link:hover {
-      color: #fff;
-      background: rgba(96, 165, 250, .28);
-      border-color: rgba(137, 192, 255, .40);
-    }
-    .record-stat {
-      background: rgba(2, 10, 24, .48);
-      border-color: rgba(137,192,255,.18);
-      color: #eef6ff;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
-    }
-    .record-stat-label { color: #a9c9ef; }
-    .record-stat-total { color: #ffffff; }
-    .record-table-wrap {
-      border-color: rgba(137,192,255,.20);
-      background: rgba(2, 10, 24, .36);
-    }
-    .record-table th {
-      background: rgba(96, 165, 250, .14);
-      color: #cfe5ff;
-      border-bottom-color: rgba(137,192,255,.18);
-    }
-    .record-table td {
-      color: #eef6ff;
-      border-bottom-color: rgba(137,192,255,.12);
-    }
-    .record-table tr.record-row-win td {
-      background: rgba(37, 99, 235, .10);
-    }
-    .record-table tr.record-row-lose td {
-      background: rgba(248, 113, 113, .10);
-    }
-    .record-table tr.record-row-win:hover td {
-      background: rgba(37, 99, 235, .16);
-    }
-    .record-table tr.record-row-lose:hover td {
-      background: rgba(248, 113, 113, .16);
-    }
-    .record-win {
-      color: #72c7ff;
-      font-weight: 950;
-    }
-    .record-lose {
-      color: #ff7d8a;
-      font-weight: 950;
-    }
-    .record-result-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 42px;
-      height: 24px;
-      padding: 0 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 950;
-      letter-spacing: -.02em;
-    }
-    .record-result-badge.win {
-      color: #dff4ff;
-      background: rgba(37, 99, 235, .42);
-      border: 1px solid rgba(125, 183, 255, .48);
-      box-shadow: 0 0 14px rgba(37, 99, 235, .18);
-    }
-    .record-result-badge.lose {
-      color: #ffe8eb;
-      background: rgba(239, 68, 68, .38);
-      border: 1px solid rgba(255, 125, 138, .50);
-      box-shadow: 0 0 14px rgba(239, 68, 68, .16);
-    }
-    .record-empty {
-      color: #b8d8ff;
-      background: rgba(2, 10, 24, .42);
-      border-radius: 12px;
-    }
-    .record-fallback {
-      display: grid;
-      gap: 8px;
-      justify-items: center;
-      line-height: 1.55;
-    }
-    svg { stroke: currentColor; }
-    @media (max-width: 820px) {
-      main.calm-tier-main { width: calc(100% - 16px); }
-      .calm-tier-hero { border-radius: 16px; margin-top: 8px; align-items: flex-start; flex-direction: column; }
-      .calm-tier-mini-stats { text-align: left; }
-      .player-card { width: 120px; height: 170px; }
-      .player-image { height: 120px; }
-    }
-    @media (max-width: 820px) {
-      .tier-source-row {
-        justify-content: flex-start;
-        flex-wrap: wrap;
-        margin-top: -2px;
-      }
-    }
+    :root{
+      --bg:#07111e; --bg2:#0a1727; --panel:#0d1b2d; --panel2:#101f34;
+      --line:rgba(158,190,229,.18); --line2:rgba(158,190,229,.28);
+      --text:#edf6ff; --muted:#8ea4bf; --soft:#b9cbe0;
+      --green:#39e173; --green2:#1fb95c; --danger:#ff596e;
+      --terran:#5aa7ff; --zerg:#ff6262; --protoss:#f3c64e;
+      --shadow:0 20px 60px rgba(0,0,0,.38); --radius:18px;
+    }
+    *{box-sizing:border-box} html,body{min-height:100%;}
+    body{margin:0;background:radial-gradient(circle at 20% -10%,rgba(57,225,115,.12),transparent 32%),radial-gradient(circle at 90% 0%,rgba(90,167,255,.13),transparent 28%),linear-gradient(180deg,#06101b 0%,#081524 42%,#050c15 100%);color:var(--text);font-family:"Pretendard","Noto Sans KR",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:15px;line-height:1.45;overflow-x:hidden;}
+    button,input,select{font:inherit} button{cursor:pointer} a{color:inherit;text-decoration:none}
+    .app-shell{width:min(100%,1740px);margin:0 auto;padding:0 26px 44px;}
+    .app-header{position:sticky;top:0;z-index:20;margin:0 -26px 18px;padding:18px 26px 14px;background:rgba(5,13,23,.82);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);box-shadow:0 16px 32px rgba(0,0,0,.24);}
+    .top-row{display:flex;align-items:center;gap:24px;min-height:44px;}
+    .brand{display:flex;align-items:center;gap:13px;min-width:330px}.brand-mark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#0e2b4d,#0b1320);border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 4px rgba(57,225,115,.06)}
+    .brand-mark::before{content:"★";color:#f4cf59;font-size:23px;text-shadow:0 0 14px rgba(244,207,89,.5)}
+    .brand-title{font-size:29px;font-weight:950;letter-spacing:-.06em;white-space:nowrap}.stats{flex:1;display:flex;align-items:center;justify-content:center;gap:0;min-width:0}.stat{height:34px;display:flex;align-items:center;gap:8px;padding:0 26px;border-left:1px solid rgba(255,255,255,.08);white-space:nowrap;color:var(--soft);font-weight:800}.stat:first-child{border-left:0}.stat strong{color:#fff;font-size:18px;font-weight:950}.stat .live{color:var(--green)}.stat .t{color:var(--terran)}.stat .z{color:var(--zerg)}.stat .p{color:var(--protoss)}.last-update{min-width:260px;text-align:right;color:var(--muted);font-size:14px;font-weight:700}.last-update b{color:#f4bd77;font-weight:900}
+    .filter-row{display:flex;align-items:center;gap:12px;margin-top:18px;}.filter-left{display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex:1}.filter-right{margin-left:auto;display:flex;gap:10px;align-items:center}.pill{height:46px;padding:0 22px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.045);color:#e7f1fc;font-weight:900;display:inline-flex;align-items:center;gap:8px;transition:.16s ease}.pill:hover,.pill.active{border-color:rgba(57,225,115,.58);background:rgba(57,225,115,.11);color:#68ff96;box-shadow:0 0 0 3px rgba(57,225,115,.06)}.pill .mini-live{font-size:12px;background:var(--danger);color:#fff;border-radius:6px;padding:2px 5px}.race-letter{font-weight:950;font-size:20px;line-height:1}.race-letter.T{color:var(--terran)}.race-letter.Z{color:var(--zerg)}.race-letter.P{color:var(--protoss)}
+    .searchbox{position:relative;width:340px}.searchbox input{width:100%;height:46px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.045);color:var(--text);padding:0 46px 0 16px;outline:none;font-weight:750}.searchbox input:focus{border-color:rgba(90,167,255,.55);box-shadow:0 0 0 3px rgba(90,167,255,.09)}.searchbox .search-ico{position:absolute;right:15px;top:50%;transform:translateY(-50%);color:#8aa2bd}.reset-btn{height:46px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.06);color:#eaf3ff;font-weight:900;padding:0 16px}.reset-btn:hover{border-color:var(--line2);background:rgba(255,255,255,.09)}
+    .tier-nav{display:grid;grid-template-columns:repeat(16,minmax(66px,1fr));margin-top:14px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.035)}.tier-nav button{height:46px;border:0;border-left:1px solid rgba(255,255,255,.07);background:transparent;color:#d5e0ee;font-weight:900}.tier-nav button:first-child{border-left:0}.tier-nav button:hover,.tier-nav button.active{background:rgba(57,225,115,.11);color:#58f48d;box-shadow:inset 0 0 0 1px rgba(57,225,115,.34)}
+    .filter-summary{display:flex;align-items:center;gap:9px;min-height:40px;margin-bottom:14px}.summary-label{color:#8fa8c7;font-weight:900}.chip{display:inline-flex;align-items:center;gap:8px;min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.055);color:#dbeafe;font-weight:850}.chip button{border:0;background:transparent;color:#9fb3cc;font-weight:900;padding:0}
+    .tier-stack{display:grid;gap:16px}.tier-section{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(180deg,rgba(13,27,45,.93),rgba(8,19,33,.96));box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:168px}.tier-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 20px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(90deg,rgba(255,255,255,.045),transparent)}.tier-title-wrap{display:flex;align-items:center;gap:20px;min-width:0}.tier-title{font-size:28px;font-weight:950;letter-spacing:-.06em;color:#72f695}.tier-meta{display:flex;align-items:center;gap:20px;color:#b6c7dc;font-weight:850}.tier-meta b{color:#fff}.tier-meta .live{color:var(--green)}.tier-meta .T{color:var(--terran)}.tier-meta .Z{color:var(--zerg)}.tier-meta .P{color:var(--protoss)}.tier-tools{display:flex;align-items:center;gap:10px;color:#b3c3d8;font-weight:800}.switch{display:inline-flex;align-items:center;gap:9px}.switch input{position:absolute;opacity:0}.switch-ui{width:48px;height:26px;border-radius:999px;background:#243347;position:relative;border:1px solid rgba(255,255,255,.11)}.switch-ui:after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#c4d0df;transition:.15s ease}.switch input:checked+.switch-ui{background:linear-gradient(90deg,var(--green2),var(--green))}.switch input:checked+.switch-ui:after{transform:translateX(22px);background:#fff}
+    .players{display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:14px;padding:14px}.player-card{position:relative;min-height:232px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:linear-gradient(180deg,rgba(22,37,56,.94),rgba(13,25,40,.98));overflow:hidden;box-shadow:0 12px 28px rgba(0,0,0,.25);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}.player-card:hover{transform:translateY(-2px);border-color:rgba(90,167,255,.32);box-shadow:0 16px 34px rgba(0,0,0,.32)}.player-card.live{border-color:rgba(57,225,115,.35)}.thumb{height:118px;position:relative;background:radial-gradient(circle at 50% 20%,rgba(255,255,255,.10),transparent 36%),linear-gradient(135deg,#142236,#0c1725);overflow:hidden}.thumb.no-image::after{content:attr(data-initial);position:absolute;inset:0;display:grid;place-items:center;color:rgba(238,246,255,.58);font-size:42px;font-weight:950;letter-spacing:-.08em}.avatar.no-image::after,.record-player .no-image::after{content:attr(data-initial);display:grid;place-items:center;width:100%;height:100%;color:#b7cce6;font-weight:950}.thumb.no-image img,.avatar.no-image img{display:none}.record-player img.failed{display:none}.thumb img{width:100%;height:100%;object-fit:cover;display:block}.player-card:not(.live) .thumb img{filter:grayscale(.18) contrast(1.04);opacity:.86}.live .thumb img.stream-thumb{filter:none;opacity:.95}.profile-mode .thumb img{object-fit:contain;padding-top:10px;background:radial-gradient(circle at 50% 22%,rgba(255,255,255,.09),transparent 36%),#111c2b}.live-badge{position:absolute;left:10px;top:10px;z-index:2;height:26px;padding:0 10px;border-radius:8px;display:flex;align-items:center;gap:6px;background:rgba(21,165,77,.28);border:1px solid rgba(57,225,115,.78);color:#68ff96;font-weight:950;font-size:14px}.live-badge:before{content:"";width:8px;height:8px;border-radius:50%;background:#43f279;box-shadow:0 0 12px #43f279}.offline-dot{position:absolute;left:12px;top:12px;width:14px;height:14px;border-radius:50%;background:#536273;border:1px solid rgba(255,255,255,.12)}.content-tag{position:absolute;right:9px;top:10px;z-index:2;min-height:25px;padding:2px 9px;border-radius:8px;background:rgba(5,10,18,.64);border:1px solid rgba(255,255,255,.15);color:#eaf3ff;font-size:12px;font-weight:900}.academy{position:absolute;right:10px;bottom:8px;width:34px;height:34px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.55);background:#101928}.academy img{width:100%;height:100%;object-fit:cover}.card-body{padding:12px 12px 10px}.player-line{display:flex;align-items:center;gap:10px}.avatar{width:42px;height:42px;border-radius:50%;overflow:hidden;background:#1b2b3f;border:1px solid rgba(255,255,255,.13);flex:0 0 auto}.avatar img{width:100%;height:100%;object-fit:cover}.namebox{min-width:0;flex:1}.name{font-size:20px;font-weight:950;letter-spacing:-.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tier-text{font-weight:900;color:#63ef8d;margin-top:1px}.race-badge{width:33px;height:33px;border-radius:8px;display:grid;place-items:center;font-size:20px;font-weight:950;border:1px solid currentColor;background:rgba(255,255,255,.055)}.race-badge.T{color:var(--terran)}.race-badge.Z{color:var(--zerg)}.race-badge.P{color:var(--protoss)}.card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}.card-actions .full{grid-column:1 / -1}.card-btn{height:34px;border-radius:9px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.045);color:#edf6ff;font-weight:900;display:flex;align-items:center;justify-content:center}.card-btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.22)}.card-btn.primary{background:rgba(90,167,255,.11);border-color:rgba(90,167,255,.23)}.empty{padding:38px;text-align:center;color:#90a6c0;font-weight:900;border:1px dashed var(--line);border-radius:16px;background:rgba(255,255,255,.03)}
+    dialog{border:0;padding:0;background:transparent;color:var(--text)}dialog::backdrop{background:rgba(0,0,0,.62);backdrop-filter:blur(5px)}.record-dialog{width:min(1040px,calc(100vw - 46px))}.modal-card{border:1px solid var(--line2);border-radius:20px;background:linear-gradient(180deg,rgba(14,29,49,.98),rgba(8,17,30,.99));box-shadow:0 30px 90px rgba(0,0,0,.62);overflow:hidden}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 24px;border-bottom:1px solid rgba(255,255,255,.08)}.record-player{display:flex;align-items:center;gap:13px;min-width:0}.record-player img{width:56px;height:56px;border-radius:50%;object-fit:cover;background:#172842}.record-title-main{font-size:28px;font-weight:950;letter-spacing:-.06em}.close{width:40px;height:40px;border:0;border-radius:10px;background:rgba(255,255,255,.06);color:#dce9f8;font-size:26px}.modal-body{padding:18px 24px 24px;max-height:calc(100vh - 140px);overflow:auto}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:16px}.tab{height:48px;border:0;background:rgba(255,255,255,.035);color:#aabed5;font-weight:950}.tab.active{background:rgba(57,225,115,.10);color:#68ff96;box-shadow:inset 0 -2px 0 var(--green)}.record-toolbar{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:14px}.selects{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.selects select,.opponent-search input{height:40px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.045);color:#f2f7fd;padding:0 12px;outline:none;font-weight:850}.record-updated{color:#91a7c3;font-weight:800}.record-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}.record-stat{border:1px solid var(--line);border-radius:14px;padding:14px;background:rgba(255,255,255,.04)}.record-stat-label{color:#9cb1ca;font-size:13px;font-weight:900}.record-stat-total{margin-top:5px;font-size:22px;font-weight:950}.record-stat-rate{margin-top:2px;font-weight:950}.record-stat-rate.high{color:#62f58d}.record-stat-rate.mid{color:#ffd56b}.record-stat-rate.low{color:#ff7382}.record-bar{height:5px;border-radius:999px;background:#25364b;margin-top:9px;overflow:hidden}.record-bar span{height:100%;display:block;border-radius:999px}.record-table-wrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.025)}.record-table{width:100%;border-collapse:collapse}.record-table th,.record-table td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.075);text-align:left}.record-table th{color:#a8bdd6;background:rgba(255,255,255,.045);font-weight:950}.record-table tr:last-child td{border-bottom:0}.record-table td:last-child,.record-table th:last-child{text-align:center}.record-result-badge{display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:26px;border-radius:999px;font-weight:950}.record-result-badge.win{color:#dff7ff;background:rgba(55,128,255,.32);border:1px solid rgba(90,167,255,.45)}.record-result-badge.lose{color:#fff0f2;background:rgba(255,89,110,.32);border:1px solid rgba(255,89,110,.45)}.record-win{color:#70d1ff;font-weight:950}.record-lose{color:#ff7483;font-weight:950}.record-empty{padding:24px;text-align:center;color:#9ab0ca;font-weight:900}.h2h-layout{display:grid;grid-template-columns:260px 1fr;gap:16px}.opponent-picker{border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.035);padding:14px}.opponent-search{position:relative}.opponent-search input{width:100%;padding-left:34px}.opponent-search:before{content:"⌕";position:absolute;left:12px;top:7px;color:#8aa2bd;font-size:20px}.opponent-list{margin-top:12px;display:grid;gap:8px;max-height:372px;overflow:auto}.opponent-item{border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.035);color:#eaf3ff;min-height:48px;padding:7px 9px;display:flex;align-items:center;gap:9px;text-align:left}.opponent-item:hover,.opponent-item.active{border-color:rgba(57,225,115,.52);background:rgba(57,225,115,.10)}.opponent-item img{width:32px;height:32px;border-radius:50%;object-fit:cover}.opponent-item b{display:block;font-weight:950}.opponent-item small{color:#98adc7;font-weight:850}.h2h-main{border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.03);padding:16px}.recent-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}.recent-chips span{color:#98adc7;font-weight:900;margin-right:3px}.recent-chip{border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);min-height:32px;padding:0 11px;color:#dbeafe;font-weight:900}.h2h-score{min-height:158px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:radial-gradient(circle at 50% 0%,rgba(90,167,255,.13),transparent 38%),rgba(255,255,255,.025);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;padding:18px;margin-bottom:14px}.versus{text-align:center}.versus .score{font-size:34px;font-weight:950;letter-spacing:-.04em}.versus .score .win{color:#64f28f}.versus .score .lose{color:#ff6676}.versus .rate{margin-top:4px;color:#d8e8fb;font-weight:900}.side{text-align:center}.side img{width:74px;height:74px;border-radius:50%;object-fit:cover;margin-bottom:7px}.side b{display:block;font-size:19px;font-weight:950}.side small{color:#69ef91;font-weight:900}.side .race-badge{display:inline-grid;margin-left:5px;width:26px;height:26px;font-size:16px}.loading-note{color:#9bb1cc;text-align:center;font-weight:900;padding:36px}.source-row{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:12px}.source-link{display:inline-flex;align-items:center;min-height:30px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:rgba(90,167,255,.08);font-weight:900;color:#cfe7ff}
+    @media(max-width:1100px){.top-row{flex-wrap:wrap}.brand{min-width:0}.stats{order:3;width:100%;justify-content:flex-start;overflow:auto}.last-update{margin-left:auto}.filter-row{flex-direction:column;align-items:stretch}.filter-right{margin-left:0}.searchbox{width:100%}.tier-nav{grid-template-columns:repeat(4,1fr)}.record-stats{grid-template-columns:repeat(2,1fr)}.h2h-layout{grid-template-columns:1fr}.players{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}}
 </style>
 </head>
-<body class="calm-tier-page">
-  <main class="calm-tier-main">
-    <div class="controls">
-      <div class="switches">
-        <label class="switch-label"><input id="liveOnly" type="checkbox" checked><span class="switch-ui live-switch"></span><span>방송중</span></label>
-        <label class="switch-label"><input id="raceSplit" type="checkbox"><span class="switch-ui"></span><span>종족구분</span></label>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="top-row">
+        <div class="brand"><div class="brand-mark"></div><div class="brand-title">캄몬스타즈 티어표</div></div>
+        <div class="stats" aria-label="티어표 통계">
+          <div class="stat">전체 <strong id="statTotal">0명</strong></div>
+          <div class="stat">방송중 <strong class="live" id="statLive">0명</strong></div>
+          <div class="stat"><span class="race-letter T">T</span> <strong id="statT">0</strong></div>
+          <div class="stat"><span class="race-letter Z">Z</span> <strong id="statZ">0</strong></div>
+          <div class="stat"><span class="race-letter P">P</span> <strong id="statP">0</strong></div>
+        </div>
+        <div class="last-update">마지막 업데이트: <b id="lastUpdated">-</b></div>
       </div>
-      <div class="filters">
-        <select id="raceFilter" aria-label="종족 필터">
-          <option value="all">종족 전체</option>
-          <option value="T">테란</option>
-          <option value="Z">저그</option>
-          <option value="P">프로토스</option>
-        </select>
-        <select id="tierFilter" class="tier-filter" aria-label="티어 필터">
-          <option value="all">티어 전체</option>
-          <option value="갓티어">갓티어</option>
-          <option value="킹티어">킹티어</option>
-          <option value="잭티어">잭티어</option>
-          <option value="조커티어">조커티어</option>
-          <option value="스페이드티어">스페이드티어</option>
-          <option value="0티어">0티어</option>
-          <option value="1티어">1티어</option>
-          <option value="2티어">2티어</option>
-          <option value="3티어">3티어</option>
-          <option value="4티어">4티어</option>
-          <option value="5티어">5티어</option>
-          <option value="6티어">6티어</option>
-          <option value="7티어">7티어</option>
-          <option value="8티어">8티어</option>
-          <option value="베이비티어">베이비티어</option>
-          <option value="티어없음">티어없음</option>
-        </select>
-        <input class="search" id="searchInput" type="search" placeholder="플레이어 검색..." aria-label="플레이어 검색">
+      <div class="filter-row">
+        <div class="filter-left">
+          <button class="pill active" type="button" data-filter="all">전체 보기</button>
+          <button class="pill" type="button" data-filter="live">방송중만 보기 <span class="mini-live">LIVE</span></button>
+          <button class="pill" type="button" data-race="T"><span class="race-letter T">T</span> 테란</button>
+          <button class="pill" type="button" data-race="Z"><span class="race-letter Z">Z</span> 저그</button>
+          <button class="pill" type="button" data-race="P"><span class="race-letter P">P</span> 프로토스</button>
+          <button class="pill" type="button" data-tier="베이비티어">유스</button>
+        </div>
+        <div class="filter-right">
+          <div class="searchbox"><input id="searchInput" type="search" placeholder="닉네임, 종족, 티어 검색..." autocomplete="off"><span class="search-ico">⌕</span></div>
+          <button class="reset-btn" id="resetFilters" type="button">필터 초기화</button>
+        </div>
       </div>
-    </div>
-    <div class="tier-source-row" aria-label="자료 출처">
-      <span>자료 출처</span>
-      <a href="https://eloboard.com" target="_blank" rel="noopener noreferrer">상대전적 ELOBOARD</a>
-      <span>·</span>
-      <a href="https://www.fmkorea.com/3844139388" target="_blank" rel="noopener noreferrer">티어표 FMKOREA</a>
-    </div>
-    <section class="selection-panel" id="selectionPanel" hidden>
-      <div class="selection-head">
-        <select id="headPeriod" aria-label="상대전적 기간">
-          <option value="LAST_1_MONTHS">최근 1개월</option>
-          <option value="LAST_2_MONTHS">최근 2개월</option>
-          <option value="LAST_3_MONTHS" selected>최근 3개월</option>
-          <option value="ALL">전체</option>
-        </select>
-        <button class="icon-button" id="clearSelection" type="button" title="선택 초기화" aria-label="선택 초기화"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
-      </div>
-      <div class="selection-body" id="selectionBody"></div>
-      <div class="selection-tooltip" id="selectionHint"></div>
-    </section>
-    <div class="tier-stack" id="tierStack"></div>
-  </main>
-  <button class="contact-float" type="button" title="의견보내기" aria-label="의견보내기"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 4h16v12H7l-3 3V4Z"></path><path d="m8 9 3 3 5-5"></path></svg></button>
+      <nav class="tier-nav" id="tierNav" aria-label="티어 바로가기"></nav>
+    </header>
+
+    <div class="filter-summary" id="filterSummary"></div>
+    <main class="tier-stack" id="tierStack"></main>
+  </div>
+
   <dialog class="record-dialog" id="recordDialog">
-    <div class="modal-head"><span id="recordTitle">전적</span><button class="icon-button" id="closeRecord" type="button" title="닫기" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div>
-    <div class="record-body">
-      <div class="record-alert"><span>아래 데이터는 ELO 사이트에서 남성, 여성, 혼성 전적을 수집한 자료입니다.</span></div>
-      <div class="record-controls">
-        <select id="recordRace" aria-label="전적 종족">
-          <option value="T">테란</option>
-          <option value="Z">저그</option>
-          <option value="P">프로토스</option>
-        </select>
-        <select id="recordYear" aria-label="전적 연도"></select>
-        <select id="recordMonth" aria-label="전적 월"></select>
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="record-player"><img id="recordAvatar" alt=""><div><div class="record-title-main" id="recordTitle">전적 보기</div><div class="record-updated" id="recordUpdated">-</div></div></div>
+        <button class="close" id="closeRecord" type="button" aria-label="닫기">×</button>
       </div>
-      <div class="record-stats" id="recordStats"></div>
-      <div class="record-table-wrap" id="recordTable"></div>
+      <div class="modal-body">
+        <div class="tabs"><button class="tab active" id="tabOverall" type="button">전체 전적</button><button class="tab" id="tabHead" type="button">상대 전적</button></div>
+        <section id="overallPane">
+          <div class="record-toolbar"><div class="record-updated">월별/종족별 요약</div><div class="selects"><select id="recordRace"><option value="T">테란</option><option value="Z">저그</option><option value="P">프로토스</option></select><select id="recordYear"></select><select id="recordMonth"></select></div></div>
+          <div class="record-stats" id="recordStats"></div>
+          <div class="record-table-wrap" id="recordTable"></div>
+        </section>
+        <section id="headPane" hidden>
+          <div class="h2h-layout">
+            <aside class="opponent-picker"><div class="opponent-search"><input id="opponentSearch" type="search" placeholder="상대 검색"></div><div class="opponent-list" id="opponentList"></div></aside>
+            <div class="h2h-main"><div class="recent-chips" id="recentOpponents"></div><div id="headContent"><div class="loading-note">왼쪽에서 상대를 선택하면 상대전적이 표시됩니다.</div></div></div>
+          </div>
+        </section>
+      </div>
     </div>
   </dialog>
+
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script id="tier-data" type="application/json">[
@@ -6215,858 +5281,148 @@
   }
 ]</script>
   <script>
+
     const tierOrder = ["갓티어","킹티어","잭티어","조커티어","스페이드티어","0티어","1티어","2티어","3티어","4티어","5티어","6티어","7티어","8티어","베이비티어","티어없음"];
+    const tierShort = {"갓티어":"S","킹티어":"킹","잭티어":"잭","조커티어":"조커","스페이드티어":"스페이드","베이비티어":"유스","티어없음":"없음"};
     let tierData = JSON.parse(document.getElementById('tier-data').textContent);
     const tierStack = document.getElementById('tierStack');
-    const tierFilter = document.getElementById('tierFilter');
-    const selectionPanel = document.getElementById('selectionPanel');
-    const selectionBody = document.getElementById('selectionBody');
-    const selectionHint = document.getElementById('selectionHint');
-    const headPeriod = document.getElementById('headPeriod');
+    const tierNav = document.getElementById('tierNav');
+    const searchInput = document.getElementById('searchInput');
+    const filterSummary = document.getElementById('filterSummary');
     const recordDialog = document.getElementById('recordDialog');
     const recordTitle = document.getElementById('recordTitle');
+    const recordAvatar = document.getElementById('recordAvatar');
     const recordUpdated = document.getElementById('recordUpdated');
     const recordRace = document.getElementById('recordRace');
     const recordYear = document.getElementById('recordYear');
     const recordMonth = document.getElementById('recordMonth');
     const recordStats = document.getElementById('recordStats');
     const recordTable = document.getElementById('recordTable');
-    const state = { seconds: 300 };
-    const selection = { playerKey: '', opponentKey: '', loading: false, result: null };
-    let activeRecordKey = '';
-    const raceName = { T: '테란', Z: '저그', P: '프로토스' };
-    const raceOrder = ['T', 'Z', 'P'];
-    const opponentRaceName = { A: '전체', Z: '저그', T: '테란', P: '프로토스' };
+    const tabOverall = document.getElementById('tabOverall');
+    const tabHead = document.getElementById('tabHead');
+    const overallPane = document.getElementById('overallPane');
+    const headPane = document.getElementById('headPane');
+    const opponentSearch = document.getElementById('opponentSearch');
+    const opponentList = document.getElementById('opponentList');
+    const recentOpponents = document.getElementById('recentOpponents');
+    const headContent = document.getElementById('headContent');
+    const filters = { liveOnly:false, race:'all', tier:'all', liveFirst:true };
+    const raceName = { T:'테란', Z:'저그', P:'프로토스' };
+    const raceOrder = ['T','Z','P'];
+    const opponentRaceName = { A:'전체', Z:'저그', T:'테란', P:'프로토스' };
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
-    const years = Array.from({ length: currentYear - 2018 + 1 }, function(_, index) { return 2018 + index; }).reverse();
-
-    const FIREBASE_ROOT = 'starcraftTier/current';
-    const firebaseConfig = {
-      apiKey: "AIzaSyDG_A78a87l_vc3BdbAk-mX5DmoHOzMWNA",
-      authDomain: "jddcontens.firebaseapp.com",
-      databaseURL: "https://jddcontens-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "jddcontens",
-      storageBucket: "jddcontens.firebasestorage.app",
-      messagingSenderId: "173723966783",
-      appId: "1:173723966783:web:ccd54e5417327b2600478a",
-      measurementId: "G-5WCBP7YDRW"
-    };
-    const firebaseState = { ready: false, meta: {}, records: {}, winRates: {}, headToHead: {}, liveStatus: {}, recordLoaded: {} };
-    const recordLoadPromises = {};
-    let firebaseDb = null;
+    const years = Array.from({ length: currentYear - 2018 + 1 }, (_, i) => 2018 + i).reverse();
+    let activeRecordKey = '';
+    let activeRecordRows = [];
+    let selectedOpponentKey = '';
     let recordLoadSeq = 0;
     let headLoadSeq = 0;
 
-    function safeKey(value) {
-      return String(value || '').replace(/[.#$/\[\]]/g, '_');
-    }
-
-    function normalizeList(value) {
-      if (Array.isArray(value)) return value;
-      if (!value || typeof value !== 'object') return [];
-      if (Array.isArray(value.data)) return value.data;
-      if (Array.isArray(value.rows)) return value.rows;
-      return Object.values(value);
-    }
-
-    function playerDataKey(player) {
-      return safeKey([player.userId || player.name, player.race || ''].join('_'));
-    }
-
-    function extractSoopUserId(player) {
-      if (player && player.userId) return String(player.userId);
-      const stationMatch = String((player && player.station) || '').match(/sooplive\.com\/station\/([^/?#]+)/i);
-      if (stationMatch) return stationMatch[1];
-      const broadcastMatch = String((player && player.broadcastUrl) || '').match(/play\.sooplive\.com\/([^/?#]+)/i);
-      if (broadcastMatch) return broadcastMatch[1];
-      const imageMatch = String((player && player.image) || '').match(/\/LOGO\/[^/]+\/([^/]+)\//i);
-      if (imageMatch) return imageMatch[1];
-      return '';
-    }
-
-    function isLiveMetaKey(key) {
-      return String(key || '').startsWith('__') || ['meta', 'updatedAt', 'checkedAt', 'source'].includes(String(key || ''));
-    }
-
-    function getLiveInfo(player, liveMap) {
-      const userId = extractSoopUserId(player);
-      const keys = [
-        userId,
-        userId ? safeKey(userId) : '',
-        playerDataKey({ userId: userId || player.userId || player.name, race: player.race }),
-        playerDataKey(player)
-      ].filter(Boolean);
-      for (const key of keys) {
-        if (Object.prototype.hasOwnProperty.call(liveMap || {}, key)) return liveMap[key];
-      }
-      return null;
-    }
-
-    function hasUsableLiveMap(liveMap) {
-      return Object.keys(liveMap || {}).some(function(key) { return !isLiveMetaKey(key); });
-    }
-
-    function canMatchAnyLiveStatus(players, liveMap) {
-      if (!hasUsableLiveMap(liveMap)) return false;
-      return players.some(function(player) { return getLiveInfo(player, liveMap) !== null; });
-    }
-
-    function livePatch(player, liveMap, forceOfflineWhenMissing) {
-      const userId = extractSoopUserId(player);
-      const liveInfo = getLiveInfo(player, liveMap || {});
-      const basePlayer = userId && !player.userId ? { ...player, userId } : player;
-      if (liveInfo === null || liveInfo === undefined) {
-        return forceOfflineWhenMissing && userId
-          ? { ...basePlayer, live: false, broad: null, broadcastUrl: '' }
-          : basePlayer;
-      }
-      const isLive = typeof liveInfo === 'boolean'
-        ? liveInfo
-        : Boolean(liveInfo.live || liveInfo.status === 'live' || liveInfo.broadNo || liveInfo.broadcastUrl);
-      const broadNo = typeof liveInfo === 'object' ? (liveInfo.broadNo || liveInfo.broad_no || '') : '';
-      return {
-        ...basePlayer,
-        live: isLive,
-        broad: typeof liveInfo === 'object' ? liveInfo : basePlayer.broad,
-        broadcastUrl: isLive
-          ? ((typeof liveInfo === 'object' && liveInfo.broadcastUrl) || (broadNo ? 'https://play.sooplive.com/' + userId + '/' + broadNo : basePlayer.broadcastUrl || basePlayer.liveUrl || (userId ? 'https://play.sooplive.com/' + userId : '')))
-          : ''
-      };
-    }
-
-    function applyLiveStatus(players, liveMap) {
-      if (!Array.isArray(players) || !players.length) return players;
-      if (!hasUsableLiveMap(liveMap)) {
-        return players.map(function(player) {
-          const userId = extractSoopUserId(player);
-          return userId && !player.userId ? { ...player, userId } : player;
-        });
-      }
-      const matched = canMatchAnyLiveStatus(players, liveMap);
-      return players.map(function(player) { return livePatch(player, liveMap, matched); });
-    }
-
-    function isSafeImage(url) {
-      const value = String(url || '');
-      return value && !value.includes('cnine.kr') && !value.includes('dn.cnine.kr');
-    }
-
-    function extractEloMeta(player) {
-      const url = String((player && player.elo) || '');
-      const wrMatch = url.match(/[?&]wr_id=([^&#]+)/i);
-      const tableMatch = url.match(/[?&]bo_table=([^&#]+)/i);
-      const sectionMatch = url.match(/eloboard\.com\/([^/]+)\//i);
-      return {
-        wrId: wrMatch ? decodeURIComponent(wrMatch[1]) : '',
-        table: tableMatch ? decodeURIComponent(tableMatch[1]) : '',
-        section: sectionMatch ? decodeURIComponent(sectionMatch[1]) : ''
-      };
-    }
-
-    function recordKeysFor(player, race) {
-      const userId = extractSoopUserId(player) || player.userId || '';
-      const elo = extractEloMeta(player);
-      return [
-        playerDataKey({ userId: userId, race: race }),
-        safeKey(String(userId || '') + '_' + race),
-        String(userId || '') + '_' + race,
-        userId,
-        playerDataKey({ userId: player.name, race: race }),
-        safeKey(String(player.name || '') + '_' + race),
-        player.name,
-        elo.wrId ? safeKey('wr_' + elo.wrId + '_' + race) : '',
-        elo.wrId ? safeKey(elo.wrId + '_' + race) : '',
-        elo.wrId || '',
-        elo.table && elo.wrId ? safeKey(elo.table + '_' + elo.wrId + '_' + race) : '',
-        elo.section && elo.table && elo.wrId ? safeKey(elo.section + '_' + elo.table + '_' + elo.wrId + '_' + race) : ''
-      ].filter(Boolean).map(String);
-    }
-
-    function normalizeRecordEntry(entry, race) {
-      if (!entry) return [];
-      if (Array.isArray(entry)) return entry;
-      if (typeof entry !== 'object') return [];
-      if (entry[race]) return normalizeList(entry[race]);
-      if (Array.isArray(entry.data)) return entry.data;
-      if (Array.isArray(entry.rows)) return entry.rows;
-      if (Array.isArray(entry.list)) return entry.list;
-      if (Array.isArray(entry.records)) return entry.records;
-
-      const collected = [];
-      collectRecordRows(entry, collected, 0);
-      return collected;
-    }
-
-    function lookupRecordEntry(records, keys, race, depth) {
-      if (!records || typeof records !== 'object' || depth > 3) return [];
-      for (const key of keys) {
-        if (!Object.prototype.hasOwnProperty.call(records, key)) continue;
-        const direct = normalizeRecordEntry(records[key], race);
-        if (direct.length) return direct;
-      }
-      for (const value of Object.values(records)) {
-        if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
-        const nested = lookupRecordEntry(value, keys, race, depth + 1);
-        if (nested.length) return nested;
-      }
-      return [];
-    }
-
-    function looksLikeRecordRow(row) {
-      return row && typeof row === 'object' && (
-        row.date || row.standardDate || row.playedAt || row.createdAt ||
-        row.winnerPlayer || row.winnerName || row.losePlayer || row.loserPlayer ||
-        row.opponentName || row.map || row.mapName || row.result || row.isWin !== undefined
-      );
-    }
-
-    function collectRecordRows(value, output, depth) {
-      if (!value || depth > 5) return;
-      if (Array.isArray(value)) {
-        value.forEach(function(item) {
-          if (looksLikeRecordRow(item)) output.push(item);
-          else collectRecordRows(item, output, depth + 1);
-        });
-        return;
-      }
-      if (typeof value !== 'object') return;
-      if (Array.isArray(value.data) || Array.isArray(value.rows) || Array.isArray(value.list) || Array.isArray(value.records)) {
-        ['data', 'rows', 'list', 'records'].forEach(function(key) { collectRecordRows(value[key], output, depth + 1); });
-        return;
-      }
-      Object.values(value).forEach(function(child) { collectRecordRows(child, output, depth + 1); });
-    }
-
-    function rowIds(row) {
-      return [
-        row.winnerSoopUserId, row.winnerUserId, row.winnerId, row.winner,
-        row.loseSoopUserId, row.loserSoopUserId, row.loseUserId, row.loserUserId, row.loserId,
-        row.playerSoopUserId, row.playerUserId, row.playerId,
-        row.opponentSoopUserId, row.opponentUserId, row.opponentId
-      ].map(function(value) { return String(value || ''); }).filter(Boolean);
-    }
-
-    function rowNames(row) {
-      return [
-        row.winnerPlayer, row.winnerName, row.winPlayer, row.winName,
-        row.losePlayer, row.loserPlayer, row.loseName, row.loserName,
-        row.playerName, row.bjName, row.targetName,
-        row.opponentName, row.opponentPlayer
-      ].map(function(value) { return String(value || '').trim(); }).filter(Boolean);
-    }
-
-    function rowContainsPlayer(row, player) {
-      const userId = String(extractSoopUserId(player) || player.userId || '');
-      if (userId && rowIds(row).includes(userId)) return true;
-      const names = rowNames(row);
-      return Boolean(player.name && names.includes(String(player.name).trim()));
-    }
-
-    function rowPlayerRace(row, player) {
-      if (rowWinnerMatches(row, player)) return row.winnerRace || row.winRace || row.playerRace || '';
-      if (rowLoserMatches(row, player)) return row.loseRace || row.loserRace || row.playerRace || '';
-      return row.playerRace || row.myRace || '';
-    }
-
-    function recordBucket(player, race) {
-      const records = firebaseState.records || {};
-      const hydratedPlayer = player.userId ? player : { ...player, userId: extractSoopUserId(player) };
-      const keys = recordKeysFor(hydratedPlayer, race);
-      const directRows = lookupRecordEntry(records, keys, race, 0);
-      if (directRows.length) return directRows;
-
-      const allRows = [];
-      keys.forEach(function(key) {
-        if (!Object.prototype.hasOwnProperty.call(records, key)) return;
-        collectRecordRows(records[key], allRows, 0);
-      });
-      if (!allRows.length) return [];
-      return allRows.filter(function(row) {
-        if (!rowContainsPlayer(row, hydratedPlayer)) return false;
-        const ownRace = String(rowPlayerRace(row, hydratedPlayer) || '').trim();
-        return !ownRace || ownRace === race;
-      });
-    }
-
-    async function fetchRecordBucket(player, race) {
-      if (!firebaseDb) return [];
-      const hydratedPlayer = player.userId ? player : { ...player, userId: extractSoopUserId(player) };
-      const keys = recordKeysFor(hydratedPlayer, race);
-      const primaryKey = keys[0];
-
-      for (const key of keys) {
-        const cachedRows = normalizeRecordEntry(firebaseState.records[key], race);
-        if (cachedRows.length) return cachedRows;
-      }
-
-      for (const key of keys) {
-        if (!key) continue;
-
-        if (!recordLoadPromises[key]) {
-          recordLoadPromises[key] = firebaseDb.ref(FIREBASE_ROOT + '/records/' + key).once('value')
-            .then(function(snapshot) {
-              const value = snapshot.val();
-              firebaseState.recordLoaded[key] = true;
-              if (value !== null && value !== undefined) {
-                firebaseState.records[key] = value;
-              } else if (!Object.prototype.hasOwnProperty.call(firebaseState.records, key)) {
-                firebaseState.records[key] = [];
-              }
-              return normalizeRecordEntry(firebaseState.records[key], race);
-            })
-            .catch(function() {
-              firebaseState.recordLoaded[key] = true;
-              return [];
-            })
-            .finally(function() {
-              delete recordLoadPromises[key];
-            });
-        }
-
-        const rows = await recordLoadPromises[key];
-        if (rows.length) return rows;
-
-        if (key === primaryKey && rows.length === 0) {
-          continue;
-        }
-      }
-
-      return recordBucket(hydratedPlayer, race);
-    }
-
-    async function ensureRecordBucket(player, race) {
-      const cachedRows = recordBucket(player, race);
-      if (cachedRows.length) return cachedRows;
-      return fetchRecordBucket(player, race);
-    }
-
-    function rowDate(row) {
-      return String(row.date || row.standardDate || row.playedAt || row.createdAt || '').slice(0, 10);
-    }
-
-    function rowWinnerId(row) {
-      return String(row.winnerSoopUserId || row.winnerUserId || row.winnerId || row.winner || '');
-    }
-
-    function rowLoserId(row) {
-      return String(row.loseSoopUserId || row.loserSoopUserId || row.loseUserId || row.loserUserId || row.loserId || '');
-    }
-
-    function rowWinnerName(row) {
-      return String(row.winnerPlayer || row.winnerName || row.winPlayer || row.winName || '').trim();
-    }
-
-    function rowLoserName(row) {
-      return String(row.losePlayer || row.loserPlayer || row.loseName || row.loserName || '').trim();
-    }
-
-    function playerRef(playerOrUserId) {
-      if (playerOrUserId && typeof playerOrUserId === 'object') {
-        return {
-          userId: String(extractSoopUserId(playerOrUserId) || playerOrUserId.userId || ''),
-          name: String(playerOrUserId.name || '').trim()
-        };
-      }
-      return { userId: String(playerOrUserId || ''), name: '' };
-    }
-
-    function rowWinnerMatches(row, playerOrUserId) {
-      const ref = playerRef(playerOrUserId);
-      if (ref.userId && rowWinnerId(row) === ref.userId) return true;
-      return Boolean(ref.name && rowWinnerName(row) === ref.name);
-    }
-
-    function rowLoserMatches(row, playerOrUserId) {
-      const ref = playerRef(playerOrUserId);
-      if (ref.userId && rowLoserId(row) === ref.userId) return true;
-      return Boolean(ref.name && rowLoserName(row) === ref.name);
-    }
-
-    function rowOpponentName(row, playerOrUserId) {
-      if (rowWinnerMatches(row, playerOrUserId)) return rowLoserName(row) || row.opponentName || row.opponentPlayer || '';
-      if (rowLoserMatches(row, playerOrUserId)) return rowWinnerName(row) || row.opponentName || row.opponentPlayer || '';
-      return row.opponentName || row.opponentPlayer || '';
-    }
-
-    function rowOpponentRace(row, playerOrUserId) {
-      if (rowWinnerMatches(row, playerOrUserId)) return row.loseRace || row.loserRace || row.opponentRace || '';
-      if (rowLoserMatches(row, playerOrUserId)) return row.winnerRace || row.winRace || row.opponentRace || '';
-      return row.opponentRace || '';
-    }
-
-    function rowIsWin(row, playerOrUserId) {
-      if (rowWinnerId(row) || rowWinnerName(row)) return rowWinnerMatches(row, playerOrUserId);
-      return String(row.result || row.win || '').toLowerCase() === 'win' || row.isWin === true;
-    }
-
-    function monthRows(rows, standardMonthValue) {
-      const prefix = String(standardMonthValue || '').slice(0, 7);
-      return rows.filter(function(row) { return rowDate(row).startsWith(prefix); });
-    }
-
-    function headToHeadKey(player, opponent, period) {
-      return safeKey([player.userId, player.race, opponent.userId, opponent.race, period].join('_'));
-    }
-
-    function storedHeadToHead(player, opponent, period) {
-      const data = firebaseState.headToHead || {};
-      const direct = data[headToHeadKey(player, opponent, period)] || data[headToHeadKey(player, opponent, 'ALL')];
-      const reverse = data[headToHeadKey(opponent, player, period)] || data[headToHeadKey(opponent, player, 'ALL')];
-      if (direct) return { player1Wins: Number(direct.player1Wins || direct.wins || 0), player2Wins: Number(direct.player2Wins || direct.losses || 0), hasData: true, source: 'stored' };
-      if (reverse) return { player1Wins: Number(reverse.player2Wins || reverse.losses || 0), player2Wins: Number(reverse.player1Wins || reverse.wins || 0), hasData: true, source: 'stored' };
-      return null;
-    }
-
-    function applyFirebasePlayers(players) {
-      if (Array.isArray(players) && players.length) {
-        tierData = applyLiveStatus(players, firebaseState.liveStatus);
-      } else {
-        tierData = applyLiveStatus(tierData, firebaseState.liveStatus);
-      }
-    }
-
-    function refreshFirebaseView(options) {
-      const opts = options || {};
-      render();
-      if (activeRecordKey && opts.reloadRecord !== false) loadRecord();
-      if (selection.playerKey && selection.opponentKey && opts.reloadHead !== false) loadHeadToHead();
-    }
-
-    function normalizeFirebaseSnapshot(data) {
-      const players = normalizeList(data.players || data.tierData || data.members);
-      firebaseState.meta = data.meta || {};
-      firebaseState.records = {};
-      firebaseState.recordLoaded = {};
-      firebaseState.winRates = data.winRates || data.winRate || {};
-      firebaseState.headToHead = data.headToHead || data.headToHeadSummary || {};
-      firebaseState.liveStatus = data.liveStatus || data.statuses || {};
-      applyFirebasePlayers(players);
-    }
-
-    function initFirebaseTierData() {
-      if (!window.firebase || !window.firebase.database) return;
-      try {
-        if (!window.firebase.apps.length) window.firebase.initializeApp(firebaseConfig);
-        firebaseDb = window.firebase.database();
-        firebaseState.ready = true;
-
-        const rootRef = firebaseDb.ref(FIREBASE_ROOT);
-
-        rootRef.child('meta').on('value', function(snapshot) {
-          firebaseState.meta = snapshot.val() || {};
-          refreshFirebaseView({ reloadRecord: false, reloadHead: false });
-        });
-
-        rootRef.child('players').on('value', function(snapshot) {
-          const players = normalizeList(snapshot.val());
-          applyFirebasePlayers(players);
-          refreshFirebaseView({ reloadRecord: false, reloadHead: false });
-        });
-
-        rootRef.child('liveStatus').on('value', function(snapshot) {
-          firebaseState.liveStatus = snapshot.val() || {};
-          applyFirebasePlayers(tierData);
-          refreshFirebaseView({ reloadRecord: false, reloadHead: false });
-        });
-
-        rootRef.child('winRates').on('value', function(snapshot) {
-          firebaseState.winRates = snapshot.val() || {};
-        });
-
-        rootRef.child('headToHead').on('value', function(snapshot) {
-          firebaseState.headToHead = snapshot.val() || {};
-          if (selection.playerKey && selection.opponentKey) loadHeadToHead();
-        });
-      } catch (error) {
-        firebaseState.ready = false;
-      }
-    }
-
-    function icon(name) {
-      const icons = {
-        star: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"></path></svg>',
-        refresh: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.6-6.4"></path><path d="M21 3v6h-6"></path></svg>',
-        home: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12 3 12 12 3 21 12 19 12"></path><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"></path><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"></path></svg>'
-      };
-      return icons[name] || '';
-    }
-
-    function timeText() {
-      const m = Math.floor(state.seconds / 60);
-      const s = state.seconds % 60;
-      return m + '분 ' + String(s).padStart(2, '0') + '초';
-    }
-
-    function filteredData() {
-      const liveOnly = document.getElementById('liveOnly').checked;
-      const race = document.getElementById('raceFilter').value;
-      const tier = tierFilter.value;
-      const q = document.getElementById('searchInput').value.trim().toLowerCase();
-      return tierData.filter(function(player) {
-        if (liveOnly && !player.live) return false;
-        if (race !== 'all' && player.race !== race) return false;
-        if (tier !== 'all' && player.tier !== tier) return false;
-        if (q && !String(player.name || '').toLowerCase().includes(q)) return false;
-        return true;
-      });
-    }
-
-    function groupedByTier(players) {
-      const groups = new Map(tierOrder.map(function(tier) { return [tier, []]; }));
-      players.forEach(function(player) {
-        if (!groups.has(player.tier)) groups.set(player.tier, []);
-        groups.get(player.tier).push(player);
-      });
-      return groups;
-    }
-
-    function playerKey(player) {
-      return [player.tier, player.name, player.station || player.elo || player.image].join('|');
-    }
-
-    function playerByKey(key) {
-      return tierData.find(function(player) { return playerKey(player) === key; });
-    }
-
-    function playerCard(player) {
-      const academy = player.academy && isSafeImage(player.academy.image) ? '<span class="academy-badge" title="' + escapeAttr(player.academy.name) + '"><img src="' + escapeAttr(player.academy.image) + '" alt="' + escapeAttr(player.academy.name) + '"></span>' : '';
-      const live = player.live ? '<span class="live-badge"><span class="live-dot"></span>LIVE</span>' : '';
-      const win = player.winRate ? '<span class="win-rate">' + escapeHtml(player.winRate) + '</span>' : '';
-      const key = playerKey(player);
-      const selected = key === selection.playerKey || key === selection.opponentKey;
-      const record = player.elo ? '<button class="card-action record-action" type="button" data-player-key="' + escapeAttr(key) + '">전적보기</button>' : '<span class="card-action" aria-disabled="true">전적보기</span>';
-      const broadcast = player.live && player.broadcastUrl ? '<a class="card-action" href="' + escapeAttr(player.broadcastUrl) + '" target="_blank" rel="noopener">방송바로가기</a>' : '<span class="card-action" aria-disabled="true">방송바로가기</span>';
-      const head = player.elo ? '<button class="card-action head-action" type="button" data-player-key="' + escapeAttr(key) + '">상대전적</button>' : '<span class="card-action" aria-disabled="true">상대전적</span>';
-      const eloBadge = player.elo ? '<a class="elo-badge" href="' + escapeAttr(player.elo) + '" target="_blank" rel="noopener" title="ELO 사이트 이동">eb</a>' : '<span class="elo-badge disabled" title="ELO 링크 없음">eb</span>';
-      return '<article class="player-card race-' + player.race + (player.live ? ' live' : '') + (selected ? ' is-selected' : '') + '" title="' + escapeAttr(player.name + ' ' + player.race) + '">' +
-        '<div class="player-image">' + academy + live + win + '<img class="main-img" src="' + escapeAttr(player.image) + '" alt="' + escapeAttr(player.name) + '" loading="lazy">' +
-        '<div class="player-actions">' + record + broadcast + head + '</div></div>' +
-        '<div class="player-info"><a href="' + escapeAttr(player.station) + '" target="_blank" rel="noopener" title="숲 방송국 이동">' + icon('home') + '</a>' +
-        '<div class="player-name">' + escapeHtml(player.name) + ' ' + escapeHtml(player.race) + '</div>' +
-        eloBadge + '</div>' +
-        '</article>';
-    }
-
-    function renderPlayers(players) {
-      if (!players.length) return '<div class="empty"></div>';
-      if (!document.getElementById('raceSplit').checked) return players.map(playerCard).join('');
-      return raceOrder.map(function(race) {
-        const racePlayers = players.filter(function(player) { return player.race === race; });
-        if (!racePlayers.length) return '';
-        return '<div class="race-group-title"><span class="race-dot ' + race + '"></span>' + raceName[race] + '</div>' + racePlayers.map(playerCard).join('');
-      }).join('');
-    }
-
-    function render() {
-      const filteredPlayers = filteredData();
-      const groups = groupedByTier(filteredPlayers);
-      const selectedTier = tierFilter.value;
-      if (!filteredPlayers.length) {
-        tierStack.innerHTML = '<div class="empty tier-empty-message">조건에 맞는 플레이어가 없습니다.</div>';
-        renderSelection();
-        return;
-      }
-      const visibleTiers = selectedTier === 'all'
-        ? tierOrder.filter(function(tier) { return (groups.get(tier) || []).length; })
-        : [selectedTier];
-      tierStack.innerHTML = visibleTiers.map(function(tier) {
-        const id = 'tier-' + encodeURIComponent(tier);
-        const players = groups.get(tier) || [];
-        return '<section class="tier-section" id="' + id + '">' +
-          '<div class="tier-head"><div class="tier-title"><span>' + tier + '</span></div></div>' +
-          '<div class="players">' + renderPlayers(players) + '</div></section>';
-      }).join('');
-      renderSelection();
-    }
-
-    function toggleHeadSelection(key) {
-      if (selection.playerKey === key) {
-        selection.playerKey = '';
-      } else if (selection.opponentKey === key) {
-        selection.opponentKey = '';
-      } else if (!selection.playerKey) {
-        selection.playerKey = key;
-      } else {
-        selection.opponentKey = key;
-      }
-      selection.result = null;
-      render();
-      loadHeadToHead();
-    }
-
-    function clearHeadSelection() {
-      selection.playerKey = '';
-      selection.opponentKey = '';
-      selection.result = null;
-      renderSelection();
-      render();
-    }
-
-    function playerEloLink(player, label, className) {
-      if (!player || !player.elo) return '';
-      return '<a class="' + (className || 'record-link') + '" href="' + escapeAttr(player.elo) + '" target="_blank" rel="noopener">' + escapeHtml(label || (player.name + ' ELO')) + '</a>';
-    }
-
-    function renderSelection() {
-      const player = playerByKey(selection.playerKey);
-      const opponent = playerByKey(selection.opponentKey);
-      selectionPanel.hidden = !player && !opponent;
-      if (!player && !opponent) return;
-      const hasResult = selection.result && selection.result.hasData !== false;
-      const score = selection.loading
-        ? '<span>불러오는 중</span>'
-        : hasResult
-          ? '<strong>' + Number(selection.result.player1Wins || 0) + '</strong><span>VS</span><strong>' + Number(selection.result.player2Wins || 0) + '</strong>'
-          : '<span>데이터 없음</span><small>아래 ELO 링크로 확인</small>';
-      selectionBody.innerHTML = compactPlayer(player) + '<div class="selection-score' + (hasResult || selection.loading ? '' : ' is-missing') + '">' + score + '</div>' + compactPlayer(opponent);
-      const links = player && opponent
-        ? '<div class="selection-links">' + playerEloLink(player, player.name + ' ELO', 'selection-link') + playerEloLink(opponent, opponent.name + ' ELO', 'selection-link') + '</div>'
-        : '';
-      selectionHint.innerHTML = player && opponent ? links : '상대 플레이어를 선택해주세요';
-    }
-
-    function compactPlayer(player) {
-      if (!player) return '<div class="selection-empty">선택 전</div>';
-      return '<div class="selection-player">' + escapeHtml(player.name) + ' ' + escapeHtml(player.race) + '</div>';
-    }
-
-    function headDates(period) {
-      const first = new Date(currentYear, currentMonth - 1, 1);
-      const format = function(date) {
-        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-01';
-      };
-      if (period === 'ALL') {
-        const years = [];
-        for (let year = 2018; year <= currentYear; year += 1) years.push(String(year));
-        return { timeType: 'YEAR', standardDates: years.join(',') };
-      }
-      const count = period === 'LAST_2_MONTHS' ? 2 : period === 'LAST_1_MONTHS' ? 1 : 3;
-      return {
-        timeType: 'MONTH',
-        standardDates: Array.from({ length: count }, function(_, index) {
-          return format(new Date(first.getFullYear(), first.getMonth() - index, 1));
-        }).join(',')
-      };
-    }
-
-    function headMonthPrefixes(period) {
-      if (period === 'ALL') return null;
-      const count = period === 'LAST_2_MONTHS' ? 2 : period === 'LAST_1_MONTHS' ? 1 : 3;
-      return Array.from({ length: count }, function(_, index) {
-        const date = new Date(currentYear, currentMonth - 1 - index, 1);
-        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
-      });
-    }
-
-    function rowMatchesOpponent(row, player, opponent) {
-      if (rowContainsPlayer(row, opponent)) return true;
-      const name = rowOpponentName(row, player).trim();
-      return Boolean(name && name === opponent.name);
-    }
-
-    function inHeadPeriod(row, period) {
-      const prefixes = headMonthPrefixes(period);
-      if (!prefixes) return true;
-      const date = rowDate(row);
-      return prefixes.some(function(prefix) { return date.startsWith(prefix); });
-    }
-
-    async function loadHeadToHead() {
-      const seq = ++headLoadSeq;
-      const playerKeySnapshot = selection.playerKey;
-      const opponentKeySnapshot = selection.opponentKey;
-      const player = playerByKey(playerKeySnapshot);
-      const opponent = playerByKey(opponentKeySnapshot);
-      if (!player || !opponent) {
-        renderSelection();
-        return;
-      }
-      selection.loading = true;
-      renderSelection();
-      const stored = storedHeadToHead(player, opponent, headPeriod.value);
-      if (stored) {
-        if (seq !== headLoadSeq || selection.playerKey !== playerKeySnapshot || selection.opponentKey !== opponentKeySnapshot) return;
-        selection.result = stored;
-        selection.loading = false;
-        renderSelection();
-        return;
-      }
-      const score = { player1Wins: 0, player2Wins: 0, hasData: false, source: 'computed' };
-      let matchedRows = 0;
-      const rows = await ensureRecordBucket(player, player.race);
-      if (seq !== headLoadSeq || selection.playerKey !== playerKeySnapshot || selection.opponentKey !== opponentKeySnapshot) return;
-      rows.forEach(function(row) {
-        if (!inHeadPeriod(row, headPeriod.value) || !rowMatchesOpponent(row, player, opponent)) return;
-        matchedRows += 1;
-        if (rowIsWin(row, player)) score.player1Wins += 1;
-        else score.player2Wins += 1;
-      });
-      score.hasData = matchedRows > 0;
-      selection.result = score;
-      selection.loading = false;
-      renderSelection();
-    }
-
-    function openRecord(key) {
-      const player = playerByKey(key);
-      if (!player) return;
-      activeRecordKey = key;
-      recordRace.value = player.race;
-      recordYear.value = String(currentYear);
-      recordMonth.value = String(currentMonth);
-      recordDialog.showModal();
-      loadRecord();
-    }
-
-    function standardMonth() {
-      return recordYear.value + '-' + String(recordMonth.value).padStart(2, '0') + '-01';
-    }
-
-    async function loadRecord() {
-      const seq = ++recordLoadSeq;
-      const player = playerByKey(activeRecordKey);
-      if (!player) return;
-
-      recordTitle.textContent = player.name + ' ' + recordYear.value + '년 ' + recordMonth.value + '월 전적';
-      recordUpdated.textContent = '불러오는 중';
-      recordStats.innerHTML = '<div class="record-empty">Firebase에서 해당 선수 전적만 불러오는 중입니다.</div>';
-      recordTable.innerHTML = '<div class="record-empty">잠시만 기다려주세요.</div>';
-
-      const rows = (await ensureRecordBucket(player, recordRace.value))
-        .slice()
-        .sort(function(a, b) { return rowDate(b).localeCompare(rowDate(a)); });
-
-      if (seq !== recordLoadSeq || !activeRecordKey) return;
-
-      const monthlyRows = monthRows(rows, standardMonth());
-      recordUpdated.textContent = formatDateTime(firebaseState.meta.eloboardUpdatedAt || firebaseState.meta.updatedAt || firebaseState.meta.syncedAt || '');
-      if (!rows.length) {
-        const link = playerEloLink(player, player.name + ' ELOBOARD 전적 보기');
-        recordStats.innerHTML = '<div class="record-empty record-fallback">이 선수의 동기화된 전적 데이터가 없습니다.' + (link ? '<div>' + link + '</div>' : '') + '</div>';
-        recordTable.innerHTML = '<div class="record-empty record-fallback">전적은 전체 records가 아니라 선택한 선수 경로만 읽도록 최적화되어 있습니다.' + (link ? '<div>' + link + '</div>' : '') + '</div>';
-        return;
-      }
-      renderRecordStats(computeRecordStats(monthlyRows, player));
-      renderRecordTable(rows.slice(0, 20), player);
-    }
-
-    function computeRecordStats(rows, player) {
-      const stats = { A: emptyStat('A'), Z: emptyStat('Z'), T: emptyStat('T'), P: emptyStat('P') };
-      rows.forEach(function(row) {
-        const code = rowOpponentRace(row, player);
-        const win = rowIsWin(row, player);
-        ['A', code].forEach(function(key) {
-          if (!stats[key]) return;
-          stats[key].totalCount += 1;
-          if (win) stats[key].wins += 1;
-          else stats[key].losses += 1;
-          stats[key].winRate = stats[key].totalCount ? (stats[key].wins / stats[key].totalCount) * 100 : 0;
-        });
-      });
-      return ['A', 'Z', 'T', 'P'].map(function(code) { return stats[code]; });
-    }
-
-    function renderRecordStats(rows) {
-      const stats = { A: emptyStat('A'), Z: emptyStat('Z'), T: emptyStat('T'), P: emptyStat('P') };
-      rows.forEach(function(row) {
-        if (stats[row.opponentRace]) stats[row.opponentRace] = row;
-      });
-      recordStats.innerHTML = ['A', 'Z', 'T', 'P'].map(function(code) {
-        const stat = stats[code];
-        const rate = Number(stat.winRate || 0);
-        const cls = rate >= 60 ? 'high' : rate >= 50 ? 'mid' : 'low';
-        return '<div class="record-stat"><div class="record-stat-label">' + opponentRaceName[code] + '</div>' +
-          '<div class="record-stat-total">' + Number(stat.totalCount || 0) + ' 게임</div>' +
-          '<div class="record-stat-rate ' + cls + '">' + rate.toFixed(1) + '%</div>' +
-          '<div class="record-stat-label">승 ' + Number(stat.wins || 0) + ' · 패 ' + Number(stat.losses || 0) + '</div>' +
-          '<div class="record-bar"><span class="' + cls + '" style="width:' + Math.max(0, Math.min(100, rate)) + '%; background: currentColor"></span></div></div>';
-      }).join('');
-    }
-
-    function emptyStat(code) {
-      return { opponentRace: code, totalCount: 0, wins: 0, losses: 0, winRate: 0 };
-    }
-
-    function renderRecordTable(rows, player) {
-      if (!rows.length) {
-        recordTable.innerHTML = '<div class="record-empty">표시할 전적이 없습니다.</div>';
-        return;
-      }
-      recordTable.innerHTML = '<table class="record-table"><thead><tr><th>날짜</th><th>승패</th><th>상대</th><th>맵</th></tr></thead><tbody>' +
-        rows.map(function(row) {
-          const win = rowIsWin(row, player);
-          const opponent = rowOpponentName(row, player);
-          const opponentRace = rowOpponentRace(row, player);
-          const resultClass = win ? 'record-win' : 'record-lose';
-          const resultText = win ? '승' : '패';
-          return '<tr class="' + (win ? 'record-row-win' : 'record-row-lose') + '">' +
-            '<td class="' + resultClass + '">' + formatDate(row.date || row.standardDate) + '</td>' +
-            '<td><span class="record-result-badge ' + (win ? 'win' : 'lose') + '">' + resultText + '</span></td>' +
-            '<td class="' + resultClass + '">' + escapeHtml((opponent || '') + ' ' + (opponentRace || '')) + '</td>' +
-            '<td>' + escapeHtml(row.map || row.mapName || '') + '</td></tr>';
-        }).join('') + '</tbody></table>';
-    }
-
-    function updateTimers() {
-      document.querySelectorAll('.timer').forEach(function(timer) { timer.textContent = timeText(); });
-    }
-
-    function formatDate(value) {
-      const text = String(value || '');
-      if (!text) return '-';
-      return text.slice(0, 10).replace(/-/g, '.');
-    }
-
-    function formatDateTime(value) {
-      const text = String(value || '');
-      if (!text) return 'Firebase 동기화 대기';
-      return text.replace('T', ' ').slice(0, 16);
-    }
-
-    function escapeHtml(value) {
-      return String(value || '').replace(/[&<>"]/g, function(ch) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]; });
-    }
-    function escapeAttr(value) { return escapeHtml(value).replace(/'/g, '&#39;'); }
-
-    recordYear.innerHTML = years.map(function(year) { return '<option value="' + year + '">' + year + '년</option>'; }).join('');
-    recordMonth.innerHTML = Array.from({ length: 12 }, function(_, index) {
-      const month = index + 1;
-      return '<option value="' + month + '">' + month + '월</option>';
-    }).join('');
-
-    ['liveOnly', 'raceSplit', 'raceFilter', 'tierFilter', 'searchInput'].forEach(function(id) {
-      document.getElementById(id).addEventListener(id === 'searchInput' ? 'input' : 'change', render);
-    });
-    document.getElementById('clearSelection').addEventListener('click', clearHeadSelection);
-    document.getElementById('closeRecord').addEventListener('click', function() { activeRecordKey = ''; recordLoadSeq += 1; recordDialog.close(); });
-    recordDialog.addEventListener('close', function() { activeRecordKey = ''; recordLoadSeq += 1; });
-    headPeriod.addEventListener('change', loadHeadToHead);
-    [recordRace, recordYear, recordMonth].forEach(function(control) { control.addEventListener('change', loadRecord); });
-    tierStack.addEventListener('click', function(event) {
-      const recordButton = event.target.closest('.record-action');
-      if (recordButton) {
-        openRecord(recordButton.dataset.playerKey);
-        return;
-      }
-      const headButton = event.target.closest('.head-action');
-      if (headButton) {
-        toggleHeadSelection(headButton.dataset.playerKey);
-        return;
-      }
-      const card = event.target.closest('.player-card');
-      if (!card || event.target.closest('a, button')) return;
-      const wasOpen = card.classList.contains('actions-open');
-      tierStack.querySelectorAll('.player-card.actions-open').forEach(function(openCard) { openCard.classList.remove('actions-open'); });
-      if (!wasOpen) card.classList.add('actions-open');
-    });
-    document.addEventListener('click', function(event) {
-      if (event.target.closest('.player-card')) return;
-      tierStack.querySelectorAll('.player-card.actions-open').forEach(function(openCard) { openCard.classList.remove('actions-open'); });
-    });
-    render();
-    initFirebaseTierData();
+    const FIREBASE_ROOT = 'starcraftTier/current';
+    const firebaseConfig = { apiKey:"AIzaSyDG_A78a87l_vc3BdbAk-mX5DmoHOzMWNA", authDomain:"jddcontens.firebaseapp.com", databaseURL:"https://jddcontens-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"jddcontens", storageBucket:"jddcontens.firebasestorage.app", messagingSenderId:"173723966783", appId:"1:173723966783:web:ccd54e5417327b2600478a", measurementId:"G-5WCBP7YDRW" };
+    const firebaseState = { ready:false, meta:{}, records:{}, winRates:{}, headToHead:{}, liveStatus:{}, recordLoaded:{} };
+    const recordLoadPromises = {};
+    let firebaseDb = null;
+
+    function safeKey(value){ return String(value||'').replace(/[.#$/\[\]]/g,'_'); }
+    function normalizeList(value){ if(Array.isArray(value)) return value; if(!value || typeof value !== 'object') return []; if(Array.isArray(value.data)) return value.data; if(Array.isArray(value.rows)) return value.rows; return Object.values(value); }
+    function playerDataKey(player){ return safeKey([player.userId || player.name, player.race || ''].join('_')); }
+    function extractSoopUserId(player){ if(player && player.userId) return String(player.userId); const stationMatch=String((player&&player.station)||'').match(/sooplive\.com\/station\/([^/?#]+)/i); if(stationMatch) return stationMatch[1]; const broadcastMatch=String((player&&player.broadcastUrl)||'').match(/play\.sooplive\.com\/([^/?#]+)/i); if(broadcastMatch) return broadcastMatch[1]; const imageMatch=String((player&&player.image)||'').match(/\/LOGO\/[^/]+\/([^/]+)\//i); if(imageMatch) return imageMatch[1]; return ''; }
+    function isLiveMetaKey(key){ return String(key||'').startsWith('__') || ['meta','updatedAt','checkedAt','source'].includes(String(key||'')); }
+    function getLiveInfo(player, liveMap){ const userId=extractSoopUserId(player); const keys=[userId,userId?safeKey(userId):'',playerDataKey({userId:userId || player.userId || player.name,race:player.race}),playerDataKey(player)].filter(Boolean); for(const key of keys){ if(Object.prototype.hasOwnProperty.call(liveMap||{},key)) return liveMap[key]; } return null; }
+    function hasUsableLiveMap(liveMap){ return Object.keys(liveMap||{}).some(key=>!isLiveMetaKey(key)); }
+    function canMatchAnyLiveStatus(players, liveMap){ if(!hasUsableLiveMap(liveMap)) return false; return players.some(player=>getLiveInfo(player,liveMap)!==null); }
+    function livePatch(player, liveMap, forceOfflineWhenMissing){ const userId=extractSoopUserId(player); const liveInfo=getLiveInfo(player,liveMap||{}); const basePlayer=userId&&!player.userId?{...player,userId}:player; if(liveInfo===null || liveInfo===undefined){ return forceOfflineWhenMissing && userId ? {...basePlayer,live:false,broad:null,broadcastUrl:''} : basePlayer; } const isLive=typeof liveInfo==='boolean'?liveInfo:Boolean(liveInfo.live || liveInfo.status==='live' || liveInfo.broadNo || liveInfo.broadcastUrl); const broadNo=typeof liveInfo==='object'?(liveInfo.broadNo || liveInfo.broad_no || ''):''; return {...basePlayer,live:isLive,broad:typeof liveInfo==='object'?liveInfo:basePlayer.broad,broadcastUrl:isLive?((typeof liveInfo==='object' && liveInfo.broadcastUrl) || (broadNo?'https://play.sooplive.com/'+userId+'/'+broadNo:basePlayer.broadcastUrl || basePlayer.liveUrl || (userId?'https://play.sooplive.com/'+userId:''))):''}; }
+    function applyLiveStatus(players, liveMap){ if(!Array.isArray(players)||!players.length) return players; if(!hasUsableLiveMap(liveMap)) return players.map(player=>{ const userId=extractSoopUserId(player); return userId&&!player.userId?{...player,userId}:player; }); const matched=canMatchAnyLiveStatus(players,liveMap); return players.map(player=>livePatch(player,liveMap,matched)); }
+
+    function extractEloMeta(player){ const url=String((player&&player.elo)||''); const wrMatch=url.match(/[?&]wr_id=([^&#]+)/i); const tableMatch=url.match(/[?&]bo_table=([^&#]+)/i); const sectionMatch=url.match(/eloboard\.com\/([^/]+)\//i); return { wrId:wrMatch?decodeURIComponent(wrMatch[1]):'', table:tableMatch?decodeURIComponent(tableMatch[1]):'', section:sectionMatch?decodeURIComponent(sectionMatch[1]):'' }; }
+    function recordKeysFor(player,race){ const userId=extractSoopUserId(player)||player.userId||''; const elo=extractEloMeta(player); return [playerDataKey({userId,race}),safeKey(String(userId||'')+'_'+race),String(userId||'')+'_'+race,userId,playerDataKey({userId:player.name,race}),safeKey(String(player.name||'')+'_'+race),player.name,elo.wrId?safeKey('wr_'+elo.wrId+'_'+race):'',elo.wrId?safeKey(elo.wrId+'_'+race):'',elo.wrId||'',elo.table&&elo.wrId?safeKey(elo.table+'_'+elo.wrId+'_'+race):'',elo.section&&elo.table&&elo.wrId?safeKey(elo.section+'_'+elo.table+'_'+elo.wrId+'_'+race):''].filter(Boolean).map(String); }
+    function normalizeRecordEntry(entry,race){ if(!entry) return []; if(Array.isArray(entry)) return entry; if(typeof entry!=='object') return []; if(entry[race]) return normalizeList(entry[race]); if(Array.isArray(entry.data)) return entry.data; if(Array.isArray(entry.rows)) return entry.rows; if(Array.isArray(entry.list)) return entry.list; if(Array.isArray(entry.records)) return entry.records; const collected=[]; collectRecordRows(entry,collected,0); return collected; }
+    function lookupRecordEntry(records,keys,race,depth){ if(!records||typeof records!=='object'||depth>3) return []; for(const key of keys){ if(!Object.prototype.hasOwnProperty.call(records,key)) continue; const direct=normalizeRecordEntry(records[key],race); if(direct.length) return direct; } for(const value of Object.values(records)){ if(!value||typeof value!=='object'||Array.isArray(value)) continue; const nested=lookupRecordEntry(value,keys,race,depth+1); if(nested.length) return nested; } return []; }
+    function looksLikeRecordRow(row){ return row&&typeof row==='object'&&(row.date||row.standardDate||row.playedAt||row.createdAt||row.winnerPlayer||row.winnerName||row.losePlayer||row.loserPlayer||row.opponentName||row.map||row.mapName||row.result||row.isWin!==undefined); }
+    function collectRecordRows(value,output,depth){ if(!value||depth>5) return; if(Array.isArray(value)){ value.forEach(item=>{ if(looksLikeRecordRow(item)) output.push(item); else collectRecordRows(item,output,depth+1); }); return; } if(typeof value!=='object') return; if(Array.isArray(value.data)||Array.isArray(value.rows)||Array.isArray(value.list)||Array.isArray(value.records)){ ['data','rows','list','records'].forEach(key=>collectRecordRows(value[key],output,depth+1)); return; } Object.values(value).forEach(child=>collectRecordRows(child,output,depth+1)); }
+    function rowIds(row){ return [row.winnerSoopUserId,row.winnerUserId,row.winnerId,row.winner,row.loseSoopUserId,row.loserSoopUserId,row.loseUserId,row.loserUserId,row.loserId,row.playerSoopUserId,row.playerUserId,row.playerId,row.opponentSoopUserId,row.opponentUserId,row.opponentId].map(v=>String(v||'')).filter(Boolean); }
+    function rowNames(row){ return [row.winnerPlayer,row.winnerName,row.winPlayer,row.winName,row.losePlayer,row.loserPlayer,row.loseName,row.loserName,row.playerName,row.bjName,row.targetName,row.opponentName,row.opponentPlayer].map(v=>String(v||'').trim()).filter(Boolean); }
+    function rowContainsPlayer(row,player){ const userId=String(extractSoopUserId(player)||player.userId||''); if(userId&&rowIds(row).includes(userId)) return true; const names=rowNames(row); return Boolean(player.name&&names.includes(String(player.name).trim())); }
+    function rowPlayerRace(row,player){ if(rowWinnerMatches(row,player)) return row.winnerRace||row.winRace||row.playerRace||''; if(rowLoserMatches(row,player)) return row.loseRace||row.loserRace||row.playerRace||''; return row.playerRace||row.myRace||''; }
+    function recordBucket(player,race){ const records=firebaseState.records||{}; const hydrated=player.userId?player:{...player,userId:extractSoopUserId(player)}; const keys=recordKeysFor(hydrated,race); const directRows=lookupRecordEntry(records,keys,race,0); if(directRows.length) return directRows; const allRows=[]; keys.forEach(key=>{ if(Object.prototype.hasOwnProperty.call(records,key)) collectRecordRows(records[key],allRows,0); }); if(!allRows.length) return []; return allRows.filter(row=>{ if(!rowContainsPlayer(row,hydrated)) return false; const ownRace=String(rowPlayerRace(row,hydrated)||'').trim(); return !ownRace || ownRace===race; }); }
+    async function fetchRecordBucket(player,race){ if(!firebaseDb) return []; const hydrated=player.userId?player:{...player,userId:extractSoopUserId(player)}; const keys=recordKeysFor(hydrated,race); for(const key of keys){ const cached=normalizeRecordEntry(firebaseState.records[key],race); if(cached.length) return cached; } for(const key of keys){ if(!key) continue; if(!recordLoadPromises[key]){ recordLoadPromises[key]=firebaseDb.ref(FIREBASE_ROOT+'/records/'+key).once('value').then(snapshot=>{ const value=snapshot.val(); firebaseState.recordLoaded[key]=true; if(value!==null&&value!==undefined) firebaseState.records[key]=value; else if(!Object.prototype.hasOwnProperty.call(firebaseState.records,key)) firebaseState.records[key]=[]; return normalizeRecordEntry(firebaseState.records[key],race); }).catch(()=>{ firebaseState.recordLoaded[key]=true; return []; }).finally(()=>{ delete recordLoadPromises[key]; }); } const rows=await recordLoadPromises[key]; if(rows.length) return rows; } return recordBucket(hydrated,race); }
+    async function ensureRecordBucket(player,race){ const cached=recordBucket(player,race); if(cached.length) return cached; return fetchRecordBucket(player,race); }
+
+    function rowDate(row){ return String(row.date||row.standardDate||row.playedAt||row.createdAt||'').slice(0,10); }
+    function rowWinnerId(row){ return String(row.winnerSoopUserId||row.winnerUserId||row.winnerId||row.winner||''); }
+    function rowLoserId(row){ return String(row.loseSoopUserId||row.loserSoopUserId||row.loseUserId||row.loserUserId||row.loserId||''); }
+    function rowWinnerName(row){ return String(row.winnerPlayer||row.winnerName||row.winPlayer||row.winName||'').trim(); }
+    function rowLoserName(row){ return String(row.losePlayer||row.loserPlayer||row.loseName||row.loserName||'').trim(); }
+    function playerRef(playerOrUserId){ if(playerOrUserId&&typeof playerOrUserId==='object') return {userId:String(extractSoopUserId(playerOrUserId)||playerOrUserId.userId||''),name:String(playerOrUserId.name||'').trim()}; return {userId:String(playerOrUserId||''),name:''}; }
+    function rowWinnerMatches(row,playerOrUserId){ const ref=playerRef(playerOrUserId); if(ref.userId&&rowWinnerId(row)===ref.userId) return true; return Boolean(ref.name&&rowWinnerName(row)===ref.name); }
+    function rowLoserMatches(row,playerOrUserId){ const ref=playerRef(playerOrUserId); if(ref.userId&&rowLoserId(row)===ref.userId) return true; return Boolean(ref.name&&rowLoserName(row)===ref.name); }
+    function rowOpponentName(row,playerOrUserId){ if(rowWinnerMatches(row,playerOrUserId)) return rowLoserName(row)||row.opponentName||row.opponentPlayer||''; if(rowLoserMatches(row,playerOrUserId)) return rowWinnerName(row)||row.opponentName||row.opponentPlayer||''; return row.opponentName||row.opponentPlayer||''; }
+    function rowOpponentRace(row,playerOrUserId){ if(rowWinnerMatches(row,playerOrUserId)) return row.loseRace||row.loserRace||row.opponentRace||''; if(rowLoserMatches(row,playerOrUserId)) return row.winnerRace||row.winRace||row.opponentRace||''; return row.opponentRace||''; }
+    function rowIsWin(row,playerOrUserId){ if(rowWinnerId(row)||rowWinnerName(row)) return rowWinnerMatches(row,playerOrUserId); return String(row.result||row.win||'').toLowerCase()==='win'||row.isWin===true; }
+    function monthRows(rows,standardMonthValue){ const prefix=String(standardMonthValue||'').slice(0,7); return rows.filter(row=>rowDate(row).startsWith(prefix)); }
+    function headMonthPrefixes(){ const count=3; return Array.from({length:count},(_,i)=>{ const d=new Date(currentYear,currentMonth-1-i,1); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }); }
+    function inHeadPeriod(row){ const date=rowDate(row); return headMonthPrefixes().some(prefix=>date.startsWith(prefix)); }
+    function rowMatchesOpponent(row,player,opponent){ if(rowContainsPlayer(row,opponent)) return true; const name=rowOpponentName(row,player).trim(); return Boolean(name&&name===opponent.name); }
+    function headToHeadKey(player,opponent,period){ return safeKey([player.userId,player.race,opponent.userId,opponent.race,period].join('_')); }
+    function storedHeadToHead(player,opponent){ const data=firebaseState.headToHead||{}; const direct=data[headToHeadKey(player,opponent,'LAST_3_MONTHS')]||data[headToHeadKey(player,opponent,'ALL')]; const reverse=data[headToHeadKey(opponent,player,'LAST_3_MONTHS')]||data[headToHeadKey(opponent,player,'ALL')]; if(direct) return {player1Wins:Number(direct.player1Wins||direct.wins||0),player2Wins:Number(direct.player2Wins||direct.losses||0),hasData:true,source:'stored'}; if(reverse) return {player1Wins:Number(reverse.player2Wins||reverse.losses||0),player2Wins:Number(reverse.player1Wins||reverse.wins||0),hasData:true,source:'stored'}; return null; }
+
+    function applyFirebasePlayers(players){ if(Array.isArray(players)&&players.length) tierData=applyLiveStatus(players,firebaseState.liveStatus); else tierData=applyLiveStatus(tierData,firebaseState.liveStatus); }
+    function refreshFirebaseView(opts={}){ render(); if(activeRecordKey && opts.reloadRecord!==false) loadRecord(); if(activeRecordKey && selectedOpponentKey && opts.reloadHead!==false) loadHeadToHead(); }
+    function initFirebaseTierData(){ if(!window.firebase||!window.firebase.database) return; try{ if(!window.firebase.apps.length) window.firebase.initializeApp(firebaseConfig); firebaseDb=window.firebase.database(); firebaseState.ready=true; const rootRef=firebaseDb.ref(FIREBASE_ROOT); rootRef.child('meta').on('value',snapshot=>{firebaseState.meta=snapshot.val()||{}; refreshFirebaseView({reloadRecord:false,reloadHead:false});}); rootRef.child('players').on('value',snapshot=>{ const players=normalizeList(snapshot.val()); applyFirebasePlayers(players); refreshFirebaseView({reloadRecord:false,reloadHead:false});}); rootRef.child('liveStatus').on('value',snapshot=>{firebaseState.liveStatus=snapshot.val()||{}; applyFirebasePlayers(tierData); refreshFirebaseView({reloadRecord:false,reloadHead:false});}); rootRef.child('winRates').on('value',snapshot=>{firebaseState.winRates=snapshot.val()||{};}); rootRef.child('headToHead').on('value',snapshot=>{firebaseState.headToHead=snapshot.val()||{}; if(activeRecordKey&&selectedOpponentKey) loadHeadToHead();}); }catch(e){firebaseState.ready=false;} }
+
+    function playerKey(player){ return [player.tier,player.name,player.station||player.elo||player.image].join('|'); }
+    function playerByKey(key){ return tierData.find(player=>playerKey(player)===key); }
+    function escapeHtml(value){ return String(value||'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch])); }
+    function escapeAttr(value){ return escapeHtml(value).replace(/'/g,'&#39;'); }
+    function formatDate(value){ const text=String(value||''); if(!text) return '-'; return text.slice(0,10).replace(/-/g,'.'); }
+    function formatDateTime(value){ const text=String(value||''); if(!text) return '-'; return text.replace('T',' ').slice(0,16); }
+    function standardMonth(){ return recordYear.value+'-'+String(recordMonth.value).padStart(2,'0')+'-01'; }
+    function getBroadValue(player,names){ const broad=player.broad||{}; for(const name of names){ if(player[name]) return player[name]; if(broad&&broad[name]) return broad[name]; } return ''; }
+    function streamThumbnail(player){ return getBroadValue(player,['thumbnailUrl','thumbnail','thumb','broadThumb','snapshot','imageUrl']); }
+    function contentCategory(player){ const v=String(getBroadValue(player,['category','categoryName','game','gameName','title','broadTitle'])||''); if(!player.live) return ''; if(v.includes('스타')||v.toLowerCase().includes('star')) return '스타크래프트'; if(v) return v.length>8?v.slice(0,8):v; return '방송중'; }
+
+    function updateStats(){ const total=tierData.length; const live=tierData.filter(p=>p.live).length; document.getElementById('statTotal').textContent=total+'명'; document.getElementById('statLive').textContent=live+'명'; document.getElementById('statT').textContent=tierData.filter(p=>p.race==='T').length; document.getElementById('statZ').textContent=tierData.filter(p=>p.race==='Z').length; document.getElementById('statP').textContent=tierData.filter(p=>p.race==='P').length; document.getElementById('lastUpdated').textContent=formatDateTime(firebaseState.meta.eloboardUpdatedAt || firebaseState.meta.updatedAt || firebaseState.meta.syncedAt || new Date().toISOString()); }
+    function filteredData(){ const q=searchInput.value.trim().toLowerCase(); return tierData.filter(p=>{ if(filters.liveOnly&&!p.live) return false; if(filters.race!=='all'&&p.race!==filters.race) return false; if(filters.tier!=='all'&&p.tier!==filters.tier) return false; if(q){ const hay=[p.name,p.race,raceName[p.race],p.tier,extractSoopUserId(p)].join(' ').toLowerCase(); if(!hay.includes(q)) return false; } return true; }).sort((a,b)=>{ if(filters.liveFirst && a.tier===b.tier && a.live!==b.live) return a.live?-1:1; return 0; }); }
+    function groupedByTier(players){ const groups=new Map(tierOrder.map(t=>[t,[]])); players.forEach(p=>{ if(!groups.has(p.tier)) groups.set(p.tier,[]); groups.get(p.tier).push(p); }); return groups; }
+    function renderTierNav(){ tierNav.innerHTML=tierOrder.map(t=>'<button type="button" data-tier-nav="'+escapeAttr(t)+'" class="'+(filters.tier===t?'active':'')+'">'+escapeHtml(tierShort[t]||t.replace('티어',''))+'</button>').join(''); }
+    function renderSummary(count){ const chips=[]; if(filters.liveOnly) chips.push(['방송중만 보기','live']); if(filters.race!=='all') chips.push(['종족: '+raceName[filters.race], 'race']); if(filters.tier!=='all') chips.push(['티어: '+filters.tier, 'tier']); if(searchInput.value.trim()) chips.push(['검색: '+searchInput.value.trim(), 'search']); filterSummary.innerHTML='<span class="summary-label">필터 적용 결과</span><span class="chip">'+count+'명 표시중</span>' + chips.map(c=>'<span class="chip">'+escapeHtml(c[0])+' <button type="button" data-remove-filter="'+c[1]+'">×</button></span>').join(''); }
+    function tierStats(players){ return { total:players.length, live:players.filter(p=>p.live).length, T:players.filter(p=>p.race==='T').length, Z:players.filter(p=>p.race==='Z').length, P:players.filter(p=>p.race==='P').length }; }
+    function playerCard(player){ const key=playerKey(player); const thumb=player.live && streamThumbnail(player) ? streamThumbnail(player) : player.image; const profileMode=!(player.live && streamThumbnail(player)); const academy=player.academy && player.academy.image ? '<span class="academy" title="'+escapeAttr(player.academy.name||'')+'"><img src="'+escapeAttr(player.academy.image)+'" alt=""></span>' : ''; const live=player.live?'<span class="live-badge">LIVE</span>':'<span class="offline-dot"></span>'; const tag=player.live?'<span class="content-tag">'+escapeHtml(contentCategory(player))+'</span>':''; const broadcast=player.live && player.broadcastUrl ? '<a class="card-btn" href="'+escapeAttr(player.broadcastUrl)+'" target="_blank" rel="noopener">방송</a>' : ''; const station=player.station?'<a class="card-btn" href="'+escapeAttr(player.station)+'" target="_blank" rel="noopener">방송국</a>':''; const initial=String(player.name||'?').slice(0,1); return '<article class="player-card race-'+escapeAttr(player.race)+(player.live?' live':'')+(profileMode?' profile-mode':'')+'">'+'<div class="thumb" data-initial="'+escapeAttr(initial)+'">'+live+tag+academy+'<img class="'+(player.live&&!profileMode?'stream-thumb':'profile-thumb')+'" src="'+escapeAttr(thumb)+'" alt="'+escapeAttr(player.name)+'" loading="lazy" onerror="this.parentElement.classList.add(\'no-image\')"></div>'+'<div class="card-body"><div class="player-line"><span class="avatar" data-initial="'+escapeAttr(initial)+'"><img src="'+escapeAttr(player.image)+'" alt="" onerror="this.parentElement.classList.add(\'no-image\')"></span><div class="namebox"><div class="name">'+escapeHtml(player.name)+'</div><div class="tier-text">'+escapeHtml(player.tier)+'</div></div><span class="race-badge '+escapeAttr(player.race)+'">'+escapeHtml(player.race)+'</span></div><div class="card-actions"><button class="card-btn primary full record-action" type="button" data-player-key="'+escapeAttr(key)+'">전적 보기</button>'+station+broadcast+'</div></div></article>'; }
+    function render(){ updateStats(); renderTierNav(); document.querySelectorAll('.pill').forEach(btn=>{ const active=(btn.dataset.filter==='all'&&!filters.liveOnly&&filters.race==='all'&&filters.tier==='all'&&!searchInput.value.trim())||(btn.dataset.filter==='live'&&filters.liveOnly)||(btn.dataset.race&&filters.race===btn.dataset.race)||(btn.dataset.tier&&filters.tier===btn.dataset.tier); btn.classList.toggle('active',!!active); }); const players=filteredData(); renderSummary(players.length); if(!players.length){ tierStack.innerHTML='<div class="empty">조건에 맞는 플레이어가 없습니다.</div>'; return; } const groups=groupedByTier(players); const visible=filters.tier==='all'?tierOrder.filter(t=>(groups.get(t)||[]).length):[filters.tier]; tierStack.innerHTML=visible.map(t=>{ const list=groups.get(t)||[]; const s=tierStats(list); return '<section class="tier-section" id="tier-'+encodeURIComponent(t)+'"><div class="tier-head"><div class="tier-title-wrap"><div class="tier-title">'+escapeHtml(t)+'</div><div class="tier-meta"><span>전체 <b>'+s.total+'명</b></span><span class="live">방송중 '+s.live+'명</span><span class="T">T '+s.T+'</span><span class="Z">Z '+s.Z+'</span><span class="P">P '+s.P+'</span></div></div><div class="tier-tools"><label class="switch"><span>방송중 우선 정렬</span><input type="checkbox" class="live-first-toggle" '+(filters.liveFirst?'checked':'')+'><span class="switch-ui"></span></label></div></div><div class="players">'+list.map(playerCard).join('')+'</div></section>'; }).join(''); }
+
+    function setTab(name){ const head=name==='head'; tabOverall.classList.toggle('active',!head); tabHead.classList.toggle('active',head); overallPane.hidden=head; headPane.hidden=!head; if(head) renderHeadPane(); }
+    function openRecord(key){ const player=playerByKey(key); if(!player) return; activeRecordKey=key; selectedOpponentKey=''; recordAvatar.src=player.image; recordTitle.innerHTML=escapeHtml(player.name)+' <span class="race-badge '+escapeAttr(player.race)+'">'+escapeHtml(player.race)+'</span> <span style="font-size:20px;color:#69ef91">'+escapeHtml(player.tier)+'</span>'; recordRace.value=player.race; recordYear.value=String(currentYear); recordMonth.value=String(currentMonth); setTab('overall'); recordDialog.showModal(); loadRecord(); }
+    async function loadRecord(){ const seq=++recordLoadSeq; const player=playerByKey(activeRecordKey); if(!player) return; recordUpdated.textContent='전적 불러오는 중'; recordStats.innerHTML='<div class="record-empty">Firebase에서 해당 선수 전적만 불러오는 중입니다.</div>'; recordTable.innerHTML='<div class="record-empty">잠시만 기다려주세요.</div>'; const rows=(await ensureRecordBucket(player,recordRace.value)).slice().sort((a,b)=>rowDate(b).localeCompare(rowDate(a))); if(seq!==recordLoadSeq || !activeRecordKey) return; activeRecordRows=rows; recordUpdated.textContent='전적 업데이트: '+formatDateTime(firebaseState.meta.eloboardUpdatedAt || firebaseState.meta.updatedAt || firebaseState.meta.syncedAt || ''); if(!rows.length){ const link=playerEloLink(player,player.name+' ELOBOARD 전적 보기'); recordStats.innerHTML='<div class="record-empty">동기화된 전적 데이터가 없습니다.'+(link?'<div class="source-row">'+link+'</div>':'')+'</div>'; recordTable.innerHTML='<div class="record-empty">해당 선수 경로의 Firebase 전적을 찾지 못했습니다.</div>'; renderHeadPane(); return; } const monthly=monthRows(rows,standardMonth()); renderRecordStats(computeRecordStats(monthly,player)); renderRecordTable(rows.slice(0,24),player); renderHeadPane(); }
+    function computeRecordStats(rows,player){ const stats={A:emptyStat('A'),Z:emptyStat('Z'),T:emptyStat('T'),P:emptyStat('P')}; rows.forEach(row=>{ const code=rowOpponentRace(row,player); const win=rowIsWin(row,player); ['A',code].forEach(key=>{ if(!stats[key]) return; stats[key].totalCount+=1; if(win) stats[key].wins+=1; else stats[key].losses+=1; stats[key].winRate=stats[key].totalCount?(stats[key].wins/stats[key].totalCount)*100:0; }); }); return ['A','Z','T','P'].map(code=>stats[code]); }
+    function emptyStat(code){ return {opponentRace:code,totalCount:0,wins:0,losses:0,winRate:0}; }
+    function renderRecordStats(stats){ recordStats.innerHTML=stats.map(stat=>{ const rate=Number(stat.winRate||0); const cls=rate>=60?'high':rate>=50?'mid':'low'; return '<div class="record-stat"><div class="record-stat-label">'+opponentRaceName[stat.opponentRace]+'</div><div class="record-stat-total">'+Number(stat.totalCount||0)+'전</div><div class="record-stat-rate '+cls+'">'+rate.toFixed(1)+'%</div><div class="record-stat-label">승 '+Number(stat.wins||0)+' · 패 '+Number(stat.losses||0)+'</div><div class="record-bar"><span class="'+cls+'" style="width:'+Math.max(0,Math.min(100,rate))+'%;background:currentColor"></span></div></div>'; }).join(''); }
+    function renderRecordTable(rows,player){ if(!rows.length){ recordTable.innerHTML='<div class="record-empty">표시할 전적이 없습니다.</div>'; return; } recordTable.innerHTML='<table class="record-table"><thead><tr><th>날짜</th><th>상대</th><th>상대 종족</th><th>맵</th><th>결과</th></tr></thead><tbody>'+rows.map(row=>{ const win=rowIsWin(row,player); const opponent=rowOpponentName(row,player); const opponentRace=rowOpponentRace(row,player); return '<tr><td>'+formatDate(row.date||row.standardDate)+'</td><td class="'+(win?'record-win':'record-lose')+'">'+escapeHtml(opponent||'-')+'</td><td><span class="race-badge '+escapeAttr(opponentRace)+'">'+escapeHtml(opponentRace||'-')+'</span></td><td>'+escapeHtml(row.map||row.mapName||'-')+'</td><td><span class="record-result-badge '+(win?'win':'lose')+'">'+(win?'승':'패')+'</span></td></tr>'; }).join('')+'</tbody></table>'; }
+    function playerEloLink(player,label){ if(!player||!player.elo) return ''; return '<a class="source-link" href="'+escapeAttr(player.elo)+'" target="_blank" rel="noopener">'+escapeHtml(label)+'</a>'; }
+
+    function opponentCandidates(){ const player=playerByKey(activeRecordKey); const map=new Map(); activeRecordRows.forEach(row=>{ const name=rowOpponentName(row,player); if(!name) return; const p=tierData.find(x=>x.name===name) || { name, race:rowOpponentRace(row,player), tier:'', image:'' }; const key=playerKey(p); if(!map.has(key)) map.set(key,{player:p,count:0,last:rowDate(row)}); const item=map.get(key); item.count+=1; if(rowDate(row)>item.last) item.last=rowDate(row); }); return Array.from(map.entries()).map(([key,item])=>({key,...item})).sort((a,b)=>b.last.localeCompare(a.last)||b.count-a.count); }
+    function renderHeadPane(){ const current=playerByKey(activeRecordKey); const candidates=opponentCandidates(); const q=opponentSearch.value.trim().toLowerCase(); const filtered=candidates.filter(item=>!q || [item.player.name,item.player.race,item.player.tier].join(' ').toLowerCase().includes(q)); opponentList.innerHTML=filtered.length?filtered.map(item=>'<button class="opponent-item '+(item.key===selectedOpponentKey?'active':'')+'" type="button" data-opponent-key="'+escapeAttr(item.key)+'"><img src="'+escapeAttr(item.player.image||current.image)+'" alt=""><span><b>'+escapeHtml(item.player.name)+'</b><small>'+(item.player.race?escapeHtml(item.player.race)+' · ':'')+item.count+'경기</small></span></button>').join(''):'<div class="record-empty">검색 결과가 없습니다.</div>'; recentOpponents.innerHTML='<span>최근 상대</span>'+candidates.slice(0,6).map(item=>'<button class="recent-chip" type="button" data-opponent-key="'+escapeAttr(item.key)+'">'+escapeHtml(item.player.name)+'</button>').join(''); if(!selectedOpponentKey && candidates.length){ headContent.innerHTML='<div class="loading-note">상대를 선택하면 최근 3개월 기준 상대전적이 표시됩니다.</div>'; } }
+    async function loadHeadToHead(){ const seq=++headLoadSeq; const player=playerByKey(activeRecordKey); const opponent=playerByKey(selectedOpponentKey) || opponentCandidates().find(x=>x.key===selectedOpponentKey)?.player; if(!player||!opponent){ headContent.innerHTML='<div class="loading-note">상대를 선택해주세요.</div>'; return; } headContent.innerHTML='<div class="loading-note">상대전적 계산 중입니다.</div>'; const stored=storedHeadToHead(player,opponent); let score=stored||{player1Wins:0,player2Wins:0,hasData:false,source:'computed'}; let matched=[]; if(!stored){ const rows=activeRecordRows.length?activeRecordRows:await ensureRecordBucket(player,player.race); if(seq!==headLoadSeq) return; rows.forEach(row=>{ if(!inHeadPeriod(row)||!rowMatchesOpponent(row,player,opponent)) return; matched.push(row); if(rowIsWin(row,player)) score.player1Wins+=1; else score.player2Wins+=1; }); score.hasData=matched.length>0; } else { matched=activeRecordRows.filter(row=>inHeadPeriod(row)&&rowMatchesOpponent(row,player,opponent)); }
+      const total=score.player1Wins+score.player2Wins; const rate=total?(score.player1Wins/total*100):0; headContent.innerHTML='<div class="h2h-score"><div class="side"><img src="'+escapeAttr(player.image)+'" alt=""><b>'+escapeHtml(player.name)+' <span class="race-badge '+escapeAttr(player.race)+'">'+escapeHtml(player.race)+'</span></b><small>'+escapeHtml(player.tier)+'</small></div><div class="versus"><div>상대전적</div><div class="score">'+total+'전 <span class="win">'+score.player1Wins+'승</span> <span class="lose">'+score.player2Wins+'패</span></div><div class="rate">승률 '+rate.toFixed(1)+'%</div></div><div class="side"><img src="'+escapeAttr(opponent.image||player.image)+'" alt=""><b>'+escapeHtml(opponent.name)+' <span class="race-badge '+escapeAttr(opponent.race)+'">'+escapeHtml(opponent.race||'-')+'</span></b><small>'+escapeHtml(opponent.tier||'전적 상대')+'</small></div></div><div class="record-table-wrap">'+headRowsTable(matched.slice(0,12),player,opponent)+'</div><div class="source-row">'+playerEloLink(player,player.name+' ELO')+playerEloLink(opponent,opponent.name+' ELO')+'</div>'; }
+    function headRowsTable(rows,player,opponent){ if(!rows.length) return '<div class="record-empty">최근 3개월 경기 기록이 없거나 아직 동기화되지 않았습니다.</div>'; return '<table class="record-table"><thead><tr><th>날짜</th><th>맵</th><th>결과</th><th>승자</th><th>종족</th></tr></thead><tbody>'+rows.map(row=>{ const win=rowIsWin(row,player); return '<tr><td>'+formatDate(row.date||row.standardDate)+'</td><td>'+escapeHtml(row.map||row.mapName||'-')+'</td><td class="'+(win?'record-win':'record-lose')+'">'+escapeHtml(win?player.name+' 승':opponent.name+' 승')+'</td><td>'+escapeHtml(win?player.name:opponent.name)+'</td><td><span class="race-badge '+escapeAttr(player.race)+'">'+escapeHtml(player.race)+'</span> vs <span class="race-badge '+escapeAttr(opponent.race)+'">'+escapeHtml(opponent.race||'-')+'</span></td></tr>'; }).join('')+'</tbody></table>'; }
+
+    recordYear.innerHTML=years.map(year=>'<option value="'+year+'">'+year+'년</option>').join('');
+    recordMonth.innerHTML=Array.from({length:12},(_,i)=>'<option value="'+(i+1)+'">'+(i+1)+'월</option>').join('');
+    document.querySelectorAll('.pill').forEach(btn=>btn.addEventListener('click',()=>{ if(btn.dataset.filter==='all'){ filters.liveOnly=false; filters.race='all'; filters.tier='all'; searchInput.value=''; } if(btn.dataset.filter==='live') filters.liveOnly=!filters.liveOnly; if(btn.dataset.race) filters.race=filters.race===btn.dataset.race?'all':btn.dataset.race; if(btn.dataset.tier) filters.tier=filters.tier===btn.dataset.tier?'all':btn.dataset.tier; render(); }));
+    tierNav.addEventListener('click',e=>{ const btn=e.target.closest('[data-tier-nav]'); if(!btn) return; const t=btn.dataset.tierNav; filters.tier=filters.tier===t?'all':t; render(); setTimeout(()=>document.getElementById('tier-'+encodeURIComponent(t))?.scrollIntoView({behavior:'smooth',block:'start'}),30); });
+    searchInput.addEventListener('input',render);
+    document.getElementById('resetFilters').addEventListener('click',()=>{ filters.liveOnly=false; filters.race='all'; filters.tier='all'; searchInput.value=''; render(); });
+    filterSummary.addEventListener('click',e=>{ const btn=e.target.closest('[data-remove-filter]'); if(!btn) return; const k=btn.dataset.removeFilter; if(k==='live') filters.liveOnly=false; if(k==='race') filters.race='all'; if(k==='tier') filters.tier='all'; if(k==='search') searchInput.value=''; render(); });
+    tierStack.addEventListener('click',e=>{ const rec=e.target.closest('.record-action'); if(rec) openRecord(rec.dataset.playerKey); const toggle=e.target.closest('.live-first-toggle'); if(toggle){ filters.liveFirst=toggle.checked; render(); } });
+    document.getElementById('closeRecord').addEventListener('click',()=>{ activeRecordKey=''; recordLoadSeq++; headLoadSeq++; recordDialog.close(); });
+    tabOverall.addEventListener('click',()=>setTab('overall')); tabHead.addEventListener('click',()=>setTab('head'));
+    [recordRace,recordYear,recordMonth].forEach(control=>control.addEventListener('change',loadRecord));
+    opponentSearch.addEventListener('input',renderHeadPane);
+    opponentList.addEventListener('click',e=>{ const btn=e.target.closest('[data-opponent-key]'); if(!btn) return; selectedOpponentKey=btn.dataset.opponentKey; renderHeadPane(); loadHeadToHead(); });
+    recentOpponents.addEventListener('click',e=>{ const btn=e.target.closest('[data-opponent-key]'); if(!btn) return; selectedOpponentKey=btn.dataset.opponentKey; renderHeadPane(); loadHeadToHead(); });
+    render(); initFirebaseTierData();
   </script>
 </body>
 </html>
