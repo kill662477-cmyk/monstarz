@@ -6,7 +6,7 @@ on:
       record_sync_mode:
         description: "전적 수집 모드: auto / full / incremental"
         required: true
-        default: "full"
+        default: "auto"
         type: choice
         options:
           - auto
@@ -21,6 +21,7 @@ on:
         required: true
         default: "8"
 
+  # GitHub 자체 예약 실행용. 외부 cron-job.org를 쓸 경우에는 GitHub API의 workflow_dispatch를 호출해야 함.
   schedule:
     - cron: "0 */8 * * *"
 
@@ -57,13 +58,15 @@ jobs:
           FETCH_TIMEOUT_MS: "50000"
           RECORD_CONCURRENCY: "3"
 
-          # 기존 RECORD_MAX_PAGES는 기본값/호환용으로 둠
+          # 기존 값과 호환용 기본값
           RECORD_MAX_PAGES: "30"
 
-          # 수동 실행이면 입력값 사용, 예약 실행이면 auto로 동작
-          RECORD_SYNC_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.record_sync_mode || 'auto' }}
-          RECORD_FULL_MAX_PAGES: ${{ github.event_name == 'workflow_dispatch' && inputs.record_full_max_pages || '120' }}
-          RECORD_INCREMENTAL_MAX_PAGES: ${{ github.event_name == 'workflow_dispatch' && inputs.record_incremental_max_pages || '8' }}
+          # 수동 실행 / 외부 cron workflow_dispatch 실행이면 입력값 사용, GitHub schedule이면 auto 사용
+          RECORD_SYNC_MODE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.record_sync_mode || 'auto' }}
+          RECORD_FULL_MAX_PAGES: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.record_full_max_pages || '120' }}
+          RECORD_INCREMENTAL_MAX_PAGES: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.record_incremental_max_pages || '8' }}
+          RECORD_AJAX_DELAY_MS: "150"
+          RECORD_BACKFILL_VERSION: "1"
 
           ELOBOARD_MAX_ROWS_PER_PLAYER: "5000"
           INACTIVE_RECORD_MONTHS: "4"
