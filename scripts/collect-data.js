@@ -23,6 +23,8 @@ const FETCH_TIMEOUT_MS = Math.max(3000, Number(process.env.FETCH_TIMEOUT_MS || 1
 const RECORD_CONCURRENCY = Math.max(1, Number(process.env.RECORD_CONCURRENCY || 3));
 const RECORD_MAX_PAGES = Math.max(1, Number(process.env.RECORD_MAX_PAGES || 30));
 const ELOBOARD_MAX_ROWS_PER_PLAYER = Math.max(1, Number(process.env.ELOBOARD_MAX_ROWS_PER_PLAYER || 5000));
+const INACTIVE_RECORD_MONTHS = Math.max(1, Number(process.env.INACTIVE_RECORD_MONTHS || 4));
+const HIDE_INACTIVE_PLAYERS = process.env.HIDE_INACTIVE_PLAYERS !== "false";
 
 const CACHE_LOCAL_JSON = process.env.CACHE_LOCAL_JSON !== "false";
 const CACHE_LOCAL_ASSETS = process.env.CACHE_LOCAL_ASSETS === "true";
@@ -101,6 +103,10 @@ function eloboardUrl(key, race) {
   }
 
   return "";
+}
+
+function eloboardRecordUrl(player) {
+  return normalizeUrl(player.elo || eloboardUrl(player.eloboardKey, player.race));
 }
 
 function normalizeRace(value) {
@@ -609,7 +615,7 @@ async function fetchEloboardHtml(url) {
 }
 
 async function fetchRecords(player) {
-  const url = normalizeUrl(player.elo || eloboardUrl(player.eloboardKey, player.race));
+  const url = eloboardRecordUrl(player);
 
   if (!url) return [];
 
@@ -640,6 +646,94 @@ function rowDate(row) {
       row.matchDate ||
       ""
   ).slice(0, 10);
+}
+
+function normalizeRecordRows(value) {
+  if (!value) return [];
+
+  if (Array.isArray(value)) {
+    return value.filter((row) => row && typeof row === "object");
+  }
+
+  if (typeof value === "object") {
+    return Object.entries(value)
+      .sort(([a], [b]) => {
+        const na = Number(a);
+        const nb = Number(b);
+
+        if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
+        return String(a).localeCompare(String(b));
+      })
+      .map(([, row]) => row)
+      .filter((row) => row && typeof row === "object");
+  }
+
+  return [];
+}
+
+function maxRecordDateString(rows) {
+  let latest = "";
+
+  normalizeRecordRows(rows).forEach((row) => {
+    const date = rowDate(row);
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date) && date > latest) {
+      latest = date;
+    }
+  });
+
+  return latest;
+}
+
+function dateMonthsAgo(now, months) {
+  const value = new Date(now.getTime());
+  value.setMonth(value.getMonth() - months);
+  return value;
+}
+
+function isInactiveByLastRecordDate(lastRecordDate, now = new Date()) {
+  if (!lastRecordDate) return true;
+
+  const parsed = new Date(`${lastRecordDate}T00:00:00+09:00`);
+
+  if (Number.isNaN(parsed.getTime())) return true;
+
+  return parsed < dateMonthsAgo(now, INACTIVE_RECORD_MONTHS);
+}
+
+function sumRecordRows(records) {
+  return Object.values(records || {}).reduce(
+    (sum, rows) => sum + normalizeRecordRows(rows).length,
+    0
+  );
+}
+function isYouthTierPlayer(player) {
+  const tierCode = normalizeTierCode(
+    player.tierCode || player.tierId || player.tier,
+    player.tierName || player.tier
+  );
+
+  const tierText = String(player.tier || player.tierName || "").trim();
+
+  return (
+    tierCode === "B" ||
+    tierText === "베이비티어" ||
+    tierText === "유스" ||
+    tierText === "유스티어"
+  );
+}
+function countRecordPlayers(records) {
+  return Object.values(records || {}).filter(
+    (rows) => normalizeRecordRows(rows).length > 0
+  ).length;
+}
+
+async function readExistingRecordRows(rootRef, key) {
+  const snap = await withRetry(`records/${key} existing read`, () =>
+    rootRef.child("records").child(key).once("value")
+  );
+
+  return normalizeRecordRows(snap.val());
 }
 
 function rowWinnerId(row) {
@@ -1206,10 +1300,13 @@ async function uploadToFirebase(payload) {
     lastSyncedAt: metaWithPreservedLive.syncedAt,
     currentRoot: FIREBASE_ROOT,
     playerCount: metaWithPreservedLive.playerCount,
+    sourcePlayerCount: metaWithPreservedLive.sourcePlayerCount,
+    hiddenInactivePlayerCount: metaWithPreservedLive.hiddenInactivePlayerCount,
     liveCount: existingLiveCount,
     recordPlayerCount: metaWithPreservedLive.recordPlayerCount,
     recordRowCount: metaWithPreservedLive.recordRowCount,
     recordFailCount: metaWithPreservedLive.recordFailCount,
+    recordSkipCount: metaWithPreservedLive.recordSkipCount,
     headToHeadCount: metaWithPreservedLive.headToHeadCount,
     sourceLastUpdatedAt: metaWithPreservedLive.sourceLastUpdatedAt,
   });
@@ -1233,6 +1330,8 @@ async function main() {
     RECORD_CONCURRENCY,
     RECORD_MAX_PAGES,
     ELOBOARD_MAX_ROWS_PER_PLAYER,
+    INACTIVE_RECORD_MONTHS,
+    HIDE_INACTIVE_PLAYERS,
     CACHE_LOCAL_JSON,
     CACHE_LOCAL_ASSETS,
   });
@@ -1290,29 +1389,58 @@ async function main() {
 
   console.log(`[4/6] ELO 전적 수집 시작: ${players.length}명`);
 
-  const records = {};
-  let recordPlayerCount = 0;
-  let recordRowCount = 0;
+  const recordsToUpload = {};
+  const recordsForDerived = {};
+  const fetchFailures = {};
+  const fetchSkipped = {};
+  let recordFetchPlayerCount = 0;
+  let recordFetchRowCount = 0;
   let recordFailCount = 0;
+  let recordSkipCount = 0;
 
   await mapLimit(players, RECORD_CONCURRENCY, async (player, index) => {
     const key = safeKey(`${player.userId}_${player.race}`);
+    const url = eloboardRecordUrl(player);
 
-    const rows = await fetchRecords(player).catch((error) => {
-      recordFailCount += 1;
-      console.warn(`[records fail] ${player.name}(${player.userId}/${player.race}): ${error.message}`);
-      return [];
-    });
+    if (!url) {
+      recordSkipCount += 1;
+      fetchSkipped[key] = {
+        player,
+        reason: "no-eloboard-url",
+      };
+      recordsForDerived[key] = [];
+      console.warn(`[records skip] ${player.name}(${player.userId}/${player.race}): ELO URL 없음`);
 
-    records[key] = rows;
+      if ((index + 1) % 25 === 0 || index + 1 === players.length) {
+        console.log(`records ${index + 1}/${players.length}`);
+      }
 
-    if (rows.length > 0) {
-      recordPlayerCount += 1;
-      recordRowCount += rows.length;
+      return;
     }
 
-    if (CACHE_LOCAL_JSON) {
-      await fs.writeFile(path.join(recordDir, `${key}.json`), JSON.stringify(rows));
+    try {
+      const rows = await fetchRecords(player);
+
+      if (!Array.isArray(rows) || rows.length === 0) {
+        throw new Error("ELOBOARD parsed 0 rows");
+      }
+
+      recordsToUpload[key] = rows;
+      recordsForDerived[key] = rows;
+      recordFetchPlayerCount += 1;
+      recordFetchRowCount += rows.length;
+
+      if (CACHE_LOCAL_JSON) {
+        await fs.writeFile(path.join(recordDir, `${key}.json`), JSON.stringify(rows));
+      }
+    } catch (error) {
+      recordFailCount += 1;
+      fetchFailures[key] = {
+        player,
+        reason: error.message,
+      };
+      recordsForDerived[key] = [];
+      console.warn(`[records fail] ${player.name}(${player.userId}/${player.race}): ${error.message}`);
     }
 
     if ((index + 1) % 25 === 0 || index + 1 === players.length) {
@@ -1320,12 +1448,88 @@ async function main() {
     }
   });
 
+  const db = initFirebase();
+  const rootRef = db.ref(FIREBASE_ROOT);
+  const fallbackTargets = { ...fetchFailures, ...fetchSkipped };
+  const recordPreserveReadFailed = {};
+  let recordPreservedPlayerCount = 0;
+  let recordPreservedRowCount = 0;
+  let recordPreserveReadFailCount = 0;
+
+  const fallbackEntries = Object.entries(fallbackTargets);
+
+  if (fallbackEntries.length > 0) {
+    console.log(`[4.5/6] 기존 Firebase 전적 보존 확인: ${fallbackEntries.length}명`);
+
+    await mapLimit(fallbackEntries, RECORD_CONCURRENCY, async ([key, item]) => {
+      const existingRows = await readExistingRecordRows(rootRef, key).catch((error) => {
+        recordPreserveReadFailed[key] = true;
+        recordPreserveReadFailCount += 1;
+        console.warn(
+          `[records preserve fail] ${item.player.name}(${item.player.userId}/${item.player.race}): ${error.message}`
+        );
+        return [];
+      });
+
+      if (existingRows.length > 0) {
+        recordsForDerived[key] = existingRows;
+        recordPreservedPlayerCount += 1;
+        recordPreservedRowCount += existingRows.length;
+
+        if (CACHE_LOCAL_JSON) {
+          await fs.writeFile(path.join(recordDir, `${key}.json`), JSON.stringify(existingRows));
+        }
+
+        console.log(
+          `[records preserve] ${item.player.name}(${item.player.userId}/${item.player.race}) existing ${existingRows.length} rows kept`
+        );
+      }
+    });
+  }
+
   console.log("[5/6] Firebase 업로드 데이터 구성");
 
-  const winRates = buildWinRates(players);
-  const headToHead = buildHeadToHead(players, records);
+  const activityNow = new Date();
+  const playersWithRecordStatus = players.map((player) => {
+    const key = safeKey(`${player.userId}_${player.race}`);
+    const rows = normalizeRecordRows(recordsForDerived[key]);
+    const lastRecordDate = maxRecordDateString(rows);
+    const preserveReadFailed = recordPreserveReadFailed[key] === true;
+   const youthTierExempt = isYouthTierPlayer(player);
+   const recordInactive = youthTierExempt
+  ? false
+  : preserveReadFailed && rows.length === 0
+    ? false
+    : isInactiveByLastRecordDate(lastRecordDate, activityNow);
+   return {
+    ...player,
+    recordKey: key,
+    recordCount: rows.length,
+    lastRecordDate,
+    recordInactive,
+    recordInactiveExempt: youthTierExempt ? "youth-tier" : "",
+    recordPreserveReadFailed: preserveReadFailed,
+    hiddenByRecordInactivity: HIDE_INACTIVE_PLAYERS && recordInactive,
+    recordVisibility: HIDE_INACTIVE_PLAYERS && recordInactive ? "hidden-inactive-records" : "visible",
+  };
+});
+
+  const visiblePlayers = HIDE_INACTIVE_PLAYERS
+    ? playersWithRecordStatus.filter((player) => !player.hiddenByRecordInactivity)
+    : playersWithRecordStatus;
+
+  const hiddenInactivePlayers = playersWithRecordStatus.filter(
+    (player) => player.hiddenByRecordInactivity
+  );
+
+  const winRates = buildWinRates(visiblePlayers);
+  const headToHead = buildHeadToHead(visiblePlayers, recordsForDerived);
 
   const nowIso = new Date().toISOString();
+  const recordPlayerCount = countRecordPlayers(recordsForDerived);
+  const recordRowCount = sumRecordRows(recordsForDerived);
+  const recordUploadPlayerCount = countRecordPlayers(recordsToUpload);
+  const recordUploadRowCount = sumRecordRows(recordsToUpload);
 
   const meta = {
     collectedAt: nowIso,
@@ -1333,12 +1537,32 @@ async function main() {
     updatedAt: nowIso,
     sourceLastUpdatedAt: lastUpdated.lastUpdatedAt || null,
     eloboardUpdatedAt: lastUpdated.lastUpdatedAt || null,
-    playerCount: players.length,
+    playerCount: visiblePlayers.length,
+    sourcePlayerCount: players.length,
+    hiddenInactivePlayerCount: hiddenInactivePlayers.length,
+    hiddenInactivePlayers: hiddenInactivePlayers.map((player) => ({
+      userId: player.userId,
+      name: player.name,
+      race: player.race,
+      tier: player.tier,
+      lastRecordDate: player.lastRecordDate,
+      recordCount: player.recordCount,
+    })),
+    hideInactivePlayers: HIDE_INACTIVE_PLAYERS,
+    inactiveRecordMonths: INACTIVE_RECORD_MONTHS,
     liveCount: 0,
     stationVisitedCount: stationChecks.filter((item) => item.status >= 200 && item.status < 400).length,
     recordPlayerCount,
     recordRowCount,
+    recordFetchPlayerCount,
+    recordFetchRowCount,
+    recordPreservedPlayerCount,
+    recordPreservedRowCount,
+    recordPreserveReadFailCount,
+    recordUploadPlayerCount,
+    recordUploadRowCount,
     recordFailCount,
+    recordSkipCount,
     headToHeadCount: Object.keys(headToHead).length,
     fetchTimeoutMs: FETCH_TIMEOUT_MS,
     recordConcurrency: RECORD_CONCURRENCY,
@@ -1351,15 +1575,16 @@ async function main() {
 
   const payload = {
     meta,
-    players,
-    records,
+    players: visiblePlayers,
+    records: recordsToUpload,
     winRates,
     headToHead,
   };
 
   if (CACHE_LOCAL_JSON) {
-    await fs.writeFile(path.join(dataDir, "players.json"), JSON.stringify({ meta, players }, null, 2));
-    await fs.writeFile(path.join(dataDir, "records.json"), JSON.stringify(records));
+    await fs.writeFile(path.join(dataDir, "players.json"), JSON.stringify({ meta, players: visiblePlayers }, null, 2));
+    await fs.writeFile(path.join(dataDir, "records.json"), JSON.stringify(recordsForDerived));
+    await fs.writeFile(path.join(dataDir, "records-upload.json"), JSON.stringify(recordsToUpload));
     await fs.writeFile(path.join(dataDir, "headToHead.json"), JSON.stringify(headToHead));
     await fs.writeFile(path.join(dataDir, "meta.json"), JSON.stringify(meta, null, 2));
   }
