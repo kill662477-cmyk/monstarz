@@ -666,19 +666,23 @@ async function fetchEloboardHtml(url) {
 
 function eloboardAjaxEndpoint(url) {
   const normalized = normalizeUrl(url);
-  const section = normalized.includes("/men/") ? "men" : "women";
-
-  let boTable = "";
+  let section = normalized.includes("/men/") ? "men" : "women";
 
   try {
     const parsed = new URL(normalized);
-    boTable = parsed.searchParams.get("bo_table") || "";
+
+    if (parsed.pathname.includes("/men/")) {
+      section = "men";
+    } else if (parsed.pathname.includes("/women/")) {
+      section = "women";
+    }
   } catch {
-    boTable = "";
+    // keep the fallback section parsed from the normalized string above
   }
 
-  const script = boTable === "bj_m_list" ? "view_m_list.php" : "view_list.php";
-  return `https://eloboard.com/${section}/bbs/${script}`;
+  // ELOBOARD uses the same AJAX script for bj_list and bj_m_list.
+  // Do not convert bo_table=bj_m_list into view_m_list.php; that endpoint returns 404.
+  return `https://eloboard.com/${section}/bbs/view_list.php`;
 }
 
 async function fetchEloboardMoreHtml(url, player, lastId, cookieHeader = "") {
