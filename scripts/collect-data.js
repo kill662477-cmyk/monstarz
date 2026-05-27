@@ -1068,7 +1068,7 @@ function isTransientFirebaseError(error) {
   );
 }
 
-async function withRetry(label, worker, maxAttempts = 4) {
+async function withRetry(label, worker, maxAttempts = 8) {
   let lastError;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
@@ -1293,7 +1293,7 @@ async function uploadToFirebase(payload) {
   await uploadRecordsInChunks(rootRef.child("records"), cleanPayload.records || {}, 100, "records");
 
   console.log("[firebase] upload headToHead in chunks");
-  await uploadObjectInChunks(rootRef.child("headToHead"), cleanPayload.headToHead || {}, 100, "headToHead");
+  await uploadObjectInChunks(rootRef.child("headToHead"), cleanPayload.headToHead || {}, 50, "headToHead");
 
   console.log("[firebase] upload public meta");
   await db.ref("starcraftTier/meta").set({
