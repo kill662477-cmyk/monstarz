@@ -36,6 +36,6 @@ jobs:
           CACHE_LOCAL_ASSETS: "false"
 
           FETCH_TIMEOUT_MS: "50000"
-          RECORD_CONCURRENCY: "2"
+          RECORD_CONCURRENCY: "3"
           RECORD_MAX_PAGES: "30"
           ELOBOARD_MAX_ROWS_PER_PLAYER: "5000"
