@@ -22,6 +22,17 @@ const MANUAL_PLAYERS_PATH = process.env.MANUAL_PLAYERS_PATH
 const FETCH_TIMEOUT_MS = Math.max(3000, Number(process.env.FETCH_TIMEOUT_MS || 15000));
 const RECORD_CONCURRENCY = Math.max(1, Number(process.env.RECORD_CONCURRENCY || 3));
 const RECORD_MAX_PAGES = Math.max(1, Number(process.env.RECORD_MAX_PAGES || 30));
+const RECORD_FULL_MAX_PAGES = Math.max(
+  1,
+  Number(process.env.RECORD_FULL_MAX_PAGES || RECORD_MAX_PAGES)
+);
+const RECORD_INCREMENTAL_MAX_PAGES = Math.max(
+  1,
+  Number(process.env.RECORD_INCREMENTAL_MAX_PAGES || Math.min(RECORD_MAX_PAGES, 8))
+);
+const RECORD_AJAX_DELAY_MS = Math.max(0, Number(process.env.RECORD_AJAX_DELAY_MS || 150));
+const RECORD_BACKFILL_VERSION = Math.max(1, Number(process.env.RECORD_BACKFILL_VERSION || 1));
+const RECORD_SYNC_MODE = normalizeRecordSyncMode(process.env.RECORD_SYNC_MODE || "auto");
 const ELOBOARD_MAX_ROWS_PER_PLAYER = Math.max(1, Number(process.env.ELOBOARD_MAX_ROWS_PER_PLAYER || 5000));
 const INACTIVE_RECORD_MONTHS = Math.max(1, Number(process.env.INACTIVE_RECORD_MONTHS || 4));
 const HIDE_INACTIVE_PLAYERS = process.env.HIDE_INACTIVE_PLAYERS !== "false";
@@ -59,6 +70,14 @@ const tierOrder = [
 ];
 
 const headPeriods = ["ALL", "LAST_1_MONTHS", "LAST_2_MONTHS", "LAST_3_MONTHS"];
+
+function normalizeRecordSyncMode(value) {
+  const mode = String(value || "auto").trim().toLowerCase();
+
+  if (mode === "full") return "full";
+  if (mode === "incremental") return "incremental";
+  return "auto";
+}
 
 function normalizeUrl(url) {
   if (!url) return "";
@@ -594,7 +613,30 @@ function parseEloboardRecords(html, player) {
   return parseEloboardRowsByText(html, player);
 }
 
-async function fetchEloboardHtml(url) {
+function extractCookieHeader(response) {
+  if (!response || !response.headers) return "";
+
+  const cookies = [];
+
+  if (typeof response.headers.getSetCookie === "function") {
+    response.headers.getSetCookie().forEach((cookie) => {
+      const first = String(cookie || "").split(";")[0].trim();
+      if (first) cookies.push(first);
+    });
+  }
+
+  const raw = response.headers.get("set-cookie");
+  if (raw) {
+    raw.split(/,(?=[^;,]+=)/).forEach((cookie) => {
+      const first = String(cookie || "").split(";")[0].trim();
+      if (first) cookies.push(first);
+    });
+  }
+
+  return Array.from(new Set(cookies)).join("; ");
+}
+
+async function fetchEloboardPage(url) {
   const { response, body } = await fetchBodyWithTimeout(
     url,
     {
@@ -611,29 +653,77 @@ async function fetchEloboardHtml(url) {
     throw new Error(`${response.status} ${url}`);
   }
 
+  return {
+    html: body || "",
+    cookieHeader: extractCookieHeader(response),
+  };
+}
+
+async function fetchEloboardHtml(url) {
+  const page = await fetchEloboardPage(url);
+  return page.html;
+}
+
+function eloboardAjaxEndpoint(url) {
+  const normalized = normalizeUrl(url);
+  const section = normalized.includes("/men/") ? "men" : "women";
+
+  let boTable = "";
+
+  try {
+    const parsed = new URL(normalized);
+    boTable = parsed.searchParams.get("bo_table") || "";
+  } catch {
+    boTable = "";
+  }
+
+  const script = boTable === "bj_m_list" ? "view_m_list.php" : "view_list.php";
+  return `https://eloboard.com/${section}/bbs/${script}`;
+}
+
+async function fetchEloboardMoreHtml(url, player, lastId, cookieHeader = "") {
+  const endpoint = eloboardAjaxEndpoint(url);
+
+  const form = new URLSearchParams({
+    p_name: player.name,
+    last_id: String(lastId),
+  });
+
+  const headers = {
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36",
+    accept: "*/*",
+    "accept-language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+    "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    "x-requested-with": "XMLHttpRequest",
+    origin: "https://eloboard.com",
+    referer: url,
+  };
+
+  if (cookieHeader) {
+    headers.cookie = cookieHeader;
+  }
+
+  const { response, body } = await fetchBodyWithTimeout(
+    endpoint,
+    {
+      method: "POST",
+      headers,
+      body: form.toString(),
+    },
+    (res) => res.text()
+  );
+
+  if (!response.ok) {
+    throw new Error(`${response.status} ${endpoint}`);
+  }
+
   return body || "";
 }
 
-async function fetchRecords(player) {
-  const url = eloboardRecordUrl(player);
-
-  if (!url) return [];
-
-  const html = await fetchEloboardHtml(url);
-
+function assertEloboardOk(html) {
   if (/max_user_connections|Too many connections|DB Connect Error/i.test(html)) {
     throw new Error("ELOBOARD connection limit page detected");
   }
-
-  const records = parseEloboardRecords(html, player);
-
-  if (records.length === 0) {
-    console.warn(`[records warn] ${player.name}(${player.userId}/${player.race}) direct ELOBOARD parsed 0 rows`);
-  }
-
-  await sleep(250);
-
-  return records;
 }
 
 function rowDate(row) {
@@ -726,6 +816,253 @@ function countRecordPlayers(records) {
   return Object.values(records || {}).filter(
     (rows) => normalizeRecordRows(rows).length > 0
   ).length;
+}
+
+function recordDedupKey(row, player) {
+  if (!row || typeof row !== "object") return "";
+
+  if (row.id) return String(row.id);
+
+  const userId = player && player.userId ? player.userId : row.playerUserId || row.userId || "";
+  const opponentName = row.opponentName || rowOpponentName(row, userId);
+  const opponentRace = row.opponentRace || rowOpponentRace(row, userId);
+  const map = row.map || row.mapName || "";
+  const eloChange = row.eloChange ?? row.elo ?? "";
+  const matchType = row.matchType || "";
+  const memo = row.memo || "";
+
+  return [
+    userId,
+    rowDate(row),
+    opponentName,
+    opponentRace,
+    map,
+    eloChange,
+    matchType,
+    memo,
+  ]
+    .map((item) => String(item || "").replace(/\s+/g, " ").trim())
+    .join("|");
+}
+
+function sortRecordRows(rows) {
+  return normalizeRecordRows(rows)
+    .map((row, index) => ({ row, index }))
+    .sort((a, b) => {
+      const dateDiff = rowDate(b.row).localeCompare(rowDate(a.row));
+      if (dateDiff !== 0) return dateDiff;
+      return a.index - b.index;
+    })
+    .map((item) => item.row);
+}
+
+function mergeRecordRows(newRows, existingRows, player) {
+  const output = [];
+  const seen = new Set();
+
+  function add(row) {
+    const key = recordDedupKey(row, player);
+    if (!key || seen.has(key)) return;
+
+    seen.add(key);
+    output.push(row);
+  }
+
+  normalizeRecordRows(newRows).forEach(add);
+  normalizeRecordRows(existingRows).forEach(add);
+
+  return sortRecordRows(output).slice(0, ELOBOARD_MAX_ROWS_PER_PLAYER);
+}
+
+function makeRowCollector(player) {
+  const rows = [];
+  const seen = new Set();
+
+  return {
+    add(batch) {
+      let added = 0;
+
+      normalizeRecordRows(batch).forEach((row) => {
+        const key = recordDedupKey(row, player);
+        if (!key || seen.has(key)) return;
+
+        seen.add(key);
+        rows.push(row);
+        added += 1;
+      });
+
+      return added;
+    },
+    rows() {
+      return sortRecordRows(rows).slice(0, ELOBOARD_MAX_ROWS_PER_PLAYER);
+    },
+    size() {
+      return seen.size;
+    },
+  };
+}
+
+async function fetchRecordsFull(player) {
+  const url = eloboardRecordUrl(player);
+  if (!url) return { rows: [], mode: "full", sourceRowCount: 0, morePagesFetched: 0 };
+
+  const page = await fetchEloboardPage(url);
+  assertEloboardOk(page.html);
+
+  const collector = makeRowCollector(player);
+  const firstRows = parseEloboardRecords(page.html, player);
+  collector.add(firstRows);
+
+  let morePagesFetched = 0;
+  let duplicatePageCount = 0;
+
+  for (let lastId = 1; lastId <= RECORD_FULL_MAX_PAGES; lastId += 1) {
+    const moreHtml = await fetchEloboardMoreHtml(url, player, lastId, page.cookieHeader);
+    assertEloboardOk(moreHtml);
+
+    const rows = parseEloboardRecords(moreHtml, player);
+    const added = collector.add(rows);
+    morePagesFetched += 1;
+
+    if (rows.length === 0) {
+      break;
+    }
+
+    if (added === 0) {
+      duplicatePageCount += 1;
+    } else {
+      duplicatePageCount = 0;
+    }
+
+    if (duplicatePageCount >= 2) {
+      break;
+    }
+
+    if (collector.size() >= ELOBOARD_MAX_ROWS_PER_PLAYER) {
+      break;
+    }
+
+    if (RECORD_AJAX_DELAY_MS > 0) {
+      await sleep(RECORD_AJAX_DELAY_MS);
+    }
+  }
+
+  const records = collector.rows();
+
+  if (records.length === 0) {
+    console.warn(`[records warn] ${player.name}(${player.userId}/${player.race}) full ELOBOARD parsed 0 rows`);
+  }
+
+  await sleep(250);
+
+  return {
+    rows: records,
+    mode: "full",
+    sourceRowCount: records.length,
+    morePagesFetched,
+  };
+}
+
+async function fetchRecordsIncremental(player, existingRows) {
+  const url = eloboardRecordUrl(player);
+  if (!url) {
+    return {
+      rows: normalizeRecordRows(existingRows),
+      mode: "incremental",
+      sourceRowCount: 0,
+      newRowCount: 0,
+      morePagesFetched: 0,
+      stoppedByExisting: false,
+    };
+  }
+
+  const existing = normalizeRecordRows(existingRows);
+  if (existing.length === 0) {
+    return fetchRecordsFull(player);
+  }
+
+  const existingKeys = new Set(existing.map((row) => recordDedupKey(row, player)).filter(Boolean));
+  const newRows = [];
+  const newSeen = new Set();
+
+  function addOnlyNew(batch) {
+    let added = 0;
+    let foundExisting = false;
+
+    normalizeRecordRows(batch).forEach((row) => {
+      const key = recordDedupKey(row, player);
+      if (!key) return;
+
+      if (existingKeys.has(key)) {
+        foundExisting = true;
+        return;
+      }
+
+      if (newSeen.has(key)) return;
+
+      newSeen.add(key);
+      newRows.push(row);
+      added += 1;
+    });
+
+    return {
+      added,
+      foundExisting,
+    };
+  }
+
+  const page = await fetchEloboardPage(url);
+  assertEloboardOk(page.html);
+
+  const firstRows = parseEloboardRecords(page.html, player);
+  const firstResult = addOnlyNew(firstRows);
+  let stoppedByExisting = firstResult.foundExisting;
+  let morePagesFetched = 0;
+
+  if (!stoppedByExisting || firstRows.length === 0) {
+    for (let lastId = 1; lastId <= RECORD_INCREMENTAL_MAX_PAGES; lastId += 1) {
+      const moreHtml = await fetchEloboardMoreHtml(url, player, lastId, page.cookieHeader);
+      assertEloboardOk(moreHtml);
+
+      const rows = parseEloboardRecords(moreHtml, player);
+      const result = addOnlyNew(rows);
+      morePagesFetched += 1;
+
+      if (result.foundExisting) {
+        stoppedByExisting = true;
+        break;
+      }
+
+      if (rows.length === 0) {
+        break;
+      }
+
+      if (RECORD_AJAX_DELAY_MS > 0) {
+        await sleep(RECORD_AJAX_DELAY_MS);
+      }
+    }
+  }
+
+  const merged = mergeRecordRows(newRows, existing, player);
+
+  await sleep(250);
+
+  return {
+    rows: merged,
+    mode: "incremental",
+    sourceRowCount: newRows.length,
+    newRowCount: newRows.length,
+    morePagesFetched,
+    stoppedByExisting,
+  };
+}
+
+async function fetchRecordsSmart(player, existingRows, effectiveMode) {
+  if (effectiveMode === "incremental") {
+    return fetchRecordsIncremental(player, existingRows);
+  }
+
+  return fetchRecordsFull(player);
 }
 
 async function readExistingRecordRows(rootRef, key) {
@@ -1096,6 +1433,24 @@ async function withRetry(label, worker, maxAttempts = 8) {
   throw lastError;
 }
 
+async function readExistingMeta(rootRef) {
+  const snap = await withRetry("meta read", () => rootRef.child("meta").once("value"));
+  return snap.val() || {};
+}
+
+function resolveEffectiveRecordSyncMode(existingMeta) {
+  if (RECORD_SYNC_MODE === "full") return "full";
+  if (RECORD_SYNC_MODE === "incremental") return "incremental";
+
+  const existingBackfillVersion = Number(existingMeta.recordsBackfillVersion || 0);
+
+  if (existingBackfillVersion >= RECORD_BACKFILL_VERSION) {
+    return "incremental";
+  }
+
+  return "full";
+}
+
 async function clearChildrenInChunks(ref, chunkSize, label) {
   let cleared = 0;
 
@@ -1307,6 +1662,11 @@ async function uploadToFirebase(payload) {
     recordRowCount: metaWithPreservedLive.recordRowCount,
     recordFailCount: metaWithPreservedLive.recordFailCount,
     recordSkipCount: metaWithPreservedLive.recordSkipCount,
+    recordsBackfillVersion: metaWithPreservedLive.recordsBackfillVersion,
+    recordsBackfillComplete: metaWithPreservedLive.recordsBackfillComplete,
+    recordsBackfilledAt: metaWithPreservedLive.recordsBackfilledAt,
+    recordSyncMode: metaWithPreservedLive.recordSyncMode,
+    effectiveRecordSyncMode: metaWithPreservedLive.effectiveRecordSyncMode,
     headToHeadCount: metaWithPreservedLive.headToHeadCount,
     sourceLastUpdatedAt: metaWithPreservedLive.sourceLastUpdatedAt,
   });
@@ -1329,6 +1689,11 @@ async function main() {
     FETCH_TIMEOUT_MS,
     RECORD_CONCURRENCY,
     RECORD_MAX_PAGES,
+    RECORD_FULL_MAX_PAGES,
+    RECORD_INCREMENTAL_MAX_PAGES,
+    RECORD_AJAX_DELAY_MS,
+    RECORD_SYNC_MODE,
+    RECORD_BACKFILL_VERSION,
     ELOBOARD_MAX_ROWS_PER_PLAYER,
     INACTIVE_RECORD_MONTHS,
     HIDE_INACTIVE_PLAYERS,
@@ -1346,6 +1711,22 @@ async function main() {
   ]);
 
   console.log(`[manual] players loaded ${manualPlayers.length}: ${MANUAL_PLAYERS_PATH}`);
+
+  const db = initFirebase();
+  const rootRef = db.ref(FIREBASE_ROOT);
+  const existingMeta = await readExistingMeta(rootRef).catch((error) => {
+    console.warn(`[firebase] existing meta read failed: ${error.message}`);
+    return {};
+  });
+
+  const effectiveRecordSyncMode = resolveEffectiveRecordSyncMode(existingMeta);
+
+  console.log("[record sync mode]", {
+    requested: RECORD_SYNC_MODE,
+    effective: effectiveRecordSyncMode,
+    existingBackfillVersion: Number(existingMeta.recordsBackfillVersion || 0),
+    requiredBackfillVersion: RECORD_BACKFILL_VERSION,
+  });
 
   console.log("[2/6] 선택적 이미지 캐시 처리");
 
@@ -1393,10 +1774,17 @@ async function main() {
   const recordsForDerived = {};
   const fetchFailures = {};
   const fetchSkipped = {};
+  const recordPreserveReadFailed = {};
+
   let recordFetchPlayerCount = 0;
   let recordFetchRowCount = 0;
   let recordFailCount = 0;
   let recordSkipCount = 0;
+  let recordPreservedPlayerCount = 0;
+  let recordPreservedRowCount = 0;
+  let recordPreserveReadFailCount = 0;
+  let recordIncrementalNewRowCount = 0;
+  let recordAjaxPageCount = 0;
 
   await mapLimit(players, RECORD_CONCURRENCY, async (player, index) => {
     const key = safeKey(`${player.userId}_${player.race}`);
@@ -1418,10 +1806,32 @@ async function main() {
       return;
     }
 
-    try {
-      const rows = await fetchRecords(player);
+    let existingRows = [];
+    let existingRowsReadTried = false;
 
-      if (!Array.isArray(rows) || rows.length === 0) {
+    try {
+      if (effectiveRecordSyncMode !== "full") {
+        existingRowsReadTried = true;
+
+        existingRows = await readExistingRecordRows(rootRef, key).catch((error) => {
+          recordPreserveReadFailed[key] = true;
+          recordPreserveReadFailCount += 1;
+          console.warn(
+            `[records existing read fail] ${player.name}(${player.userId}/${player.race}): ${error.message}`
+          );
+          return [];
+        });
+      }
+
+      const playerMode =
+        effectiveRecordSyncMode === "incremental" && recordPreserveReadFailed[key]
+          ? "full"
+          : effectiveRecordSyncMode;
+
+      const result = await fetchRecordsSmart(player, existingRows, playerMode);
+      const rows = normalizeRecordRows(result.rows);
+
+      if (rows.length === 0) {
         throw new Error("ELOBOARD parsed 0 rows");
       }
 
@@ -1429,18 +1839,36 @@ async function main() {
       recordsForDerived[key] = rows;
       recordFetchPlayerCount += 1;
       recordFetchRowCount += rows.length;
+      recordIncrementalNewRowCount += Number(result.newRowCount || 0);
+      recordAjaxPageCount += Number(result.morePagesFetched || 0);
 
       if (CACHE_LOCAL_JSON) {
         await fs.writeFile(path.join(recordDir, `${key}.json`), JSON.stringify(rows));
       }
+
+      console.log(
+        `[records ok] ${player.name}(${player.userId}/${player.race}) mode=${result.mode} rows=${rows.length} ajaxPages=${result.morePagesFetched || 0}`
+      );
     } catch (error) {
       recordFailCount += 1;
       fetchFailures[key] = {
         player,
         reason: error.message,
+        existingRowsReadTried,
       };
-      recordsForDerived[key] = [];
-      console.warn(`[records fail] ${player.name}(${player.userId}/${player.race}): ${error.message}`);
+
+      if (existingRows.length > 0) {
+        recordsForDerived[key] = existingRows;
+        recordPreservedPlayerCount += 1;
+        recordPreservedRowCount += existingRows.length;
+
+        console.warn(
+          `[records fail preserve] ${player.name}(${player.userId}/${player.race}) existing ${existingRows.length} rows kept: ${error.message}`
+        );
+      } else {
+        recordsForDerived[key] = [];
+        console.warn(`[records fail] ${player.name}(${player.userId}/${player.race}): ${error.message}`);
+      }
     }
 
     if ((index + 1) % 25 === 0 || index + 1 === players.length) {
@@ -1448,20 +1876,16 @@ async function main() {
     }
   });
 
-  const db = initFirebase();
-  const rootRef = db.ref(FIREBASE_ROOT);
   const fallbackTargets = { ...fetchFailures, ...fetchSkipped };
-  const recordPreserveReadFailed = {};
-  let recordPreservedPlayerCount = 0;
-  let recordPreservedRowCount = 0;
-  let recordPreserveReadFailCount = 0;
-
   const fallbackEntries = Object.entries(fallbackTargets);
 
   if (fallbackEntries.length > 0) {
     console.log(`[4.5/6] 기존 Firebase 전적 보존 확인: ${fallbackEntries.length}명`);
 
     await mapLimit(fallbackEntries, RECORD_CONCURRENCY, async ([key, item]) => {
+      if (normalizeRecordRows(recordsForDerived[key]).length > 0) return;
+      if (recordPreserveReadFailed[key]) return;
+
       const existingRows = await readExistingRecordRows(rootRef, key).catch((error) => {
         recordPreserveReadFailed[key] = true;
         recordPreserveReadFailCount += 1;
@@ -1531,6 +1955,21 @@ async function main() {
   const recordUploadPlayerCount = countRecordPlayers(recordsToUpload);
   const recordUploadRowCount = sumRecordRows(recordsToUpload);
 
+  const existingBackfillVersion = Number(existingMeta.recordsBackfillVersion || 0);
+  const completedBackfillThisRun =
+    effectiveRecordSyncMode === "full" && recordFailCount === 0;
+
+  const recordsBackfillComplete =
+    existingBackfillVersion >= RECORD_BACKFILL_VERSION || completedBackfillThisRun;
+
+  const recordsBackfillVersion = recordsBackfillComplete
+    ? Math.max(existingBackfillVersion, RECORD_BACKFILL_VERSION)
+    : existingBackfillVersion;
+
+  const recordsBackfilledAt = completedBackfillThisRun
+    ? nowIso
+    : existingMeta.recordsBackfilledAt || null;
+
   const meta = {
     collectedAt: nowIso,
     syncedAt: nowIso,
@@ -1563,12 +2002,21 @@ async function main() {
     recordUploadRowCount,
     recordFailCount,
     recordSkipCount,
+    recordIncrementalNewRowCount,
+    recordAjaxPageCount,
+    recordsBackfillVersion,
+    recordsBackfillComplete,
+    recordsBackfilledAt,
+    recordSyncMode: RECORD_SYNC_MODE,
+    effectiveRecordSyncMode,
     headToHeadCount: Object.keys(headToHead).length,
     fetchTimeoutMs: FETCH_TIMEOUT_MS,
     recordConcurrency: RECORD_CONCURRENCY,
     recordMaxPages: RECORD_MAX_PAGES,
+    recordFullMaxPages: RECORD_FULL_MAX_PAGES,
+    recordIncrementalMaxPages: RECORD_INCREMENTAL_MAX_PAGES,
     eloboardMaxRowsPerPlayer: ELOBOARD_MAX_ROWS_PER_PLAYER,
-    source: "manual-players + direct-eloboard",
+    source: "manual-players + direct-eloboard-ajax",
     playerSource: "data/manual/players.json",
     liveSource: "preserved-from-soop-sync",
   };
