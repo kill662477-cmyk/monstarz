@@ -1,6 +1,4 @@
 [
-
-
   {
     "id": 614,
     "userId": "suhi370erw",
@@ -534,7 +532,7 @@
     "tierId": "tier-1",
     "sortOrder": 1,
     "eloboardKey": "M_175_P,W_175_P",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=175",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=175",
     "image": "https://profile.img.sooplive.co.kr/LOGO/du/dudwn4974/dudwn4974.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/du/dudwn4974/dudwn4974.jpg",
     "station": "https://www.sooplive.com/station/dudwn4974",
@@ -561,7 +559,7 @@
     "tierId": "tier-1",
     "sortOrder": 1,
     "eloboardKey": "M_223_P,W_223_P,W_36_T",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=223",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=223",
     "image": "https://profile.img.sooplive.co.kr/LOGO/by/byebye22/byebye22.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/by/byebye22/byebye22.jpg",
     "station": "https://www.sooplive.com/station/byebye22",
@@ -604,7 +602,6 @@
     "yearWinRate": null,
     "winRate": ""
   },
-
   {
     "id": 658,
     "userId": "x1aohongmao",
@@ -965,7 +962,6 @@
     "yearWinRate": null,
     "winRate": ""
   },
- 
   {
     "id": 604,
     "userId": "eun0c0",
@@ -1112,7 +1108,7 @@
     "tierId": "tier-3",
     "sortOrder": 2,
     "eloboardKey": "M_233_P,W_233_P,W_233_Z",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=233",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=233",
     "image": "https://profile.img.sooplive.co.kr/LOGO/rl/rlsk0705/rlsk0705.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/rl/rlsk0705/rlsk0705.jpg",
     "station": "https://www.sooplive.com/station/rlsk0705",
@@ -1650,7 +1646,6 @@
     "yearWinRate": null,
     "winRate": ""
   },
- 
   {
     "id": 76,
     "userId": "isangwk",
@@ -1840,7 +1835,6 @@
     "yearWinRate": 53.5,
     "winRate": "56%"
   },
- 
   {
     "id": 443,
     "userId": "byromantic",
@@ -1958,7 +1952,6 @@
     "yearWinRate": 55.2,
     "winRate": "43%"
   },
-  
   {
     "id": 322,
     "userId": "rnfma14",
@@ -2049,7 +2042,6 @@
     "yearWinRate": 41.8,
     "winRate": "50%"
   },
-  
   {
     "id": 603,
     "userId": "corgi1102",
@@ -2500,7 +2492,6 @@
     "yearWinRate": 61.7,
     "winRate": "52%"
   },
-
   {
     "id": 474,
     "userId": "dbrbals",
@@ -2614,7 +2605,7 @@
     "tierId": "tier-7",
     "sortOrder": 3,
     "eloboardKey": "M_354_Z,M_941_Z,W_354_P,W_354_T,W_354_Z",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=354",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=941",
     "image": "https://profile.img.sooplive.co.kr/LOGO/to/toy2053/toy2053.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/to/toy2053/toy2053.jpg",
     "station": "https://www.sooplive.com/station/toy2053",
@@ -3155,7 +3146,6 @@
     "yearWinRate": null,
     "winRate": ""
   },
-  
   {
     "id": 125,
     "userId": "goodgame07",
@@ -3242,33 +3232,6 @@
     "station": "https://www.sooplive.com/station/toozi0317",
     "stationStatus": 200,
     "academy": null,
-    "monthWinRate": null,
-    "yearWinRate": null,
-    "winRate": ""
-  },
-  {
-    "id": 503,
-    "userId": "joey1114",
-    "name": "저라뎃",
-    "description": "",
-    "race": "T",
-    "tierCode": "2",
-    "tier": "2티어",
-    "tierId": "tier-2",
-    "sortOrder": 4,
-    "eloboardKey": "M_159_T,M_159_Z",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=159",
-    "image": "https://profile.img.sooplive.co.kr/LOGO/jo/joey1114/joey1114.jpg",
-    "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/jo/joey1114/joey1114.jpg",
-    "station": "https://www.sooplive.com/station/joey1114",
-    "stationStatus": 200,
-    "academy": {
-      "id": 9,
-      "name": "YB",
-      "image": "https://dn.cnine.kr/file/20240529/b3658e4ebbf049dca421941e3390eddf.jpg",
-      "sourceImage": "https://dn.cnine.kr/file/20240529/b3658e4ebbf049dca421941e3390eddf.jpg",
-      "position": "어드바이저"
-    },
     "monthWinRate": null,
     "yearWinRate": null,
     "winRate": ""
@@ -3750,7 +3713,6 @@
     "yearWinRate": 51.2,
     "winRate": "39%"
   },
-  
   {
     "id": 593,
     "userId": "595935",
@@ -3762,7 +3724,7 @@
     "tierId": "tier-3",
     "sortOrder": 5,
     "eloboardKey": "M_11_Z,W_11_P,W_11_Z",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=11",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=11",
     "image": "https://profile.img.sooplive.co.kr/LOGO/59/595935/595935.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/59/595935/595935.jpg",
     "station": "https://www.sooplive.com/station/595935",
@@ -4486,7 +4448,6 @@
     "yearWinRate": 43.6,
     "winRate": "27%"
   },
-  
   {
     "id": 133,
     "userId": "khc2566",
@@ -4796,7 +4757,6 @@
     "yearWinRate": 52.8,
     "winRate": "37%"
   },
-  
   {
     "id": 495,
     "userId": "wjddmstj79",
@@ -4974,7 +4934,6 @@
     "yearWinRate": 100,
     "winRate": "100%"
   },
-  
   {
     "id": 35,
     "userId": "hongduck9737",
@@ -5286,7 +5245,7 @@
     "tierId": "tier-5",
     "sortOrder": 7,
     "eloboardKey": "M_330_Z,M_331_P,W_331_P",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=331",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=331",
     "image": "https://profile.img.sooplive.co.kr/LOGO/dm/dmsthfdldia/dmsthfdldia.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/dm/dmsthfdldia/dmsthfdldia.jpg",
     "station": "https://www.sooplive.com/station/dmsthfdldia",
@@ -5313,7 +5272,7 @@
     "tierId": "tier-5",
     "sortOrder": 7,
     "eloboardKey": "M_400_Z,W_350_P,W_400_P,W_400_Z",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=400",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=400",
     "image": "https://profile.img.sooplive.co.kr/LOGO/rh/rhf104/rhf104.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/rh/rhf104/rhf104.jpg",
     "station": "https://www.sooplive.com/station/rhf104",
@@ -6381,7 +6340,7 @@
     "tierId": "tier-7",
     "sortOrder": 9,
     "eloboardKey": "M_61_P,W_61_P,W_61_Z",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=61",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=61",
     "image": "https://profile.img.sooplive.co.kr/LOGO/dd/dduuccu/dduuccu.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/dd/dduuccu/dduuccu.jpg",
     "station": "https://www.sooplive.com/station/dduuccu",
@@ -6846,7 +6805,7 @@
     "tierId": "tier-5",
     "sortOrder": 10,
     "eloboardKey": "M_715_T,W_715_T",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=715",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=715",
     "image": "https://profile.img.sooplive.co.kr/LOGO/lk/lkim12/lkim12.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/lk/lkim12/lkim12.jpg",
     "station": "https://www.sooplive.com/station/lkim12",
@@ -7188,7 +7147,7 @@
     "tierId": "tier-6",
     "sortOrder": 11,
     "eloboardKey": "M_156_Z,M_841_Z,W_156_Z",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=156",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=841",
     "image": "https://profile.img.sooplive.co.kr/LOGO/al/alsgus00/alsgus00.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/al/alsgus00/alsgus00.jpg",
     "station": "https://www.sooplive.com/station/alsgus00",
@@ -8019,7 +7978,7 @@
     "tierId": "tier-8",
     "sortOrder": 30,
     "eloboardKey": "W_1026_T",
-    "elo": "",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=1026",
     "image": "https://profile.img.sooplive.co.kr/LOGO/kj/kjhanna824/kjhanna824.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/kj/kjhanna824/kjhanna824.jpg",
     "station": "https://www.sooplive.com/station/kjhanna824",
@@ -8202,7 +8161,7 @@
     "tierId": "tier-B",
     "sortOrder": 39,
     "eloboardKey": "",
-    "elo": "",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=1031",
     "image": "https://profile.img.sooplive.co.kr/LOGO/ye/yeonvelyo3o/yeonvelyo3o.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/ye/yeonvelyo3o/yeonvelyo3o.jpg",
     "station": "https://www.sooplive.com/station/yeonvelyo3o",
@@ -8310,7 +8269,7 @@
     "tierId": "tier-B",
     "sortOrder": 51,
     "eloboardKey": "",
-    "elo": "",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=1036",
     "image": "https://profile.img.sooplive.com/LOGO/ar/ara9687/ara9687.jpg",
     "sourceImage": "https://profile.img.sooplive.com/LOGO/ar/ara9687/ara9687.jpg",
     "station": "https://www.sooplive.com/station/ara9687",
@@ -8364,7 +8323,7 @@
     "tierId": "tier-B",
     "sortOrder": 54,
     "eloboardKey": "",
-    "elo": "",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=1039",
     "image": "https://profile.img.sooplive.com/LOGO/sk/sksmsskdsl10/sksmsskdsl10.jpg",
     "sourceImage": "https://profile.img.sooplive.com/LOGO/sk/sksmsskdsl10/sksmsskdsl10.jpg",
     "station": "https://www.sooplive.com/station/sksmsskdsl10",
@@ -8391,7 +8350,7 @@
     "tierId": "tier-B",
     "sortOrder": 55,
     "eloboardKey": "",
-    "elo": "",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=1038",
     "image": "https://profile.img.sooplive.com/LOGO/zi/zinsim/zinsim.jpg",
     "sourceImage": "https://profile.img.sooplive.com/LOGO/zi/zinsim/zinsim.jpg",
     "station": "https://www.sooplive.com/station/zinsim",
