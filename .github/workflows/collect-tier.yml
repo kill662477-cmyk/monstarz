@@ -2,6 +2,25 @@ name: Collect Tier Data
 
 on:
   workflow_dispatch:
+    inputs:
+      record_sync_mode:
+        description: "전적 수집 모드: auto / full / incremental"
+        required: true
+        default: "full"
+        type: choice
+        options:
+          - auto
+          - full
+          - incremental
+      record_full_max_pages:
+        description: "full 백필 시 Ajax 더보기 최대 페이지"
+        required: true
+        default: "120"
+      record_incremental_max_pages:
+        description: "incremental 업데이트 시 Ajax 더보기 최대 페이지"
+        required: true
+        default: "8"
+
   schedule:
     - cron: "0 */8 * * *"
 
@@ -11,7 +30,7 @@ permissions:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
 
     steps:
       - name: Checkout
@@ -37,5 +56,15 @@ jobs:
 
           FETCH_TIMEOUT_MS: "50000"
           RECORD_CONCURRENCY: "3"
+
+          # 기존 RECORD_MAX_PAGES는 기본값/호환용으로 둠
           RECORD_MAX_PAGES: "30"
+
+          # 수동 실행이면 입력값 사용, 예약 실행이면 auto로 동작
+          RECORD_SYNC_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.record_sync_mode || 'auto' }}
+          RECORD_FULL_MAX_PAGES: ${{ github.event_name == 'workflow_dispatch' && inputs.record_full_max_pages || '120' }}
+          RECORD_INCREMENTAL_MAX_PAGES: ${{ github.event_name == 'workflow_dispatch' && inputs.record_incremental_max_pages || '8' }}
+
           ELOBOARD_MAX_ROWS_PER_PLAYER: "5000"
+          INACTIVE_RECORD_MONTHS: "4"
+          HIDE_INACTIVE_PLAYERS: "true"
