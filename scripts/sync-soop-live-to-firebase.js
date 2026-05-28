@@ -9,7 +9,7 @@ const FIREBASE_TIER_ROOT = process.env.FIREBASE_TIER_ROOT || "starcraftTier/curr
 const SOOP_CLIENT_ID = process.env.SOOP_CLIENT_ID || "";
 
 const FETCH_TIMEOUT_MS = Math.max(3000, Number(process.env.FETCH_TIMEOUT_MS || 8000));
-const SOOP_LIVE_MAX_PAGES = Math.max(1, Number(process.env.SOOP_LIVE_MAX_PAGES || 100));
+const SOOP_LIVE_MAX_PAGES = Math.max(1, Number(process.env.SOOP_LIVE_MAX_PAGES || 300));
 const SOOP_LIVE_PAGE_BATCH = Math.max(1, Number(process.env.SOOP_LIVE_PAGE_BATCH || 3));
 
 function safeKey(value) {
