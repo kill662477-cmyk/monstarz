@@ -3837,33 +3837,7 @@
     "yearWinRate": 50.4,
     "winRate": "49%"
   },
-  {
-    "id": 175,
-    "userId": "kmj05317",
-    "name": "우리밍",
-    "description": "",
-    "race": "T",
-    "tierCode": "4",
-    "tier": "4티어",
-    "tierId": "tier-4",
-    "sortOrder": 5,
-    "eloboardKey": "M_364_P,W_437_Z,W_471_P,W_631_T",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=631",
-    "image": "https://profile.img.sooplive.co.kr/LOGO/km/kmj05317/kmj05317.jpg",
-    "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/km/kmj05317/kmj05317.jpg",
-    "station": "https://www.sooplive.com/station/kmj05317",
-    "stationStatus": 200,
-    "academy": {
-      "id": 9,
-      "name": "YB",
-      "image": "https://dn.cnine.kr/file/20240529/b3658e4ebbf049dca421941e3390eddf.jpg",
-      "sourceImage": "https://dn.cnine.kr/file/20240529/b3658e4ebbf049dca421941e3390eddf.jpg",
-      "position": ""
-    },
-    "monthWinRate": null,
-    "yearWinRate": null,
-    "winRate": ""
-  },
+  
   {
     "id": 68,
     "userId": "zealot0846",
