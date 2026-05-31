@@ -5317,7 +5317,32 @@
     const opponentList = document.getElementById('opponentList');
     const recentOpponents = document.getElementById('recentOpponents');
     const headContent = document.getElementById('headContent');
-    const filters = { liveOnly:true, race:'all', tier:'all', liveFirst:true };
+    const FILTER_STORAGE_KEY = 'kammonstarz-tierboard-filters-v1';
+    function loadSavedFilters(){
+      try{
+        const saved=JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY)||'{}');
+        return saved&&typeof saved==='object'?saved:{};
+      }catch(e){ return {}; }
+    }
+    const savedFilters = loadSavedFilters();
+    const filters = {
+      liveOnly:typeof savedFilters.liveOnly==='boolean'?savedFilters.liveOnly:true,
+      race:['all','T','Z','P'].includes(savedFilters.race)?savedFilters.race:'all',
+      tier:['all',...tierOrder].includes(savedFilters.tier)?savedFilters.tier:'all',
+      liveFirst:typeof savedFilters.liveFirst==='boolean'?savedFilters.liveFirst:true
+    };
+    searchInput.value=typeof savedFilters.search==='string'?savedFilters.search:'';
+    function saveFilters(){
+      try{
+        localStorage.setItem(FILTER_STORAGE_KEY,JSON.stringify({
+          liveOnly:filters.liveOnly,
+          race:filters.race,
+          tier:filters.tier,
+          liveFirst:filters.liveFirst,
+          search:searchInput.value
+        }));
+      }catch(e){}
+    }
     const raceName = { T:'테란', Z:'저그', P:'프로토스' };
     const raceOrder = ['T','Z','P'];
     const opponentRaceName = { A:'전체', Z:'저그', T:'테란', P:'프로토스' };
@@ -5430,7 +5455,7 @@
     function renderSummary(count){ const chips=[]; if(filters.liveOnly) chips.push(['방송중만 보기','live']); if(filters.race!=='all') chips.push(['종족: '+raceName[filters.race], 'race']); if(filters.tier!=='all') chips.push(['티어: '+filters.tier, 'tier']); if(searchInput.value.trim()) chips.push(['검색: '+searchInput.value.trim(), 'search']); filterSummary.innerHTML='<span class="summary-label">필터 적용 결과</span><span class="chip">'+count+'명 표시중</span>' + chips.map(c=>'<span class="chip">'+escapeHtml(c[0])+' <button type="button" data-remove-filter="'+c[1]+'">×</button></span>').join(''); }
     function tierStats(players){ return { total:players.length, live:players.filter(p=>p.live).length, T:players.filter(p=>p.race==='T').length, Z:players.filter(p=>p.race==='Z').length, P:players.filter(p=>p.race==='P').length }; }
     function playerCard(player){ const key=playerKey(player); const thumb=player.live && streamThumbnail(player) ? streamThumbnail(player) : player.image; const profileMode=!(player.live && streamThumbnail(player)); const academy=player.academy && player.academy.image ? '<span class="academy" title="'+escapeAttr(player.academy.name||'')+'"><img src="'+escapeAttr(player.academy.image)+'" alt=""></span>' : ''; const live=player.live?'<span class="live-badge">ON</span>':'<span class="offline-dot"></span>'; const tag=player.live?'<span class="content-tag">'+escapeHtml(contentCategory(player))+'</span>':''; const broadcast=player.live && player.broadcastUrl ? '<a class="card-btn primary full" href="'+escapeAttr(player.broadcastUrl)+'" target="_blank" rel="noopener">방송보기</a>' : ''; const station=player.station?'<a class="card-btn" href="'+escapeAttr(player.station)+'" target="_blank" rel="noopener">방송국</a>':''; const initial=String(player.name||'?').slice(0,1); return '<article class="player-card race-'+escapeAttr(player.race)+(player.live?' live':'')+(profileMode?' profile-mode':'')+'">'+'<div class="thumb" data-initial="'+escapeAttr(initial)+'">'+live+tag+academy+'<img class="'+(player.live&&!profileMode?'stream-thumb':'profile-thumb')+'" src="'+escapeAttr(thumb)+'" alt="'+escapeAttr(player.name)+'" loading="lazy" onerror="this.parentElement.classList.add(\'no-image\')"></div>'+'<div class="card-body"><div class="player-line"><span class="avatar" data-initial="'+escapeAttr(initial)+'"><img src="'+escapeAttr(player.image)+'" alt="" onerror="this.parentElement.classList.add(\'no-image\')"></span><div class="namebox"><div class="name">'+escapeHtml(player.name)+'</div><div class="tier-text">'+escapeHtml(player.tier)+'</div></div><span class="race-badge '+escapeAttr(player.race)+'">'+escapeHtml(player.race)+'</span></div><div class="card-actions">'+broadcast+station+'<button class="card-btn record-action" type="button" data-player-key="'+escapeAttr(key)+'">전적</button></div></div></article>'; }
-    function render(){ updateStats(); renderTierNav(); document.querySelectorAll('.pill').forEach(btn=>{ const active=(btn.dataset.filter==='all'&&!filters.liveOnly&&filters.race==='all'&&filters.tier==='all'&&!searchInput.value.trim())||(btn.dataset.filter==='live'&&filters.liveOnly)||(btn.dataset.race&&filters.race===btn.dataset.race)||(btn.dataset.tier&&filters.tier===btn.dataset.tier); btn.classList.toggle('active',!!active); }); const players=filteredData(); renderSummary(players.length); if(!players.length){ tierStack.innerHTML='<div class="empty">조건에 맞는 플레이어가 없습니다.</div>'; return; } const groups=groupedByTier(players); const visible=filters.tier==='all'?tierOrder.filter(t=>(groups.get(t)||[]).length):[filters.tier]; tierStack.innerHTML=visible.map(t=>{ const list=groups.get(t)||[]; const s=tierStats(list); return '<section class="tier-section" id="tier-'+encodeURIComponent(t)+'"><div class="tier-head"><div class="tier-title-wrap"><div class="tier-title">'+escapeHtml(t)+'</div><div class="tier-meta"><span>전체 <b>'+s.total+'명</b></span><span class="live">방송중 '+s.live+'명</span><span class="T">T '+s.T+'</span><span class="Z">Z '+s.Z+'</span><span class="P">P '+s.P+'</span></div></div><div class="tier-tools"><label class="switch"><span>방송중 우선 정렬</span><input type="checkbox" class="live-first-toggle" '+(filters.liveFirst?'checked':'')+'><span class="switch-ui"></span></label></div></div><div class="players">'+list.map(playerCard).join('')+'</div></section>'; }).join(''); }
+    function render(){ saveFilters(); updateStats(); renderTierNav(); document.querySelectorAll('.pill').forEach(btn=>{ const active=(btn.dataset.filter==='all'&&!filters.liveOnly&&filters.race==='all'&&filters.tier==='all'&&!searchInput.value.trim())||(btn.dataset.filter==='live'&&filters.liveOnly)||(btn.dataset.race&&filters.race===btn.dataset.race)||(btn.dataset.tier&&filters.tier===btn.dataset.tier); btn.classList.toggle('active',!!active); }); const players=filteredData(); renderSummary(players.length); if(!players.length){ tierStack.innerHTML='<div class="empty">조건에 맞는 플레이어가 없습니다.</div>'; return; } const groups=groupedByTier(players); const visible=filters.tier==='all'?tierOrder.filter(t=>(groups.get(t)||[]).length):[filters.tier]; tierStack.innerHTML=visible.map(t=>{ const list=groups.get(t)||[]; const s=tierStats(list); return '<section class="tier-section" id="tier-'+encodeURIComponent(t)+'"><div class="tier-head"><div class="tier-title-wrap"><div class="tier-title">'+escapeHtml(t)+'</div><div class="tier-meta"><span>전체 <b>'+s.total+'명</b></span><span class="live">방송중 '+s.live+'명</span><span class="T">T '+s.T+'</span><span class="Z">Z '+s.Z+'</span><span class="P">P '+s.P+'</span></div></div><div class="tier-tools"><label class="switch"><span>방송중 우선 정렬</span><input type="checkbox" class="live-first-toggle" '+(filters.liveFirst?'checked':'')+'><span class="switch-ui"></span></label></div></div><div class="players">'+list.map(playerCard).join('')+'</div></section>'; }).join(''); }
 
     function setTab(name){ const head=name==='head'; tabOverall.classList.toggle('active',!head); tabHead.classList.toggle('active',head); overallPane.hidden=head; headPane.hidden=!head; if(head) renderHeadPane(); }
     function openRecord(key){ const player=playerByKey(key); if(!player) return; activeRecordKey=key; selectedOpponentKey=''; recordVisibleCount=RECORD_PAGE_SIZE; h2hVisibleCount=H2H_PAGE_SIZE; opponentSearch.value=''; if(headPeriod) headPeriod.value='LAST_3_MONTHS'; recordAvatar.src=player.image; recordTitle.innerHTML=escapeHtml(player.name)+' <span class="race-badge '+escapeAttr(player.race)+'">'+escapeHtml(player.race)+'</span> <span style="font-size:20px;color:#69ef91">'+escapeHtml(player.tier)+'</span>'; recordRace.value=player.race; recordYear.value=String(currentYear); recordMonth.value=String(currentMonth); setTab('overall'); recordDialog.showModal(); loadRecord(); }
