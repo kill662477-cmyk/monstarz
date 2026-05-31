@@ -27,6 +27,33 @@
     "winRate": "42%"
   },
   {
+  "id": 706,
+  "userId": "gks2wl",
+  "name": "앵지",
+  "description": "",
+  "race": "Z",
+  "tierCode": "4",
+  "tier": "4티어",
+  "tierId": "tier-4",
+  "sortOrder": 11,
+  "eloboardKey": "W_14_Z",
+  "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=14",
+  "image": "https://profile.img.sooplive.co.kr/LOGO/gk/gks2wl/gks2wl.jpg",
+  "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/gk/gks2wl/gks2wl.jpg",
+  "station": "https://www.sooplive.com/station/gks2wl",
+  "stationStatus": 200,
+  "academy": {
+    "id": 1,
+    "name": "씨나인",
+    "image": "https://dn.cnine.kr/file/20260312/31dff9e0aec947998652a9f247999e89.png",
+    "sourceImage": "https://dn.cnine.kr/file/20260312/31dff9e0aec947998652a9f247999e89.png",
+    "position": ""
+  },
+  "monthWinRate": null,
+  "yearWinRate": null,
+  "winRate": ""
+}
+  {
     "id": 81,
     "userId": "arinbbidol",
     "name": "기뉴다",
