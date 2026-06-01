@@ -7717,9 +7717,237 @@ body.light-mode .site-header::after {
 body.light-mode .site-header .tab-row::before {
   color: #123766 !important;
 }
+
+
+/* ===== 스트리머 공지 탭 ===== */
+#tabNotice:before {
+  content: "▤";
+}
+
+.notice-feed-section {
+  min-height: 0;
+}
+
+.notice-feed-section-head {
+  margin: 0 0 10px !important;
+  padding: 17px 18px !important;
+  border: 1px solid var(--sr-line) !important;
+  background: var(--sr-section-bg) !important;
+  box-shadow: var(--sr-shadow) !important;
+}
+
+.notice-feed-sub {
+  margin-top: 5px;
+  color: var(--sr-muted);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .04em;
+}
+
+.notice-feed-head-meta {
+  display: grid;
+  justify-items: end;
+  gap: 3px;
+}
+
+.notice-feed-updated {
+  color: var(--sr-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.notice-feed-list {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--sr-line);
+  background: var(--sr-board-bg);
+  box-shadow: var(--sr-shadow);
+}
+
+.notice-feed-card {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 14px;
+  min-height: 104px;
+  padding: 13px;
+  overflow: hidden;
+  border: 1px solid rgba(100,151,225,.22);
+  background: var(--sr-card-bg);
+  box-shadow: 0 12px 24px rgba(0,0,0,.20);
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+
+.notice-feed-card.has-thumbnail {
+  grid-template-columns: 58px minmax(0, 1fr) 142px;
+}
+
+.notice-feed-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(86,161,255,.60);
+  box-shadow: 0 15px 28px rgba(0,0,0,.26), inset 3px 0 0 #56a1ff;
+}
+
+.notice-feed-avatar-wrap {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  overflow: hidden;
+  border: 1px solid rgba(132,185,255,.36);
+  background: var(--sr-avatar-bg);
+  box-shadow: 0 7px 16px rgba(0,0,0,.22);
+  clip-path: polygon(10% 0,100% 0,100% 84%,86% 100%,0 100%,0 15%);
+}
+
+.notice-feed-avatar,
+.notice-feed-avatar-fallback {
+  width: 100%;
+  height: 100%;
+}
+
+.notice-feed-avatar {
+  object-fit: cover;
+}
+
+.notice-feed-avatar-fallback {
+  display: grid;
+  place-items: center;
+  color: #dbeafe;
+  background: linear-gradient(135deg,rgba(29,102,255,.30),rgba(5,18,37,.92));
+  font-size: 21px;
+  font-weight: 950;
+}
+
+.notice-feed-content {
+  min-width: 0;
+}
+
+.notice-feed-station-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.notice-feed-station {
+  min-width: 0;
+  overflow: hidden;
+  color: #72b4ff;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: -.025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notice-feed-time {
+  color: var(--sr-muted);
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.notice-feed-title {
+  margin: 7px 0 4px;
+  overflow: hidden;
+  color: var(--sr-title);
+  font-size: 15px;
+  font-weight: 950;
+  letter-spacing: -.035em;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notice-feed-body {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--sr-soft);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.55;
+  word-break: break-word;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.notice-feed-thumb-wrap {
+  width: 142px;
+  height: 80px;
+  align-self: center;
+  overflow: hidden;
+  border: 1px solid rgba(132,185,255,.24);
+  background: rgba(255,255,255,.045);
+  box-shadow: 0 8px 18px rgba(0,0,0,.20);
+}
+
+.notice-feed-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .18s ease;
+}
+
+.notice-feed-card:hover .notice-feed-thumb {
+  transform: scale(1.035);
+}
+
+body.light-mode .notice-feed-section-head,
+body.light-mode .notice-feed-list {
+  border-color: rgba(36,99,168,.18) !important;
+  background: var(--sr-board-bg) !important;
+}
+
+body.light-mode .notice-feed-card {
+  border-color: rgba(36,99,168,.18);
+  background: var(--sr-card-bg);
+  box-shadow: 0 9px 20px rgba(52,108,176,.13);
+}
+
+body.light-mode .notice-feed-card:hover {
+  border-color: rgba(29,116,255,.54);
+  box-shadow: 0 12px 24px rgba(52,108,176,.18), inset 3px 0 0 #2f80ed;
+}
+
+body.light-mode .notice-feed-station {
+  color: #1d4ed8;
+}
+
+body.light-mode .notice-feed-title {
+  color: #13233a;
+}
+
+body.light-mode .notice-feed-body,
+body.light-mode .notice-feed-time,
+body.light-mode .notice-feed-updated,
+body.light-mode .notice-feed-sub {
+  color: #58708f;
+}
+
+@media (max-width: 760px) {
+  .notice-feed-card,
+  .notice-feed-card.has-thumbnail {
+    grid-template-columns: 46px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 0;
+    padding: 10px;
+  }
+
+  .notice-feed-avatar-wrap {
+    width: 46px;
+    height: 46px;
+  }
+
+  .notice-feed-thumb-wrap {
+    grid-column: 2;
+    width: 112px;
+    height: 64px;
+    margin-top: 7px;
+  }
+}
+
 </style>
-
-
 
 </head>
 <body>
@@ -7748,6 +7976,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <button id="tabMain" class="tab-btn active" type="button">현황판</button>
         <button id="tabProfile" class="tab-btn" type="button">프로필</button>
         <button id="tabTier" class="tab-btn" type="button">티어표</button>
+        <button id="tabNotice" class="tab-btn" type="button">공지</button>
         <button id="tabInout" class="tab-btn" type="button">IN&OUT</button>
         <button id="tabBoja" class="tab-btn" type="button">보자충</button>
         <button id="tabYoutube" class="tab-btn" type="button">팬튜브</button>
@@ -7823,6 +8052,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div id="tierScreen" class="screen hidden">
       <section class="tier-tab-shell tier-tab-shell-compact">
         <iframe id="tierFrame" class="tier-tab-frame" src="tierboard_calm_tab.html" title="스타크래프트 티어표" loading="lazy" scrolling="auto"></iframe>
+      </section>
+    </div>
+
+    <div id="noticeScreen" class="screen hidden">
+      <section class="notice-feed-section">
+        <div class="section-head notice-feed-section-head">
+          <div>
+            <h2>스트리머 공지</h2>
+            <div class="notice-feed-sub">SOOP 방송국 최신 게시글</div>
+          </div>
+          <div class="notice-feed-head-meta">
+            <span class="count" id="noticeCount">0개</span>
+            <span class="notice-feed-updated" id="noticeCheckedAt">불러오는 중</span>
+          </div>
+        </div>
+        <div id="noticeList" class="notice-feed-list">
+          <div class="empty">스트리머 공지를 불러오는 중입니다.</div>
+        </div>
       </section>
     </div>
 
@@ -8185,6 +8432,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const LIVE_STATUS_URL = "https://livecheck-2.onrender.com/live-status";
   const YOUTUBE_JSON_URL = "https://raw.githubusercontent.com/kill662477-cmyk/youtube/main/youtube.json";
   const KAMRINI_JSON_URL = "https://raw.githubusercontent.com/kill662477-cmyk/RINI/main/data/kamrini-videos.json";
+  const NOTICE_JSON_URL = "https://raw.githubusercontent.com/kill662477-cmyk/silver0love/main/notices.json";
 
   // 보자충 탭: URL을 직접 넣는 수동 영상 리스트입니다.
   // 형식: { title: "영상 제목", url: "영상 URL", note: "선택 메모" }
@@ -8326,6 +8574,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   let lastCheckedAt = TEAM.updatedAt;
   let youtubeItems = [];
   let lastYoutubeCheckedAt = "";
+  let noticeItems = [];
+  let lastNoticeCheckedAt = "";
 
   const teamName = document.getElementById("teamName");
   const teamDesc = document.getElementById("teamDesc");
@@ -8342,10 +8592,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const tabMain = document.getElementById("tabMain");
   const tabProfile = document.getElementById("tabProfile");
   const tabTier = document.getElementById("tabTier");
+  const tabNotice = document.getElementById("tabNotice");
   const tabBoja = document.getElementById("tabBoja");
   const mainScreen = document.getElementById("mainScreen");
   const profileScreen = document.getElementById("profileScreen");
   const tierScreen = document.getElementById("tierScreen");
+  const noticeScreen = document.getElementById("noticeScreen");
+  const noticeList = document.getElementById("noticeList");
+  const noticeCount = document.getElementById("noticeCount");
+  const noticeCheckedAt = document.getElementById("noticeCheckedAt");
   const bojaScreen = document.getElementById("bojaScreen");
   const bojaCategoryRow = document.getElementById("bojaCategoryRow");
   const bojaCategoryTitle = document.getElementById("bojaCategoryTitle");
@@ -8699,38 +8954,138 @@ function createMemberCard(member) {
     return member?.profileImage || "";
   }
 
+  function getNoticeThumbnail(item) {
+    return String(
+      item?.thumbnailUrl ||
+      item?.thumbnail ||
+      item?.thumb ||
+      item?.imageUrl ||
+      item?.image ||
+      ""
+    ).trim();
+  }
+
+  function cleanNoticeTitle(value) {
+    return String(value || "")
+      .replace(/^\s*notice\s*/i, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function cleanNoticeContent(value) {
+    return String(value || "")
+      .replace(/^\s*notice\s*/i, "")
+      // SOOP 목록 카드 하단의 조회·댓글·추천 숫자가 본문 뒤에 붙는 경우 제거한다.
+      .replace(/\s+\d[\d,]*\s+\d[\d,]*\s+\d[\d,]*\s*$/, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function normalizeNoticeItem(item, index) {
+    const stationName = String(item?.stationName || item?.writer || "공지").trim() || "공지";
+    const title = cleanNoticeTitle(item?.title || item?.subject || item?.heading || "");
+    const content = cleanNoticeContent(item?.content || item?.body || item?.summary || "");
+    return {
+      ...item,
+      _order: index,
+      stationName,
+      writer: String(item?.writer || stationName).trim(),
+      userId: String(item?.userId || "").trim(),
+      title,
+      content,
+      time: String(item?.time || "").trim(),
+      link: String(item?.link || "").trim(),
+      thumbnailUrl: getNoticeThumbnail(item)
+    };
+  }
+
+  function safeExternalUrl(url) {
+    try {
+      const parsed = new URL(String(url || ""), window.location.href);
+      return /^(https?:)$/i.test(parsed.protocol) ? parsed.href : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function getSafeNoticeThumbnailUrl(url) {
+    const safeUrl = safeExternalUrl(url);
+    if (!safeUrl) return "";
+    try {
+      const parsed = new URL(safeUrl);
+      const value = safeUrl.toLowerCase();
+      const pathname = parsed.pathname.toLowerCase();
+      if (value.includes("-webkit-line-clamp") || value.includes("thumb_profile.svg")) return "";
+      if (pathname.includes("/board/")) return "";
+      if (/\.(?:jpe?g|png|webp|gif|avif)(?:$|[?#])/i.test(safeUrl)) return safeUrl;
+      if (/^stimg\.sooplive\.com$/i.test(parsed.hostname) && /\/normal_bbs\//i.test(pathname)) return safeUrl;
+    } catch (error) {}
+    return "";
+  }
+
+  function renderNoticeAvatar(item) {
+    // 방송국 프로필 이미지는 기존 MEMBERS 데이터의 profileImage를 재사용한다.
+    const profileImage = getMemberProfileImageByUserId(item.userId);
+    const initial = escapeHtml((item.stationName || "공").slice(0, 1));
+    if (!profileImage) return `<span class="notice-feed-avatar-fallback">${initial}</span>`;
+    return `
+      <img class="notice-feed-avatar" src="${escapeHtml(profileImage)}" alt="${escapeHtml(item.stationName)} 프로필" loading="lazy" referrerpolicy="no-referrer" onerror="this.hidden=true;this.nextElementSibling.hidden=false;">
+      <span class="notice-feed-avatar-fallback" hidden>${initial}</span>
+    `;
+  }
+
   function renderNotices() {
-    const visibleNoticeItems = noticeItems.slice(0, 10);
+    if (!noticeList || !noticeCount) return;
+    const visibleNoticeItems = noticeItems.slice(0, 40);
+    noticeCount.textContent = `${visibleNoticeItems.length}개`;
+    if (noticeCheckedAt) {
+      noticeCheckedAt.textContent = lastNoticeCheckedAt
+        ? `갱신 ${formatCheckedAt(lastNoticeCheckedAt)}`
+        : "갱신 정보 없음";
+    }
 
     if (!visibleNoticeItems.length) {
-      noticeCount.textContent = "0개";
       noticeList.innerHTML = `<div class="empty">공지 데이터가 없습니다.</div>`;
       return;
     }
 
-    noticeCount.textContent = `${visibleNoticeItems.length}개`;
-
     noticeList.innerHTML = visibleNoticeItems.map((item) => {
-      const profileImage = getMemberProfileImageByUserId(item.userId);
-
+      const link = safeExternalUrl(item.link) || "javascript:void(0)";
+      const thumbnailUrl = getSafeNoticeThumbnailUrl(item.thumbnailUrl);
+      const hasThumbnail = Boolean(thumbnailUrl);
       return `
-        <article class="notice-card">
-          <div class="notice-head">
-            <div class="notice-head-left">
-              ${profileImage ? `<img class="notice-avatar" src="${profileImage}" alt="${item.stationName || item.writer || "공지"} 프로필">` : ""}
-              <div class="notice-station-wrap">
-                <span class="notice-station">${item.stationName || item.writer || "공지"}</span>
-              </div>
+        <a class="notice-feed-card ${hasThumbnail ? "has-thumbnail" : ""}" href="${escapeHtml(link)}" ${link !== "javascript:void(0)" ? 'target="_blank" rel="noopener noreferrer"' : ""}>
+          <div class="notice-feed-avatar-wrap">${renderNoticeAvatar(item)}</div>
+          <div class="notice-feed-content">
+            <div class="notice-feed-station-row">
+              <span class="notice-feed-station">${escapeHtml(item.stationName)}</span>
+              <span class="notice-feed-time">${escapeHtml(item.time || "날짜 없음")}</span>
             </div>
-            <span class="notice-time">${item.time ? item.time : "날짜 없음"}</span>
+            ${item.title ? `<h3 class="notice-feed-title">${escapeHtml(item.title)}</h3>` : ""}
+            ${item.content ? `<p class="notice-feed-body">${escapeHtml(item.content)}</p>` : ""}
           </div>
-          <a class="notice-summary-link" href="${safeLink(item.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.summary || "")}</a>
-          <div class="notice-meta">최종 갱신: ${formatCheckedAt(lastNoticeCheckedAt)}</div>
-        </article>
+          ${hasThumbnail ? `<div class="notice-feed-thumb-wrap"><img class="notice-feed-thumb" src="${escapeHtml(thumbnailUrl)}" alt="${escapeHtml(item.title || item.stationName)} 썸네일" loading="lazy" referrerpolicy="no-referrer"></div>` : ""}
+        </a>
       `;
     }).join("");
   }
 
+  async function fetchNotices() {
+    try {
+      const response = await fetch(`${NOTICE_JSON_URL}?t=${Date.now()}`, { cache: "no-store" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      noticeItems = (Array.isArray(data?.items) ? data.items : [])
+        .map(normalizeNoticeItem)
+        .filter(item => item.link || item.content || item.title);
+      lastNoticeCheckedAt = data?.checkedAt || "";
+      renderNotices();
+      console.log("공지 데이터 업데이트 성공", { total: noticeItems.length, checkedAt: lastNoticeCheckedAt });
+    } catch (error) {
+      console.log("공지 데이터 가져오기 실패", error);
+      renderNotices();
+    }
+  }
 
 
   function formatYoutubeDate(value) {
@@ -9384,6 +9739,7 @@ function createMemberCard(member) {
   function getTabKeyFromElement(tab) {
     if (tab === tabProfile) return "profile";
     if (tab === tabTier) return "tier";
+    if (tab === tabNotice) return "notice";
     if (tab === tabInout) return "inout";
     if (tab === tabBoja) return "boja";
     if (tab === tabYoutube) return "youtube";
@@ -9401,6 +9757,7 @@ function createMemberCard(member) {
       main: tabMain,
       profile: tabProfile,
       tier: tabTier,
+      notice: tabNotice,
       inout: tabInout,
       boja: tabBoja,
       youtube: tabYoutube,
@@ -9446,7 +9803,7 @@ function createMemberCard(member) {
   }
 
   function setActiveTab(activeTab, options = {}) {
-    [tabMain, tabProfile, tabTier, tabInout, tabBoja, tabYoutube, tabGame, tabDuckCalc, tabPinballDonation, tabFunding].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
+    [tabMain, tabProfile, tabTier, tabNotice, tabInout, tabBoja, tabYoutube, tabGame, tabDuckCalc, tabPinballDonation, tabFunding].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
     const safeActiveTab = activeTab === tabFunding && isFundingTempTabHidden() ? tabMain : activeTab;
     if (safeActiveTab) safeActiveTab.classList.add("active");
     document.body.classList.toggle("main-tab-active", safeActiveTab === tabMain);
@@ -9457,7 +9814,7 @@ function createMemberCard(member) {
   window.setActiveTab = setActiveTab;
 
   function hideAllScreens() {
-    [mainScreen, profileScreen, tierScreen, inoutScreen, bojaScreen, youtubeScreen, gameScreen, duckCalcScreen, pinballDonationScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
+    [mainScreen, profileScreen, tierScreen, noticeScreen, inoutScreen, bojaScreen, youtubeScreen, gameScreen, duckCalcScreen, pinballDonationScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
   }
   window.hideAllScreens = hideAllScreens;
 
@@ -9483,6 +9840,16 @@ function createMemberCard(member) {
     updateSummaryVisibility(false);
     hideAllScreens();
     tierScreen.classList.remove("hidden");
+  }
+
+  function showNoticeScreen() {
+    setFundingPageMode(false);
+    setActiveTab(tabNotice);
+    updateSummaryVisibility(false);
+    hideAllScreens();
+    noticeScreen.classList.remove("hidden");
+    renderNotices();
+    if (!noticeItems.length) fetchNotices();
   }
 
   function showBojaScreen() {
@@ -9563,6 +9930,9 @@ function createMemberCard(member) {
         break;
       case "tier":
         showTierScreen();
+        break;
+      case "notice":
+        showNoticeScreen();
         break;
       case "inout":
         showInoutScreen();
@@ -9658,18 +10028,22 @@ function createMemberCard(member) {
   render();
   renderBoja();
   renderYoutube();
+  renderNotices();
   renderInout();
   refreshLiveStatuses();
   fetchYoutube();
+  fetchNotices();
 
   setInterval(refreshLiveStatuses, 20000);
   setInterval(fetchYoutube, 60000);
+  setInterval(fetchNotices, 60000);
 
   searchInput.addEventListener("input", render);
   statusFilter.addEventListener("change", render);
   tabMain.addEventListener("click", showMainScreen);
   tabProfile.addEventListener("click", showProfileScreen);
   tabTier.addEventListener("click", showTierScreen);
+  tabNotice.addEventListener("click", showNoticeScreen);
   tabBoja.addEventListener("click", showBojaScreen);
   tabYoutube.addEventListener("click", showYoutubeScreen);
   if (tabGame) tabGame.addEventListener("click", showGameScreen);
