@@ -8374,14 +8374,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div id="pinballDonationJointPanel" class="pinball-donation-joint-panel" hidden>
               <div class="pinball-donation-joint-row">
                 <input id="pinballDonationJointName" class="pinball-donation-input" type="text" placeholder="내 표시 이름" autocomplete="off" />
-                <input id="pinballDonationJointCode" class="pinball-donation-input" type="text" placeholder="세션 코드" maxlength="12" autocomplete="off" />
+                <input id="pinballDonationJointCode" class="pinball-donation-input" type="password" placeholder="비밀번호" maxlength="12" autocomplete="new-password" aria-label="합동모드 비밀번호" />
               </div>
               <div class="pinball-donation-joint-actions">
                 <button id="pinballDonationJointCreate" class="primary" type="button">방 만들기</button>
                 <button id="pinballDonationJointJoin" type="button">입장</button>
                 <button id="pinballDonationJointLeave" class="danger" type="button">나가기</button>
               </div>
-              <div id="pinballDonationJointMeta" class="pinball-donation-joint-meta">합동 세션에 입장하지 않았습니다.</div>
+              <div id="pinballDonationJointMeta" class="pinball-donation-joint-meta">합동방에 입장하지 않았습니다.</div>
               <div id="pinballDonationJointMembers" class="pinball-donation-joint-members"></div>
             </div>
           </div>
@@ -10430,12 +10430,12 @@ function createMemberCard(member) {
     if (els.memo) els.memo.readOnly = isJointActive() && !host;
     if (!joint) return;
     if (!isJointActive()) {
-      setJointStatus("합동 세션에 입장하지 않았습니다.");
+      setJointStatus("합동방에 입장하지 않았습니다.");
       if (els.jointMembers) els.jointMembers.textContent = "";
       return;
     }
     const role = host ? "방장" : "참가자";
-    setJointStatus(`<b>${esc(state.joint.sessionCode)}</b> · ${esc(role)} · 방장 <b>${esc(state.joint.hostName || "-")}</b>`);
+    setJointStatus(`<b>비밀번호 ****</b> · ${esc(role)} · 방장 <b>${esc(state.joint.hostName || "-")}</b>`);
     const members = objectValues(state.joint.participants).sort((a,b) => Number(b.lastSeen || 0) - Number(a.lastSeen || 0));
     if (els.jointMembers) els.jointMembers.innerHTML = members.length
       ? members.map((member) => `${member.id === state.joint.hostId ? "👑" : "●"} ${esc(member.name || "참가자")}${member.soopConnected ? " · SOOP 연결" : ""}`).join("<br>")
@@ -10501,7 +10501,7 @@ function createMemberCard(member) {
     state.joint.sessionListener = (snapshot) => applyJointSnapshot(snapshot.val() || {});
     ref.on("value", state.joint.sessionListener);
     startJointHeartbeat();
-    localStorage.setItem("pinballJointLastCode", code);
+    
     updateJointUi();
   }
 
@@ -10509,10 +10509,11 @@ function createMemberCard(member) {
     try {
       savePersonalSnapshot();
       const db = await ensureJointFirebase();
-      let code = sanitizeSessionCode(els.jointCode?.value) || randomSessionCode();
+      const code = sanitizeSessionCode(els.jointCode?.value);
+      if (!code) { alert("사용할 비밀번호를 입력해줘."); return; }
       const ref = db.ref(PINBALL_SESSION_ROOT + "/" + code);
       const existing = await ref.once("value");
-      if (existing.exists()) { alert("이미 사용 중인 세션 코드입니다. 다른 코드를 입력하거나 입장 버튼을 눌러줘."); return; }
+      if (existing.exists()) { alert("이미 사용 중인 비밀번호입니다. 다른 비밀번호를 입력하거나 입장 버튼을 눌러줘."); return; }
       const now = Date.now();
       const name = jointDisplayName();
       await ref.set({
@@ -10524,10 +10525,10 @@ function createMemberCard(member) {
         participants: {}
       });
       attachJointSession(ref, code);
-      setStatus(`합동 세션 ${code} 방을 만들었습니다.`, "ok");
+      setStatus("합동방을 만들었습니다. 비밀번호는 화면에 ****로 표시됩니다.", "ok");
     } catch (error) {
       console.error(error);
-      alert("합동 세션 생성 실패: " + (error.message || error));
+      alert("합동방 생성 실패: " + (error.message || error));
     }
   }
 
@@ -10535,16 +10536,16 @@ function createMemberCard(member) {
     try {
       savePersonalSnapshot();
       const code = sanitizeSessionCode(els.jointCode?.value);
-      if (!code) { alert("입장할 세션 코드를 입력해줘."); return; }
+      if (!code) { alert("입장할 비밀번호를 입력해줘."); return; }
       const db = await ensureJointFirebase();
       const ref = db.ref(PINBALL_SESSION_ROOT + "/" + code);
       const existing = await ref.once("value");
-      if (!existing.exists()) { alert("해당 합동 세션을 찾지 못했습니다."); return; }
+      if (!existing.exists()) { alert("비밀번호가 맞는 합동방을 찾지 못했습니다."); return; }
       attachJointSession(ref, code);
-      setStatus(`합동 세션 ${code}에 입장했습니다.`, "ok");
+      setStatus("합동방에 입장했습니다.", "ok");
     } catch (error) {
       console.error(error);
-      alert("합동 세션 입장 실패: " + (error.message || error));
+      alert("합동방 입장 실패: " + (error.message || error));
     }
   }
 
@@ -10571,8 +10572,7 @@ function createMemberCard(member) {
     if (next === "joint") {
       savePersonalSnapshot();
       state.joint.useMode = "joint";
-      const lastCode = localStorage.getItem("pinballJointLastCode") || "";
-      if (els.jointCode && !els.jointCode.value) els.jointCode.value = lastCode;
+      if (els.jointCode) els.jointCode.value = "";
     } else {
       leaveJointSession(true);
       state.joint.useMode = "personal";
