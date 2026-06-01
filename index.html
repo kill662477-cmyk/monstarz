@@ -7148,6 +7148,83 @@ body.pinball-donation-mode #pinballDonationScreen {
   color: #fff;
 }
 
+.pinball-donation-joint-panel {
+  display: grid;
+  gap: 8px;
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.pinball-donation-joint-panel[hidden] { display: none !important; }
+.pinball-donation-joint-row {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  gap: 6px;
+}
+.pinball-donation-joint-actions {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 6px;
+}
+.pinball-donation-joint-actions button {
+  min-height: 30px;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 9px;
+  background: rgba(255,255,255,.06);
+  color: #dbeafe;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 950;
+  cursor: pointer;
+}
+.pinball-donation-joint-actions button.primary {
+  background: linear-gradient(135deg, rgba(37,99,235,.86), rgba(29,78,216,.68));
+  border-color: rgba(96,165,250,.62);
+  color: #fff;
+}
+.pinball-donation-joint-actions button.danger {
+  background: rgba(185,28,28,.34);
+  border-color: rgba(248,113,113,.36);
+  color: #fee2e2;
+}
+.pinball-donation-joint-meta {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  background: rgba(4,14,30,.26);
+  color: #bcd2ef;
+  font-size: 10px;
+  font-weight: 850;
+  line-height: 1.45;
+}
+.pinball-donation-joint-meta b { color: #fff; }
+.pinball-donation-joint-members {
+  max-height: 74px;
+  overflow: auto;
+  color: #dbeafe;
+  font-size: 10px;
+  font-weight: 850;
+  line-height: 1.55;
+}
+.pinball-donation-host-only-note {
+  color: #fcd34d;
+  font-size: 10px;
+  font-weight: 900;
+}
+.pinball-donation-root.joint-guest .pinball-donation-host-control {
+  opacity: .48;
+  cursor: not-allowed;
+}
+body.light-mode .pinball-donation-joint-meta {
+  background: rgba(255,255,255,.76);
+  border-color: rgba(37,99,235,.14);
+  color: #475569;
+}
+body.light-mode .pinball-donation-joint-meta b,
+body.light-mode .pinball-donation-joint-members { color: #0f172a; }
+
 .pinball-donation-main-btn {
   min-height: 32px;
   background: linear-gradient(90deg,rgba(29,102,255,.82),rgba(29,78,216,.68));
@@ -8287,6 +8364,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div id="pinballDonationScreen" class="screen hidden">
       <section id="pinballDonationRoot" class="pinball-donation-root" aria-label="핀볼후원연동">
         <aside class="pinball-donation-controls" aria-label="핀볼후원연동 조작부">
+          <div class="pinball-donation-block">
+            <div class="pinball-donation-label">핀볼 사용 모드</div>
+            <div class="pinball-donation-segment" role="group" aria-label="핀볼 사용 모드 선택">
+              <button id="pinballDonationUsePersonal" class="active" type="button" data-use-mode="personal">개인모드</button>
+              <button id="pinballDonationUseJoint" type="button" data-use-mode="joint">합동모드</button>
+            </div>
+            <p id="pinballDonationUseModeHelp" class="pinball-donation-help">개인모드는 현재 브라우저에서만 후보와 결과를 관리합니다.</p>
+            <div id="pinballDonationJointPanel" class="pinball-donation-joint-panel" hidden>
+              <div class="pinball-donation-joint-row">
+                <input id="pinballDonationJointName" class="pinball-donation-input" type="text" placeholder="내 표시 이름" autocomplete="off" />
+                <input id="pinballDonationJointCode" class="pinball-donation-input" type="text" placeholder="세션 코드" maxlength="12" autocomplete="off" />
+              </div>
+              <div class="pinball-donation-joint-actions">
+                <button id="pinballDonationJointCreate" class="primary" type="button">방 만들기</button>
+                <button id="pinballDonationJointJoin" type="button">입장</button>
+                <button id="pinballDonationJointLeave" class="danger" type="button">나가기</button>
+              </div>
+              <div id="pinballDonationJointMeta" class="pinball-donation-joint-meta">합동 세션에 입장하지 않았습니다.</div>
+              <div id="pinballDonationJointMembers" class="pinball-donation-joint-members"></div>
+            </div>
+          </div>
+
           <div class="pinball-donation-block pinball-donation-soop">
             <div class="pinball-donation-label">SOOP 연동</div>
             <div class="pinball-donation-soop-buttons">
@@ -10080,6 +10179,17 @@ function createMemberCard(member) {
     screen: $("pinballDonationScreen"),
     root: $("pinballDonationRoot"),
     frame: $("pinballDonationFrame"),
+    usePersonal: $("pinballDonationUsePersonal"),
+    useJoint: $("pinballDonationUseJoint"),
+    useModeHelp: $("pinballDonationUseModeHelp"),
+    jointPanel: $("pinballDonationJointPanel"),
+    jointName: $("pinballDonationJointName"),
+    jointCode: $("pinballDonationJointCode"),
+    jointCreate: $("pinballDonationJointCreate"),
+    jointJoin: $("pinballDonationJointJoin"),
+    jointLeave: $("pinballDonationJointLeave"),
+    jointMeta: $("pinballDonationJointMeta"),
+    jointMembers: $("pinballDonationJointMembers"),
     unit: $("pinballDonationUnit"),
     modeMessage: $("pinballDonationModeMessage"),
     modeNickname: $("pinballDonationModeNickname"),
@@ -10125,6 +10235,21 @@ function createMemberCard(member) {
     "https://static.sooplive.com/asset/app/chat-sdk/chat-sdk.min.js"
   ];
 
+  const PINBALL_FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDG_A78a87l_vc3BdbAk-mX5DmoHOzMWNA",
+    authDomain: "jddcontens.firebaseapp.com",
+    databaseURL: "https://jddcontens-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "jddcontens",
+    storageBucket: "jddcontens.firebasestorage.app",
+    messagingSenderId: "173723966783",
+    appId: "1:173723966783:web:ccd54e5417327b2600478a"
+  };
+  const PINBALL_FIREBASE_SCRIPTS = [
+    "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js",
+    "https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"
+  ];
+  const PINBALL_SESSION_ROOT = "pinballSessions";
+
   const state = {
     frameId: "pinball_donation_" + Date.now().toString(36),
     initialized: false,
@@ -10145,8 +10270,28 @@ function createMemberCard(member) {
     frameReady: false,
     pendingFrameSync: false,
     pendingFrameStart: false,
-    resultSeq: 1
+    resultSeq: 1,
+    personalSnapshot: null,
+    joint: {
+      useMode: "personal",
+      db: null,
+      ready: false,
+      loading: null,
+      sessionCode: "",
+      sessionRef: null,
+      sessionListener: null,
+      participantId: localStorage.getItem("pinballJointParticipantId") || makeId("participant"),
+      displayName: localStorage.getItem("pinballJointDisplayName") || "",
+      hostId: "",
+      hostName: "",
+      participants: {},
+      applyingRemote: false,
+      lastCommandSeq: 0,
+      heartbeatTimer: null,
+      joined: false
+    }
   };
+  localStorage.setItem("pinballJointParticipantId", state.joint.participantId);
   window.pinballDonationState = state;
 
   function esc(value) {
@@ -10161,6 +10306,323 @@ function createMemberCard(member) {
 
   function makeId(prefix) {
     return prefix + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+  }
+
+
+  function sanitizeSessionCode(value) {
+    return String(value || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+  }
+
+  function randomSessionCode() {
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "";
+    for (let i = 0; i < 6; i += 1) code += alphabet[Math.floor(Math.random() * alphabet.length)];
+    return code;
+  }
+
+  function isJointMode() {
+    return state.joint.useMode === "joint";
+  }
+
+  function isJointActive() {
+    return isJointMode() && state.joint.joined && Boolean(state.joint.sessionRef);
+  }
+
+  function isJointHost() {
+    return isJointActive() && state.joint.hostId === state.joint.participantId;
+  }
+
+  function loadExternalScriptOnce(url) {
+    return new Promise((resolve, reject) => {
+      if ([...document.scripts].some((script) => script.src === url)) { resolve(); return; }
+      const script = document.createElement("script");
+      script.src = url;
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("script load failed: " + url));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function ensureJointFirebase() {
+    if (state.joint.db) return state.joint.db;
+    if (state.joint.loading) return state.joint.loading;
+    state.joint.loading = (async () => {
+      for (const url of PINBALL_FIREBASE_SCRIPTS) await loadExternalScriptOnce(url);
+      if (!window.firebase) throw new Error("Firebase SDK를 불러오지 못했습니다.");
+      let app = null;
+      try { app = window.firebase.app("pinballJoint"); }
+      catch (error) { app = window.firebase.initializeApp(PINBALL_FIREBASE_CONFIG, "pinballJoint"); }
+      state.joint.db = app.database();
+      state.joint.ready = true;
+      return state.joint.db;
+    })().catch((error) => {
+      state.joint.loading = null;
+      throw error;
+    });
+    return state.joint.loading;
+  }
+
+  function savePersonalSnapshot() {
+    state.personalSnapshot = {
+      mode: state.mode,
+      unit: getUnit(),
+      blockedWords: String(els.blockedWords?.value || ""),
+      entries: state.entries.map((item) => ({ ...item })),
+      pending: state.pending.map((item) => ({ ...item })),
+      result: String(els.result?.textContent || "결과 대기"),
+      memo: String(els.memo?.value || ""),
+      resultSeq: state.resultSeq
+    };
+  }
+
+  function restorePersonalSnapshot() {
+    const snap = state.personalSnapshot;
+    if (!snap) return;
+    state.mode = snap.mode === "nickname" ? "nickname" : "message";
+    if (els.unit) els.unit.value = String(snap.unit || 100);
+    if (els.blockedWords) els.blockedWords.value = snap.blockedWords || "";
+    state.entries = Array.isArray(snap.entries) ? snap.entries.map((item) => ({ ...item })) : [];
+    state.pending = Array.isArray(snap.pending) ? snap.pending.map((item) => ({ ...item })) : [];
+    if (els.result) els.result.textContent = snap.result || "결과 대기";
+    if (els.memo) els.memo.value = snap.memo || "";
+    state.resultSeq = Number(snap.resultSeq) || 1;
+  }
+
+  function objectValues(obj) {
+    return obj && typeof obj === "object" ? Object.values(obj) : [];
+  }
+
+  function serializeList(items) {
+    return (items || []).reduce((acc, item) => { if (item && item.id) acc[item.id] = item; return acc; }, {});
+  }
+
+  function jointDisplayName() {
+    const name = String(els.jointName?.value || state.joint.displayName || "").trim();
+    return name || "참가자";
+  }
+
+  function setJointStatus(text, type) {
+    if (!els.jointMeta) return;
+    els.jointMeta.innerHTML = text;
+    els.jointMeta.classList.remove("ok", "warn", "err");
+    if (type) els.jointMeta.classList.add(type);
+  }
+
+  function updateJointUi() {
+    const joint = isJointMode();
+    els.usePersonal?.classList.toggle("active", !joint);
+    els.useJoint?.classList.toggle("active", joint);
+    if (els.jointPanel) els.jointPanel.hidden = !joint;
+    if (els.useModeHelp) els.useModeHelp.textContent = joint
+      ? "합동모드는 같은 세션의 후원 후보와 핀볼 진행 상태를 공유합니다. 방장만 실행·삭제·초기화할 수 있습니다."
+      : "개인모드는 현재 브라우저에서만 후보와 결과를 관리합니다.";
+    if (els.jointName && !els.jointName.value) els.jointName.value = state.joint.displayName || "";
+    if (els.jointCode && state.joint.sessionCode) els.jointCode.value = state.joint.sessionCode;
+    const host = isJointHost();
+    els.root?.classList.toggle("joint-guest", isJointActive() && !host);
+    [els.start, els.clear, els.resultClear, els.memoClear, els.unit, els.blockedWords, els.modeMessage, els.modeNickname].forEach((control) => {
+      if (!control) return;
+      const locked = isJointActive() && !host;
+      control.disabled = locked;
+      control.classList.toggle("pinball-donation-host-control", isJointMode());
+    });
+    if (els.memo) els.memo.readOnly = isJointActive() && !host;
+    if (!joint) return;
+    if (!isJointActive()) {
+      setJointStatus("합동 세션에 입장하지 않았습니다.");
+      if (els.jointMembers) els.jointMembers.textContent = "";
+      return;
+    }
+    const role = host ? "방장" : "참가자";
+    setJointStatus(`<b>${esc(state.joint.sessionCode)}</b> · ${esc(role)} · 방장 <b>${esc(state.joint.hostName || "-")}</b>`);
+    const members = objectValues(state.joint.participants).sort((a,b) => Number(b.lastSeen || 0) - Number(a.lastSeen || 0));
+    if (els.jointMembers) els.jointMembers.innerHTML = members.length
+      ? members.map((member) => `${member.id === state.joint.hostId ? "👑" : "●"} ${esc(member.name || "참가자")}${member.soopConnected ? " · SOOP 연결" : ""}`).join("<br>")
+      : "참가자 정보를 불러오는 중입니다.";
+  }
+
+  function applyJointSnapshot(data) {
+    if (!isJointActive()) return;
+    const safe = data || {};
+    state.joint.applyingRemote = true;
+    state.joint.hostId = String(safe.meta?.hostId || "");
+    state.joint.hostName = String(safe.meta?.hostName || "");
+    state.joint.participants = safe.participants || {};
+    if (safe.config) {
+      state.mode = safe.config.mode === "nickname" ? "nickname" : "message";
+      if (els.unit) els.unit.value = String(parsePositiveInt(safe.config.unit, 100));
+      if (els.blockedWords) els.blockedWords.value = String(safe.config.blockedWords || "");
+    }
+    state.entries = objectValues(safe.entries).sort((a,b) => Number(a.createdAt || 0) - Number(b.createdAt || 0));
+    state.pending = objectValues(safe.pending).sort((a,b) => Number(a.createdAt || 0) - Number(b.createdAt || 0));
+    if (safe.result) {
+      if (els.result) els.result.textContent = String(safe.result.text || "결과 대기");
+      if (els.memo) els.memo.value = String(safe.result.memo || "");
+      state.resultSeq = Number(safe.result.resultSeq) || 1;
+    }
+    const command = safe.command || null;
+    state.joint.applyingRemote = false;
+    render();
+    if (command && Number(command.seq || 0) > state.joint.lastCommandSeq) {
+      state.joint.lastCommandSeq = Number(command.seq || 0);
+      applyJointCommand(command);
+    }
+  }
+
+  async function writeJointParticipant() {
+    if (!isJointActive()) return;
+    const name = jointDisplayName();
+    state.joint.displayName = name;
+    localStorage.setItem("pinballJointDisplayName", name);
+    const ref = state.joint.sessionRef.child("participants/" + state.joint.participantId);
+    await ref.set({ id: state.joint.participantId, name, soopConnected: Boolean(state.soop.connected), lastSeen: Date.now() });
+    try { ref.onDisconnect().remove(); } catch (error) {}
+  }
+
+  function startJointHeartbeat() {
+    stopJointHeartbeat();
+    if (!isJointActive()) return;
+    writeJointParticipant().catch(console.warn);
+    state.joint.heartbeatTimer = setInterval(() => writeJointParticipant().catch(console.warn), 12000);
+  }
+
+  function stopJointHeartbeat() {
+    if (!state.joint.heartbeatTimer) return;
+    clearInterval(state.joint.heartbeatTimer);
+    state.joint.heartbeatTimer = null;
+  }
+
+  function attachJointSession(ref, code) {
+    leaveJointSession(false);
+    state.joint.sessionCode = code;
+    state.joint.sessionRef = ref;
+    state.joint.joined = true;
+    state.joint.sessionListener = (snapshot) => applyJointSnapshot(snapshot.val() || {});
+    ref.on("value", state.joint.sessionListener);
+    startJointHeartbeat();
+    localStorage.setItem("pinballJointLastCode", code);
+    updateJointUi();
+  }
+
+  async function createJointSession() {
+    try {
+      savePersonalSnapshot();
+      const db = await ensureJointFirebase();
+      let code = sanitizeSessionCode(els.jointCode?.value) || randomSessionCode();
+      const ref = db.ref(PINBALL_SESSION_ROOT + "/" + code);
+      const existing = await ref.once("value");
+      if (existing.exists()) { alert("이미 사용 중인 세션 코드입니다. 다른 코드를 입력하거나 입장 버튼을 눌러줘."); return; }
+      const now = Date.now();
+      const name = jointDisplayName();
+      await ref.set({
+        meta: { hostId: state.joint.participantId, hostName: name, createdAt: now, updatedAt: now },
+        config: { mode: state.mode, unit: getUnit(), blockedWords: String(els.blockedWords?.value || "") },
+        entries: serializeList(state.entries),
+        pending: serializeList(state.pending),
+        result: { text: String(els.result?.textContent || "결과 대기"), memo: String(els.memo?.value || ""), resultSeq: state.resultSeq },
+        participants: {}
+      });
+      attachJointSession(ref, code);
+      setStatus(`합동 세션 ${code} 방을 만들었습니다.`, "ok");
+    } catch (error) {
+      console.error(error);
+      alert("합동 세션 생성 실패: " + (error.message || error));
+    }
+  }
+
+  async function joinJointSession() {
+    try {
+      savePersonalSnapshot();
+      const code = sanitizeSessionCode(els.jointCode?.value);
+      if (!code) { alert("입장할 세션 코드를 입력해줘."); return; }
+      const db = await ensureJointFirebase();
+      const ref = db.ref(PINBALL_SESSION_ROOT + "/" + code);
+      const existing = await ref.once("value");
+      if (!existing.exists()) { alert("해당 합동 세션을 찾지 못했습니다."); return; }
+      attachJointSession(ref, code);
+      setStatus(`합동 세션 ${code}에 입장했습니다.`, "ok");
+    } catch (error) {
+      console.error(error);
+      alert("합동 세션 입장 실패: " + (error.message || error));
+    }
+  }
+
+  function leaveJointSession(restore = true) {
+    const ref = state.joint.sessionRef;
+    if (ref && state.joint.sessionListener) ref.off("value", state.joint.sessionListener);
+    if (ref) ref.child("participants/" + state.joint.participantId).remove().catch(() => {});
+    stopJointHeartbeat();
+    state.joint.sessionCode = "";
+    state.joint.sessionRef = null;
+    state.joint.sessionListener = null;
+    state.joint.joined = false;
+    state.joint.hostId = "";
+    state.joint.hostName = "";
+    state.joint.participants = {};
+    state.joint.lastCommandSeq = 0;
+    if (restore) restorePersonalSnapshot();
+    render();
+  }
+
+  function setUseMode(mode) {
+    const next = mode === "joint" ? "joint" : "personal";
+    if (state.joint.useMode === next) { updateJointUi(); return; }
+    if (next === "joint") {
+      savePersonalSnapshot();
+      state.joint.useMode = "joint";
+      const lastCode = localStorage.getItem("pinballJointLastCode") || "";
+      if (els.jointCode && !els.jointCode.value) els.jointCode.value = lastCode;
+    } else {
+      leaveJointSession(true);
+      state.joint.useMode = "personal";
+    }
+    render();
+  }
+
+  function requireJointHost(actionText) {
+    if (!isJointActive() || isJointHost()) return true;
+    setStatus(`합동모드에서는 방장만 ${actionText}할 수 있습니다.`, "warn");
+    return false;
+  }
+
+  function jointWrite(path, value) {
+    if (!isJointActive() || state.joint.applyingRemote) return Promise.resolve();
+    return state.joint.sessionRef.child(path).set(value).catch((error) => console.error("[PINBALL JOINT WRITE]", error));
+  }
+
+  function publishJointConfig() {
+    if (!isJointHost()) return;
+    jointWrite("config", { mode: state.mode, unit: getUnit(), blockedWords: String(els.blockedWords?.value || ""), updatedAt: Date.now() });
+  }
+
+  function publishJointResult() {
+    if (!isJointHost()) return;
+    jointWrite("result", { text: String(els.result?.textContent || "결과 대기"), memo: String(els.memo?.value || ""), resultSeq: state.resultSeq, updatedAt: Date.now() });
+  }
+
+  function publishJointCommand(type, extra) {
+    if (!isJointHost()) return;
+    const seq = Date.now();
+    state.joint.lastCommandSeq = seq;
+    jointWrite("command", Object.assign({ seq, type, issuedAt: seq, names: namesForRoulette(), winnerMode: state.winnerMode }, extra || {}));
+  }
+
+  function applyJointCommand(command) {
+    if (!isJointActive() || isJointHost()) return;
+    if (command.type === "prepare") {
+      openRouletteModal();
+      syncFrameNames();
+      postToFrame({ kind: "prepare" });
+      setStatus("방장이 핀볼 준비 화면을 열었습니다.", "ok");
+    }
+    if (command.type === "start") {
+      openRouletteModal();
+      syncFrameNames();
+      setTimeout(() => postToFrame({ kind: "start" }), 120);
+      setStatus("방장이 핀볼을 시작했습니다.", "ok");
+    }
+    if (command.type === "close") closeRouletteModal();
   }
 
   function parsePositiveInt(value, fallback) {
@@ -10443,6 +10905,7 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
       if (!ready) prepare();
       if (!ready) return;
       $("#settings")?.classList.add("hide");
+      send({ kind:"started" });
       window.roulette.start();
     });
     $("#btnToggleSettings")?.addEventListener("click", () => {
@@ -10517,6 +10980,7 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
 
   function closeRouletteModal() {
     if (els.modal) els.modal.hidden = true;
+    if (!isJointActive() || isJointHost()) publishJointCommand("close");
   }
 
   function renderPendingList() {
@@ -10534,7 +10998,8 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
       const meta = item.blocked
         ? `${item.donor} · 금칙어 포함 · 볼 ${item.ballCount}개`
         : `${item.count.toLocaleString("ko-KR")}개 · 볼 ${item.ballCount}개 · 남은 ${remaining}`;
-      return `<div class="pinball-donation-pending-item ${item.blocked ? "blocked" : ""}" data-pending-id="${esc(item.id)}"><div><b>${esc(title)}</b><small>${esc(meta)}</small></div><div class="pinball-donation-pending-actions">${item.blocked ? `<button type="button" data-action="approve-pending" data-id="${esc(item.id)}">등록</button>` : ""}<button class="danger" type="button" data-action="delete-pending" data-id="${esc(item.id)}">삭제</button></div></div>`;
+      const actions = !isJointActive() || isJointHost() ? `<div class="pinball-donation-pending-actions">${item.blocked ? `<button type="button" data-action="approve-pending" data-id="${esc(item.id)}">등록</button>` : ""}<button class="danger" type="button" data-action="delete-pending" data-id="${esc(item.id)}">삭제</button></div>` : "";
+      return `<div class="pinball-donation-pending-item ${item.blocked ? "blocked" : ""}" data-pending-id="${esc(item.id)}"><div><b>${esc(title)}</b><small>${esc(meta)}</small></div>${actions}</div>`;
     }).join("");
   }
 
@@ -10546,7 +11011,9 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
     }
     els.list.innerHTML = state.entries.slice(-10).reverse().map((entry) => {
       const body = entry.mode === "nickname" ? entry.donor : entry.message;
-      return `<div class="pinball-donation-item" data-entry-id="${esc(entry.id)}"><div><b title="${esc(body)}">${esc(body)}</b><small>${esc(entry.donor)} · ${entry.count.toLocaleString("ko-KR")}개 · 볼 ${entry.ballCount}개 · ${entry.mode === "nickname" ? "닉네임" : "메시지"}</small></div><div class="pinball-donation-item-actions"><button type="button" data-action="edit-entry" data-id="${esc(entry.id)}">수정</button><button class="danger" type="button" data-action="delete-entry" data-id="${esc(entry.id)}">삭제</button></div></div>`;
+      const actions = !isJointActive() || isJointHost() ? `<div class="pinball-donation-item-actions"><button type="button" data-action="edit-entry" data-id="${esc(entry.id)}">수정</button><button class="danger" type="button" data-action="delete-entry" data-id="${esc(entry.id)}">삭제</button></div>` : "";
+      const sourceMeta = entry.participantName ? ` · ${esc(entry.participantName)} 방송` : "";
+      return `<div class="pinball-donation-item" data-entry-id="${esc(entry.id)}"><div><b title="${esc(body)}">${esc(body)}</b><small>${esc(entry.donor)} · ${entry.count.toLocaleString("ko-KR")}개 · 볼 ${entry.ballCount}개 · ${entry.mode === "nickname" ? "닉네임" : "메시지"}${sourceMeta}</small></div>${actions}</div>`;
     }).join("");
   }
 
@@ -10577,6 +11044,7 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
     }
     updateModeHelp();
     updateSoopUi();
+    updateJointUi();
     renderPendingList();
     renderList();
     if (state.initialized) syncFrameNames();
@@ -10592,7 +11060,7 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
     if (safeMode === "message" && !String(body || "").trim()) { setStatus("메시지 모드는 볼에 들어갈 문구가 필요합니다.", "warn"); return false; }
     if (ballCount < 1) { setStatus(`${count.toLocaleString("ko-KR")}개는 현재 기준 ${unit.toLocaleString("ko-KR")}개당 볼 1개에 못 미쳐 버림 처리됩니다.`, "warn"); return false; }
     if (safeMode === "message" && containsBlockedWord(body)) {
-      state.pending.push({
+      const blockedItem = {
         id: makeId("pinball_blocked"),
         userId: userId || "",
         donor,
@@ -10602,15 +11070,19 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
         mode: safeMode,
         message: body,
         source: source || "보류",
+        participantId: isJointActive() ? state.joint.participantId : "",
+        participantName: isJointActive() ? jointDisplayName() : "",
         blocked: true,
         createdAt: Date.now(),
         expiresAt: Date.now() + state.pendingLimitMs
-      });
+      };
+      state.pending.push(blockedItem);
+      if (isJointActive()) jointWrite("pending/" + blockedItem.id, blockedItem);
       setStatus(`${donor} 메시지가 금칙어 필터에 걸려 등록대기 목록에 보류됐습니다.`, "warn");
       render();
       return false;
     }
-    state.entries.push({
+    const entry = {
       id: makeId("pinball_entry"),
       userId: userId || "",
       donor,
@@ -10620,8 +11092,12 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
       mode: safeMode,
       message: safeMode === "message" ? String(body || "").trim() : donor,
       source: source || "수동",
+      participantId: isJointActive() ? state.joint.participantId : "",
+      participantName: isJointActive() ? jointDisplayName() : "",
       createdAt: Date.now()
-    });
+    };
+    state.entries.push(entry);
+    if (isJointActive()) jointWrite("entries/" + entry.id, entry);
     setStatus(`${donor} · ${count.toLocaleString("ko-KR")}개 → 볼 ${ballCount}개 등록`, "ok");
     render();
     return true;
@@ -10651,7 +11127,7 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
       setStatus(`${donor} 후원 ${count.toLocaleString("ko-KR")}개는 기준 미달이라 버림 처리됐습니다.`, "warn");
       return;
     }
-    state.pending.push({
+    const pendingItem = {
       id: makeId("pinball_pending"),
       userId: userKeyFromParts(userId, donor),
       donor,
@@ -10661,10 +11137,14 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
       mode: "message",
       message: "",
       source: "SOOP",
+      participantId: isJointActive() ? state.joint.participantId : "",
+      participantName: isJointActive() ? jointDisplayName() : "",
       blocked: false,
       createdAt: Date.now(),
       expiresAt: Date.now() + state.pendingLimitMs
-    });
+    };
+    state.pending.push(pendingItem);
+    if (isJointActive()) jointWrite("pending/" + pendingItem.id, pendingItem);
     setStatus(`${donor} · 볼 ${ballCount}개 메시지 대기 등록`, "ok");
     startPendingTimer();
     render();
@@ -10676,6 +11156,7 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
     const index = state.pending.findIndex((item) => !item.blocked && item.expiresAt > now && (item.userId === key || item.donor === nickname));
     if (index < 0) return false;
     const pending = state.pending.splice(index, 1)[0];
+    if (isJointActive()) jointWrite("pending/" + pending.id, null);
     const ok = addEntry({
       donor: pending.donor,
       count: pending.count,
@@ -10689,10 +11170,11 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
   }
 
   function approveBlockedPending(id) {
+    if (!requireJointHost("보류 항목을 등록")) return;
     const index = state.pending.findIndex((item) => item.id === id);
     if (index < 0) return;
     const pending = state.pending.splice(index, 1)[0];
-    state.entries.push({
+    const entry = {
       id: makeId("pinball_entry"),
       userId: pending.userId || "",
       donor: pending.donor,
@@ -10702,20 +11184,32 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
       mode: pending.mode || "message",
       message: pending.mode === "nickname" ? pending.donor : pending.message,
       source: pending.source || "보류 해제",
+      participantId: pending.participantId || state.joint.participantId,
+      participantName: pending.participantName || jointDisplayName(),
       createdAt: Date.now()
-    });
+    };
+    state.entries.push(entry);
+    if (isJointActive()) {
+      jointWrite("pending/" + pending.id, null);
+      jointWrite("entries/" + entry.id, entry);
+    }
     setStatus(`${pending.donor} 보류 메시지를 등록했습니다.`, "ok");
     render();
   }
 
   function deletePending(id) {
+    if (!requireJointHost("대기 항목을 삭제")) return;
     const before = state.pending.length;
     state.pending = state.pending.filter((item) => item.id !== id);
-    if (before !== state.pending.length) setStatus("대기 항목을 삭제했습니다.", "ok");
+    if (before !== state.pending.length) {
+      if (isJointActive()) jointWrite("pending/" + id, null);
+      setStatus("대기 항목을 삭제했습니다.", "ok");
+    }
     render();
   }
 
   function editEntry(id) {
+    if (!requireJointHost("후보를 수정")) return;
     const entry = state.entries.find((item) => item.id === id);
     if (!entry) return;
     const donor = prompt("후원자 닉네임", entry.donor);
@@ -10741,18 +11235,24 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
     entry.unit = nextUnit;
     entry.ballCount = nextBallCount;
     entry.message = entry.mode === "nickname" ? nextDonor : message;
+    if (isJointActive()) jointWrite("entries/" + entry.id, entry);
     setStatus("후보를 수정했습니다.", "ok");
     render();
   }
 
   function deleteEntry(id) {
+    if (!requireJointHost("후보를 삭제")) return;
     const before = state.entries.length;
     state.entries = state.entries.filter((item) => item.id !== id);
-    if (before !== state.entries.length) setStatus("후보를 삭제했습니다.", "ok");
+    if (before !== state.entries.length) {
+      if (isJointActive()) jointWrite("entries/" + id, null);
+      setStatus("후보를 삭제했습니다.", "ok");
+    }
     render();
   }
 
   function clearEntries() {
+    if (!requireJointHost("후보를 초기화")) return;
     if (!state.entries.length && !state.pending.length) {
       setStatus("초기화할 후보가 없습니다.", "warn");
       return;
@@ -10761,18 +11261,22 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
     state.pending = [];
     state.balls = [];
     if (els.result) els.result.textContent = "결과 대기";
+    if (isJointActive()) state.joint.sessionRef.update({ entries: null, pending: null, "result/text": "결과 대기", "meta/updatedAt": Date.now() });
     setStatus("후보와 대기 목록을 초기화했습니다. 메모는 유지됩니다.", "ok");
     render();
   }
 
   function clearResult(updateStatus) {
+    if (!requireJointHost("결과 메모를 초기화")) return;
     if (els.result) els.result.textContent = "결과 대기";
     if (els.memo) els.memo.value = "";
     state.resultSeq = 1;
+    publishJointResult();
     if (updateStatus !== false) setStatus("결과 메모를 초기화했습니다.", "ok");
   }
 
   function appendMemoResult(winner) {
+    if (isJointActive() && !isJointHost()) return;
     const text = String(winner || "-").trim() || "-";
     const line = `${state.resultSeq}. ${text}`;
     state.resultSeq += 1;
@@ -10782,20 +11286,25 @@ window.__PINBALL_DONATION_CONFIG__=${configJson};
 ${line}` : line;
       els.memo.scrollTop = els.memo.scrollHeight;
     }
+    publishJointResult();
   }
 
   function setMode(mode) {
+    if (!requireJointHost("등록 타입을 변경")) return;
     state.mode = mode === "nickname" ? "nickname" : "message";
+    publishJointConfig();
     render();
   }
 
   function startRoulette() {
+    if (!requireJointHost("핀볼을 실행")) return;
     if (!state.balls.length) { setStatus("핀볼을 실행하려면 볼을 먼저 등록해야 합니다.", "warn"); return; }
     if (els.result) els.result.textContent = "핀볼 대기 중";
     openRouletteModal();
     state.pendingFrameStart = false;
     syncFrameNames();
     postToFrame({ kind: "prepare" });
+    publishJointCommand("prepare");
     setStatus("핀볼 모달을 열었습니다. 모달 안의 시작 버튼을 눌러 실행해줘.", "ok");
   }
 
@@ -10989,6 +11498,7 @@ ${line}` : line;
       state.soop.connected = true;
       setSoopStatus("SOOP 연결됨 · 후원 이벤트 수집 ON", "ok");
       updateSoopUi();
+      writeJointParticipant().catch(() => {});
     } catch (error) {
       console.error(error);
       state.soop.connected = false;
@@ -11007,6 +11517,7 @@ ${line}` : line;
     state.soop.connected = false;
     setSoopStatus("SOOP 미연결 · 자동등록 OFF", "");
     updateSoopUi();
+    writeJointParticipant().catch(() => {});
   }
 
   function toggleSoopConnect() {
@@ -11071,14 +11582,27 @@ ${line}` : line;
       }
       return;
     }
+    if (message.kind === "started") {
+      if (!isJointActive() || isJointHost()) publishJointCommand("start");
+      return;
+    }
     if (message.kind === "result") {
+      if (isJointActive() && !isJointHost()) return;
       const winner = message.winner || (Array.isArray(message.order) && message.order[0]) || "-";
       if (els.result) els.result.textContent = `당첨: ${winner}`;
       appendMemoResult(winner);
+      publishJointResult();
       setStatus(`핀볼 결과: ${winner}`, "ok");
     }
   });
 
+  els.usePersonal?.addEventListener("click", () => setUseMode("personal"));
+  els.useJoint?.addEventListener("click", () => setUseMode("joint"));
+  els.jointCreate?.addEventListener("click", createJointSession);
+  els.jointJoin?.addEventListener("click", joinJointSession);
+  els.jointLeave?.addEventListener("click", () => leaveJointSession(true));
+  els.jointCode?.addEventListener("input", () => { if (els.jointCode) els.jointCode.value = sanitizeSessionCode(els.jointCode.value); });
+  els.jointName?.addEventListener("change", () => writeJointParticipant().catch(() => {}));
   els.modeMessage?.addEventListener("click", () => setMode("message"));
   els.modeNickname?.addEventListener("click", () => setMode("nickname"));
   els.add?.addEventListener("click", addManualEntry);
@@ -11113,10 +11637,17 @@ ${line}` : line;
       }
     });
   });
-  els.unit?.addEventListener("change", render);
-  els.blockedWords?.addEventListener("change", render);
+  els.unit?.addEventListener("change", () => { publishJointConfig(); render(); });
+  els.blockedWords?.addEventListener("change", () => { publishJointConfig(); render(); });
+  let jointMemoTimer = null;
+  els.memo?.addEventListener("input", () => {
+    if (!isJointHost()) return;
+    clearTimeout(jointMemoTimer);
+    jointMemoTimer = setTimeout(publishJointResult, 250);
+  });
   window.addEventListener("pinballDonationScreenShown", () => { ensureFrame(); render(); });
 
+  if (els.jointName) els.jointName.value = state.joint.displayName || "";
   finishSoopAuthFromUrl().then(() => {
     updateSoopUi();
     render();
