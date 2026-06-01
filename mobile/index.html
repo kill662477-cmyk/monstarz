@@ -1,52 +1,64 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#07172d" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#07172d">
   <title>캄몬스타즈 모바일</title>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
   <style>
-    :root{--bg:#050b16;--panel:#07172d;--card:#0b1f3c;--line:rgba(112,164,238,.22);--text:#f6f9ff;--muted:#8ea8c7;--blue:#1d66ff;--gold:#f6b93b;--red:#ef4444;--green:#22c55e;--nav:74px}
-    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{background:radial-gradient(circle at 20% 0%,rgba(29,102,255,.2),transparent 28%),linear-gradient(180deg,#030813,#071529 42%,#040914)}a{color:inherit;text-decoration:none}button,input{font:inherit}button{border:0;cursor:pointer}img{display:block;max-width:100%}
-    .app{min-height:100vh;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.top{position:sticky;top:0;z-index:20;padding:14px 16px;background:rgba(4,12,25,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(16px)}.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#06142a}.title{font-size:20px;font-weight:950;letter-spacing:-.06em}.subtitle{margin-top:3px;color:var(--muted);font-size:11px;font-weight:800}.head-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.refresh{min-height:36px;padding:0 12px;border-radius:10px;color:#fff;background:rgba(29,102,255,.2);border:1px solid rgba(88,154,255,.36);font-size:12px;font-weight:900}
-    .content{width:min(100%,720px);margin:0 auto;padding:14px}.page{display:none}.page.active{display:block}.section{margin-top:16px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:10px}h2,h3,p{margin:0}h2{font-size:19px;letter-spacing:-.05em}h3{font-size:15px;letter-spacing:-.04em}.count,.muted{color:var(--muted);font-size:11px;font-weight:800}
-    .hero{padding:18px;border-radius:18px;background:radial-gradient(circle at 84% 0%,rgba(246,185,59,.15),transparent 28%),linear-gradient(135deg,rgba(11,31,60,.98),rgba(5,13,27,.98));border:1px solid var(--line)}.hero .eyebrow{color:var(--gold);font-size:10px;font-weight:950;letter-spacing:.14em}.hero h2{margin-top:8px;font-size:25px}.hero p{margin-top:8px;color:#b7c9de;font-size:13px;line-height:1.55}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.stat{padding:10px;border-radius:12px;background:rgba(255,255,255,.045);border:1px solid var(--line)}.stat b{display:block;margin-top:4px;font-size:20px}.stat span{color:var(--muted);font-size:10px;font-weight:800}
-    .live-grid,.profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.member{overflow:hidden;border-radius:14px;background:linear-gradient(180deg,rgba(11,31,60,.96),rgba(5,13,27,.98));border:1px solid var(--line)}.member-top{height:54px;padding:8px;background:linear-gradient(135deg,rgba(29,102,255,.84),rgba(14,47,106,.96));display:flex;justify-content:flex-end}.badge{display:inline-flex;align-items:center;min-height:20px;padding:0 7px;border-radius:999px;font-size:10px;font-weight:950;background:rgba(5,14,29,.62);border:1px solid rgba(255,255,255,.14)}.badge.live{color:#fee2e2;background:rgba(239,68,68,.28)}.member-body{padding:0 10px 10px;margin-top:-26px}.avatar{width:54px;height:54px;border-radius:13px;object-fit:cover;background:#06142a;border:2px solid rgba(255,255,255,.2)}.avatar.live{border-color:#fb7185;box-shadow:0 0 18px rgba(239,68,68,.35)}.name{margin-top:8px;font-size:16px;font-weight:950;letter-spacing:-.05em}.meta{margin-top:4px;color:var(--muted);font-size:11px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}.actions a{display:flex;min-height:30px;align-items:center;justify-content:center;border-radius:8px;background:rgba(29,102,255,.14);border:1px solid rgba(88,154,255,.22);font-size:11px;font-weight:900}
-    .toolbar{display:flex;gap:8px;margin-bottom:10px}.toolbar input{min-width:0;flex:1;height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--line);outline:none;color:#fff;background:rgba(5,16,31,.88)}.filter{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}.filter button{white-space:nowrap;min-height:34px;padding:0 11px;border-radius:999px;color:#c8d9ee;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:11px;font-weight:900}.filter button.active{color:#fff;background:linear-gradient(90deg,#174faa,#0e2f6a)}
-    .notice-list,.inout-list,.video-list{display:grid;gap:9px}.notice{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;padding:12px;border-radius:14px;background:linear-gradient(180deg,rgba(11,31,60,.95),rgba(5,13,27,.98));border:1px solid var(--line)}.notice img{width:44px;height:44px;border-radius:11px;object-fit:cover;background:#06142a}.notice-title{font-size:14px;font-weight:950;line-height:1.35}.notice-body{display:-webkit-box;margin-top:5px;overflow:hidden;color:#b7c9de;font-size:12px;line-height:1.45;-webkit-box-orient:vertical;-webkit-line-clamp:2}.notice-time{margin-top:6px;color:var(--muted);font-size:10px;font-weight:800}
-    .inout{display:grid;grid-template-columns:76px 1fr;gap:8px;padding:10px;border-radius:13px;background:linear-gradient(180deg,rgba(11,31,60,.95),rgba(5,13,27,.98));border:1px solid var(--line)}.date{display:flex;align-items:center;justify-content:center;border-radius:9px;background:rgba(29,102,255,.15);color:#dbeafe;font-size:11px;font-weight:950}.events{display:flex;flex-wrap:wrap;gap:5px}.event{display:inline-flex;gap:5px;align-items:center;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:11px;font-weight:900}.status{padding:2px 5px;border-radius:999px;font-size:9px}.status.in{background:rgba(37,99,235,.38);color:#dbeafe}.status.out{background:rgba(239,68,68,.38);color:#fee2e2}
-    .boja-cats{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px}.video-card{display:grid;grid-template-columns:112px 1fr;gap:10px;padding:10px;border-radius:13px;background:linear-gradient(180deg,rgba(11,31,60,.95),rgba(5,13,27,.98));border:1px solid var(--line)}.thumb{width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:#06142a}.video-card a{font-size:13px;font-weight:950;line-height:1.35}.video-note{margin-top:6px;color:var(--muted);font-size:10px;font-weight:800}
-    .tier-frame{width:100%;min-height:calc(100vh - 150px);border:1px solid var(--line);border-radius:14px;background:#fff}.empty{padding:20px;text-align:center;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:13px}
-    .bottom{position:fixed;right:0;bottom:0;left:0;z-index:30;height:calc(var(--nav) + env(safe-area-inset-bottom));padding:7px 6px env(safe-area-inset-bottom);background:rgba(4,10,22,.96);border-top:1px solid var(--line);backdrop-filter:blur(16px)}.nav{display:flex;height:100%;overflow-x:auto;gap:3px;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.nav button{flex:0 0 70px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;border-radius:10px;color:#8ea8c7;background:transparent;font-size:10px;font-weight:900}.nav button.active{color:#fff;background:rgba(29,102,255,.2)}.ico{font-size:18px}
-    @media(min-width:600px){.live-grid,.profile-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-  </style>
+    :root{--bg:#050b16;--panel:#07172d;--panel2:#0b1f3c;--line:rgba(112,164,238,.22);--line2:rgba(112,164,238,.12);--text:#f6f9ff;--muted:#8ea8c7;--soft:#b9cbe1;--blue:#1d66ff;--blue2:#56a1ff;--gold:#f6b93b;--red:#ef4444;--green:#22c55e;--nav:68px;--shadow:0 16px 36px rgba(0,0,0,.28)}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{background:radial-gradient(circle at 20% 0%,rgba(29,102,255,.18),transparent 26%),linear-gradient(180deg,#030813,#071529 42%,#040914);overflow-x:hidden}a{color:inherit;text-decoration:none}button,input,select{font:inherit}button{border:0;cursor:pointer}img{display:block;max-width:100%}.hidden{display:none!important}
+    .app{min-height:100vh;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.top{position:sticky;top:0;z-index:30;padding:10px 14px;background:rgba(4,12,25,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(16px)}.head-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{display:flex;align-items:center;gap:9px}.logo{width:36px;height:36px;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:#06142a}.title{font-size:18px;font-weight:950;letter-spacing:-.06em}.subtitle{margin-top:2px;color:var(--muted);font-size:10px;font-weight:850}.refresh{min-height:32px;padding:0 10px;border-radius:9px;color:#fff;background:rgba(29,102,255,.16);border:1px solid rgba(88,154,255,.30);font-size:11px;font-weight:900}
+    .content{width:min(100%,760px);margin:0 auto;padding:11px 12px 18px}.page{display:none}.page.active{display:block}.section{margin-top:14px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:8px}h2,h3,h4,p{margin:0}h2{font-size:18px;letter-spacing:-.055em}h3{font-size:14px;letter-spacing:-.04em}.count,.muted{color:var(--muted);font-size:10px;font-weight:850}
+    .hero{padding:11px 12px;border-radius:14px;background:radial-gradient(circle at 88% 0%,rgba(246,185,59,.12),transparent 30%),linear-gradient(135deg,rgba(11,31,60,.98),rgba(5,13,27,.98));border:1px solid var(--line)}.hero-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.hero-title{font-size:15px;font-weight:950;letter-spacing:-.05em}.hero-note{margin-top:3px;color:var(--muted);font-size:10px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px}.stat{padding:7px 8px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid var(--line2)}.stat span{display:block;color:var(--muted);font-size:9px;font-weight:850}.stat b{display:block;margin-top:3px;font-size:17px;line-height:1;font-weight:950}
+    .dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.member{position:relative;overflow:hidden;min-height:170px;border-radius:16px;background:linear-gradient(160deg,rgba(12,34,66,.98),rgba(5,13,27,.98));border:1px solid rgba(112,164,238,.18);box-shadow:0 10px 24px rgba(0,0,0,.20);isolation:isolate}.member:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 92% 0%,rgba(86,161,255,.17),transparent 38%);pointer-events:none}.member.live-on{border-color:rgba(63,214,142,.66);box-shadow:0 0 0 1px rgba(63,214,142,.14),0 0 25px rgba(34,197,94,.22),0 14px 30px rgba(0,0,0,.28)}.member.live-on:before{background:radial-gradient(circle at 92% 0%,rgba(34,197,94,.36),transparent 44%),radial-gradient(circle at 10% 100%,rgba(29,102,255,.16),transparent 45%)}.member-cover{position:relative;height:53px;background:linear-gradient(125deg,rgba(29,102,255,.92),rgba(8,39,83,.88))}.member.live-on .member-cover{background:linear-gradient(125deg,rgba(17,117,85,.98),rgba(7,54,58,.96))}.live-pill{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;gap:5px;min-height:21px;padding:0 7px;border-radius:999px;background:rgba(4,12,25,.60);border:1px solid rgba(255,255,255,.16);color:#c9d8eb;font-size:9px;font-weight:950}.live-pill:before{content:"";width:6px;height:6px;border-radius:50%;background:#60718a}.live-on .live-pill{color:#dcfce7;background:rgba(7,39,28,.62);border-color:rgba(74,222,128,.30)}.live-on .live-pill:before{background:#4ade80;box-shadow:0 0 10px rgba(74,222,128,.95)}.member-body{position:relative;padding:0 9px 9px;margin-top:-24px}.avatar{width:50px;height:50px;border-radius:14px;object-fit:cover;background:#06142a;border:2px solid rgba(255,255,255,.22);box-shadow:0 8px 18px rgba(0,0,0,.24)}.live-on .avatar{border-color:#4ade80;box-shadow:0 0 18px rgba(74,222,128,.42)}.member-name-row{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:7px}.name{min-width:0;font-size:15px;font-weight:950;letter-spacing:-.055em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.race{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:7px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);color:#dce9f8;font-size:9px;font-weight:950}.meta{margin-top:3px;color:var(--muted);font-size:10px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px}.actions a{display:flex;min-height:27px;align-items:center;justify-content:center;border-radius:8px;background:rgba(29,102,255,.11);border:1px solid rgba(88,154,255,.18);font-size:10px;font-weight:900}.live-on .actions a:first-child{background:rgba(34,197,94,.16);border-color:rgba(74,222,128,.24)}
+    .profile-controls{display:grid;gap:7px;padding:10px;border-radius:14px;background:rgba(11,31,60,.72);border:1px solid var(--line)}.profile-controls input,.profile-controls select,.tier-toolbar input,.tier-toolbar select{width:100%;height:38px;padding:0 11px;border-radius:10px;border:1px solid var(--line);outline:none;background:rgba(5,16,31,.88);color:#fff;font-size:12px;font-weight:850}.profile-card{margin-top:10px;overflow:hidden;border-radius:16px;background:linear-gradient(155deg,rgba(13,40,77,.98),rgba(5,13,27,.98));border:1px solid var(--line);box-shadow:var(--shadow)}.profile-photo-wrap{position:relative;height:190px;background:#06142a}.profile-photo{width:100%;height:100%;object-fit:cover}.profile-role{position:absolute;left:11px;bottom:10px;padding:5px 8px;border-radius:999px;background:rgba(4,12,25,.7);border:1px solid rgba(255,255,255,.16);font-size:10px;font-weight:950}.profile-info{padding:13px}.profile-name{font-size:22px;font-weight:950;letter-spacing:-.06em}.profile-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:11px}.profile-fact{padding:9px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--line2)}.profile-fact span{display:block;color:var(--muted);font-size:9px;font-weight:850}.profile-fact b{display:block;margin-top:4px;font-size:12px}.awards{margin-top:12px;padding-top:11px;border-top:1px solid var(--line2)}.awards ul{margin:7px 0 0;padding-left:17px;color:#c7d7ea;font-size:11px;line-height:1.55}
+    .tier-toolbar{display:grid;gap:7px;margin-bottom:10px}.tier-toolbar-row{display:grid;grid-template-columns:1fr 102px;gap:7px}.filter{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.filter::-webkit-scrollbar{display:none}.filter button{white-space:nowrap;min-height:31px;padding:0 10px;border-radius:999px;color:#c8d9ee;background:rgba(255,255,255,.045);border:1px solid var(--line);font-size:10px;font-weight:900}.filter button.active{color:#fff;background:linear-gradient(90deg,#174faa,#0e2f6a);border-color:rgba(86,161,255,.38)}.tier-status{padding:8px 10px;margin-bottom:8px;border-radius:10px;background:rgba(29,102,255,.08);border:1px solid rgba(86,161,255,.14);color:#acc8eb;font-size:10px;font-weight:850}.tier-group{margin-top:10px}.tier-head{display:flex;align-items:center;justify-content:space-between;padding:6px 9px;border-radius:10px;background:linear-gradient(90deg,rgba(16,56,111,.94),rgba(7,25,51,.84));border:1px solid rgba(112,164,238,.20)}.tier-head h3{font-size:12px}.tier-head span{color:var(--muted);font-size:10px;font-weight:900}.tier-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:7px}.tier-player{padding:8px;border-radius:12px;background:linear-gradient(155deg,rgba(12,35,68,.98),rgba(5,14,29,.98));border:1px solid var(--line2)}.tier-player.live-on{border-color:rgba(74,222,128,.45);box-shadow:0 0 16px rgba(34,197,94,.12)}.tier-player-top{display:flex;align-items:center;gap:7px}.tier-avatar{width:35px;height:35px;border-radius:10px;object-fit:cover;background:#06142a;border:1px solid rgba(255,255,255,.12)}.tier-player-main{min-width:0;flex:1}.tier-player-name{font-size:12px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tier-player-sub{margin-top:2px;color:var(--muted);font-size:9px;font-weight:850}.tier-player-actions{display:flex;gap:5px;margin-top:7px}.tier-player-actions button,.tier-player-actions a{display:flex;align-items:center;justify-content:center;min-height:25px;flex:1;padding:0 5px;border-radius:7px;background:rgba(29,102,255,.11);border:1px solid rgba(88,154,255,.16);color:#dceaff;font-size:9px;font-weight:900}
+    .notice-list,.inout-list,.video-list{display:grid;gap:8px}.notice{display:grid;grid-template-columns:40px minmax(0,1fr);gap:9px;padding:10px;border-radius:13px;background:linear-gradient(180deg,rgba(11,31,60,.95),rgba(5,13,27,.98));border:1px solid var(--line)}.notice img{width:40px;height:40px;border-radius:10px;object-fit:cover;background:#06142a}.notice-title{font-size:13px;font-weight:950;line-height:1.35}.notice-body{display:-webkit-box;margin-top:4px;overflow:hidden;color:#b7c9de;font-size:11px;line-height:1.45;-webkit-box-orient:vertical;-webkit-line-clamp:2}.notice-time{margin-top:5px;color:var(--muted);font-size:9px;font-weight:850}.toolbar{display:flex;gap:7px;margin-bottom:8px}.toolbar input{min-width:0;flex:1;height:36px;padding:0 10px;border-radius:10px;border:1px solid var(--line);outline:none;color:#fff;background:rgba(5,16,31,.88)}.inout{display:grid;grid-template-columns:70px 1fr;gap:7px;padding:9px;border-radius:12px;background:linear-gradient(180deg,rgba(11,31,60,.95),rgba(5,13,27,.98));border:1px solid var(--line)}.date{display:flex;align-items:center;justify-content:center;border-radius:8px;background:rgba(29,102,255,.15);color:#dbeafe;font-size:10px;font-weight:950}.events{display:flex;flex-wrap:wrap;gap:4px}.event{display:inline-flex;gap:4px;align-items:center;padding:4px 6px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:10px;font-weight:900}.status{padding:2px 4px;border-radius:999px;font-size:8px}.status.in{background:rgba(37,99,235,.38);color:#dbeafe}.status.out{background:rgba(239,68,68,.38);color:#fee2e2}.boja-cats{display:flex;gap:6px;overflow-x:auto;margin-bottom:8px}.video-card{display:grid;grid-template-columns:104px 1fr;gap:9px;padding:9px;border-radius:12px;background:linear-gradient(180deg,rgba(11,31,60,.95),rgba(5,13,27,.98));border:1px solid var(--line)}.thumb{width:104px;aspect-ratio:16/9;object-fit:cover;border-radius:7px;background:#06142a}.video-card a{font-size:12px;font-weight:950;line-height:1.35}.video-note{margin-top:5px;color:var(--muted);font-size:9px;font-weight:850}.empty{padding:18px;text-align:center;color:var(--muted);font-size:11px;border:1px dashed var(--line);border-radius:12px}
+    .bottom{position:fixed;right:0;bottom:0;left:0;z-index:40;height:calc(var(--nav) + env(safe-area-inset-bottom));padding:5px 5px env(safe-area-inset-bottom);background:rgba(4,10,22,.97);border-top:1px solid var(--line);backdrop-filter:blur(16px)}.nav{display:grid;height:100%;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px}.nav button{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;border-radius:9px;color:#8ea8c7;background:transparent;font-size:9px;font-weight:900}.nav button.active{color:#fff;background:rgba(29,102,255,.18)}.nav-svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .sheet-dim{position:fixed;inset:0;z-index:60;display:none;background:rgba(0,0,0,.58)}.sheet-dim.open{display:block}.sheet{position:absolute;left:0;right:0;bottom:0;padding:12px 13px calc(15px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0;background:#07172d;border-top:1px solid var(--line);box-shadow:0 -18px 42px rgba(0,0,0,.34)}.sheet-handle{width:38px;height:4px;margin:0 auto 12px;border-radius:99px;background:rgba(255,255,255,.22)}.sheet-title{font-size:15px;font-weight:950}.sheet-list{display:grid;gap:7px;margin-top:9px}.sheet-item{display:flex;align-items:center;justify-content:space-between;min-height:46px;padding:0 11px;border-radius:10px;color:#e4effc;background:rgba(255,255,255,.045);border:1px solid var(--line);font-size:12px;font-weight:900}.sheet-close{width:100%;min-height:42px;margin-top:9px;border-radius:10px;color:#c5d4e7;background:rgba(255,255,255,.045);border:1px solid var(--line);font-size:12px;font-weight:900}
+    .modal-dim{position:fixed;inset:0;z-index:80;display:none;align-items:flex-end;background:rgba(0,0,0,.68)}.modal-dim.open{display:flex}.modal{width:100%;max-height:88vh;overflow:auto;padding:13px 13px calc(15px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0;background:#07172d;border-top:1px solid var(--line);box-shadow:0 -18px 42px rgba(0,0,0,.40)}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.modal-title{font-size:16px;font-weight:950}.modal-close{width:32px;height:32px;border-radius:9px;color:#d8e5f8;background:rgba(255,255,255,.055);border:1px solid var(--line);font-weight:950}.record-list{display:grid;gap:6px;margin-top:10px}.record{display:grid;grid-template-columns:70px 42px 1fr;gap:6px;align-items:center;padding:8px;border-radius:9px;background:rgba(255,255,255,.035);border:1px solid var(--line2);font-size:10px}.record-result{font-weight:950}.record-result.win{color:#7dd3fc}.record-result.lose{color:#fda4af}.record-opponent{font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    @media(min-width:600px){.dashboard-grid,.tier-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.profile-card{display:grid;grid-template-columns:250px 1fr}.profile-photo-wrap{height:100%}}
+</style>
 </head>
 <body>
+
 <div class="app">
   <header class="top"><div class="head-row"><div class="brand"><img class="logo" src="https://stimg.sooplive.com/NORMAL_BBS/0/16216050/30546a167f55e2168.gif" alt="캄몬스타즈"><div><div class="title">MONSTARZ</div><div id="pageName" class="subtitle">현황판</div></div></div><button id="refreshBtn" class="refresh" type="button">새로고침</button></div></header>
   <main class="content">
-    <section id="dashboard" class="page active"><div class="hero"><div class="eyebrow">MONSTARZ MOBILE</div><h2>캄몬스타즈 현황판</h2><p>모바일 전용 화면입니다. PC 화면과 분리되어 독립적으로 수정됩니다.</p><div class="stats"><div class="stat"><span>전체 멤버</span><b id="statAll">0</b></div><div class="stat"><span>현재 LIVE</span><b id="statLive">0</b></div><div class="stat"><span>최근 IN</span><b id="statRecent">-</b></div></div></div><div class="section"><div class="section-head"><h2>방송 중</h2><span id="liveChecked" class="count">확인 중</span></div><div id="liveList" class="live-grid"></div></div></section>
-    <section id="profile" class="page"><div class="section-head"><h2>프로필</h2><span class="count">멤버 목록</span></div><div id="profileList" class="profile-grid"></div></section>
-    <section id="tier" class="page"><div class="section-head"><h2>티어표</h2><span class="count">기존 티어표 연결</span></div><iframe class="tier-frame" src="../tierboard_calm_tab.html" title="캄몬스타즈 티어표" loading="lazy"></iframe></section>
+    <section id="dashboard" class="page active">
+      <div class="hero"><div class="hero-top"><div><div class="hero-title">캄몬스타즈 현황</div><div class="hero-note">전체 멤버 · 실시간 방송 상태</div></div><span id="liveChecked" class="count">확인 중</span></div><div class="stats"><div class="stat"><span>전체</span><b id="statAll">0</b></div><div class="stat"><span>LIVE</span><b id="statLive">0</b></div><div class="stat"><span>최근 IN</span><b id="statRecent">-</b></div></div></div>
+      <div class="section"><div class="section-head"><h2>멤버 현황</h2><span class="count">방송 중 카드 점등</span></div><div id="dashboardList" class="dashboard-grid"></div></div>
+    </section>
+    <section id="profile" class="page">
+      <div class="section-head"><h2>프로필</h2><span id="profileCount" class="count">0명</span></div>
+      <div class="profile-controls"><input id="profileSearch" type="search" placeholder="멤버 이름 검색" autocomplete="off"><select id="profileSelect" aria-label="프로필 멤버 선택"></select></div>
+      <div id="profileDetail"></div>
+    </section>
+    <section id="tier" class="page">
+      <div class="section-head"><h2>티어표</h2><span id="tierCount" class="count">불러오는 중</span></div>
+      <div class="tier-toolbar"><div class="tier-toolbar-row"><input id="tierSearch" type="search" placeholder="선수 검색" autocomplete="off"><select id="tierRace" aria-label="종족 필터"><option value="ALL">전체 종족</option><option value="P">프로토스</option><option value="T">테란</option><option value="Z">저그</option></select></div><div id="tierLiveFilter" class="filter"><button class="active" data-live="ALL">전체</button><button data-live="LIVE">방송 중</button></div></div>
+      <div id="tierStatus" class="tier-status">Firebase 티어 데이터를 불러오는 중입니다.</div><div id="tierList"></div>
+    </section>
     <section id="notice" class="page"><div class="section-head"><h2>공지</h2><span id="noticeCount" class="count">0개</span></div><div id="noticeList" class="notice-list"><div class="empty">공지 불러오는 중</div></div></section>
     <section id="inout" class="page"><div class="section-head"><h2>IN&amp;OUT</h2><span id="inoutCount" class="count">0건</span></div><div class="toolbar"><input id="inoutSearch" placeholder="이름 검색" autocomplete="off"></div><div id="inoutFilter" class="filter"><button class="active" data-value="ALL">전체</button><button data-value="IN">IN</button><button data-value="OUT">OUT</button></div><div id="inoutList" class="inout-list"></div></section>
     <section id="boja" class="page"><div class="section-head"><h2>보자충</h2><span id="bojaCount" class="count">0개</span></div><div id="bojaCats" class="boja-cats filter"></div><div id="bojaList" class="video-list"></div></section>
     <section id="fantube" class="page"><div class="section-head"><h2>팬튜브</h2><span id="fantubeCount" class="count">0개</span></div><div id="fantubeList" class="video-list"><div class="empty">팬튜브 불러오는 중</div></div></section>
   </main>
-  <nav class="bottom"><div class="nav"><button class="active" data-page="dashboard"><span class="ico">⌂</span>현황판</button><button data-page="profile"><span class="ico">👤</span>프로필</button><button data-page="tier"><span class="ico">🏆</span>티어표</button><button data-page="notice"><span class="ico">📢</span>공지</button><button data-page="inout"><span class="ico">↔</span>IN&amp;OUT</button><button data-page="boja"><span class="ico">★</span>보자충</button><button data-page="fantube"><span class="ico">▶</span>팬튜브</button></div></nav>
+  <nav class="bottom"><div class="nav"><button class="active" data-page="dashboard"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-6h5v6"/></svg><span>현황판</span></button><button data-page="profile"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c.8-4 3.1-6 7-6s6.2 2 7 6"/></svg><span>프로필</span></button><button data-page="tier"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4c0 3-2.2 5.5-5 5.5S7 11 7 8V4Z"/><path d="M9 13.5V17h6v-3.5"/><path d="M8 20h8"/><path d="M7 6H4v1.5c0 2 1.1 3.5 3.2 4"/><path d="M17 6h3v1.5c0 2-1.1 3.5-3.2 4"/></svg><span>티어표</span></button><button data-page="notice"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span>공지</span></button><button id="moreBtn" type="button"><svg class="nav-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg><span>더보기</span></button></div></nav>
 </div>
+<div id="moreSheet" class="sheet-dim"><section class="sheet" role="dialog" aria-label="더보기 메뉴"><div class="sheet-handle"></div><h3 class="sheet-title">더보기</h3><div class="sheet-list"><button class="sheet-item" data-more-page="inout">IN&amp;OUT <span>›</span></button><button class="sheet-item" data-more-page="boja">보자충 <span>›</span></button><button class="sheet-item" data-more-page="fantube">팬튜브 <span>›</span></button><a class="sheet-item" href="../">PC 버전으로 이동 <span>›</span></a></div><button id="sheetClose" class="sheet-close" type="button">닫기</button></section></div>
+<div id="recordModal" class="modal-dim"><section class="modal" role="dialog" aria-label="전적 보기"><div class="modal-head"><h3 id="recordTitle" class="modal-title">전적 보기</h3><button id="recordClose" class="modal-close" type="button">×</button></div><div id="recordList" class="record-list"></div></section></div>
+
 <script>
-  const TEAM = {
-    name: "캄몬스타즈 (since : 24.07.08)",
-    description: "",
-    logo: "https://stimg.sooplive.com/NORMAL_BBS/0/16216050/30546a167f55e2168.gif",
-    updatedAt: "2026-04-04 23:00"
-  };
-  const LIVE_STATUS_URL = "https://livecheck-2.onrender.com/live-status";
-  const YOUTUBE_JSON_URL = "https://raw.githubusercontent.com/kill662477-cmyk/youtube/main/youtube.json";
-  const KAMRINI_JSON_URL = "https://raw.githubusercontent.com/kill662477-cmyk/RINI/main/data/kamrini-videos.json";
-  const NOTICE_JSON_URL = "https://raw.githubusercontent.com/kill662477-cmyk/silver0love/main/notices.json";
+
+  const TEAM={logo:"https://stimg.sooplive.com/NORMAL_BBS/0/16216050/30546a167f55e2168.gif"};
+  const LIVE_STATUS_URL="https://livecheck-2.onrender.com/live-status";
+  const NOTICE_JSON_URL="https://raw.githubusercontent.com/kill662477-cmyk/silver0love/main/notices.json";
+  const YOUTUBE_JSON_URL="https://raw.githubusercontent.com/kill662477-cmyk/youtube/main/youtube.json";
+  const KAMRINI_JSON_URL="https://raw.githubusercontent.com/kill662477-cmyk/RINI/main/data/kamrini-videos.json";
+  const FIREBASE_ROOT="https://jddcontens-default-rtdb.asia-southeast1.firebasedatabase.app/starcraftTier/current";
   const BOJA_CATEGORIES = [
     {
       name: "김윤환",
@@ -81,6 +93,7 @@
       ]
     }
   ];
+
   const INOUT_HISTORY = [
     { date: "24.07.08", events: [{ name: "김윤환", race: "Z", status: "IN" }, { name: "이경민", race: "P", status: "IN" }] },
     { date: "24.07.09", events: [{ name: "졈니", race: "P", status: "IN" }, { name: "디임", race: "P", status: "IN" }] },
@@ -121,6 +134,7 @@
     { date: "26.04.28", events: [{ name: "낭니", race: "Z", status: "IN" }] }, 
     { date: "26.05.04", events: [{ name: "이경민", race: "P", status: "OUT" }] }
   ];
+
   const MEMBERS = [
     { name: "김윤환", userId: "brainzerg7", type: "leader", role: "감독", tier: "Jack", race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/br/brainzerg7/m/brainzerg7.webp", stream: "https://www.sooplive.com/station/brainzerg7", live: "https://play.sooplive.com/brainzerg7", youtube: "http://www.youtube.com/@calmtube2", profile: "#" },
     { name: "사테", userId: "hoonykkk", type: "coach", role: "코치", tier: "King", race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ho/hoonykkk/m/hoonykkk.webp", stream: "https://www.sooplive.com/station/hoonykkk", live: "https://play.sooplive.com/hoonykkk", youtube: "#", profile: "#" },
@@ -147,33 +161,283 @@
     { name: "아리송이", userId: "vldpfm2", type: "player", role: "학생", tier: 7, race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/vl/vldpfm2/vldpfm2.jpg", stream: "https://www.sooplive.com/station/vldpfm2", live: "https://play.sooplive.com/vldpfm2", youtube: "#", profile: "#" },
 
     { name: "진땅콩", userId: "wlswn6565", type: "player", role: "학생", tier: 8, race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/wl/wlswn6565/m/wlswn6565.webp", stream: "https://www.sooplive.com/station/wlswn6565", live: "https://play.sooplive.com/wlswn6565", youtube: "#", profile: "#" },
-   { name: "낭니", userId: "sksmsskdsl10", type: "player", role: "학생", tier: 9, race: "Zerg", status: "offline",
+   { name: "낭니", userId: "sksmsskdsl10", type: "player", role: "학생", tier: "유스", race: "Zerg", status: "offline",
       profileImage: "https://stimg.sooplive.com/LOGO/sk/sksmsskdsl10/m/sksmsskdsl10.webp",
       stream: "https://www.sooplive.com/station/sksmsskdsl10",
       live: "https://play.sooplive.com/sksmsskdsl10",
       youtube: "#",
       profile: "#" }
 ];
-
-  let liveStatusMap={}, lastCheckedAt="", inoutMode="ALL", selectedBoja=BOJA_CATEGORIES[0]?.name||"";
+  const PROFILE_MEMBERS=[
+  {
+    "name": "김윤환",
+    "role": "Head Coach · Jack",
+    "birth": "1989.06.13",
+    "blood": "O형",
+    "mbti": "ENFP",
+    "height": "172cm",
+    "debut": "2017.10.01",
+    "awards": [
+      "SKY 프로리그 2006 후기리그 팀플전 다승왕",
+      "아발론 MSL 2009 우승",
+      "EVER 스타리그 2009 4강",
+      "하나대투증권 MSL 2010 4강",
+      "박카스 스타리그 2011 4강",
+      "SK플래닛 스타크래프트 2 프로리그 12-13 우승",
+      "철구&풀발373배 스타대학대전 2023 4강",
+      "라네트배 스타대학대전 2024 우승"
+    ]
+  },
+  {
+    "name": "사테",
+    "role": "Coach · King",
+    "birth": "1992.07.16",
+    "blood": "",
+    "mbti": "",
+    "height": "",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "박준오",
+    "role": "Coach · King",
+    "birth": "1992.06.24",
+    "blood": "B형",
+    "mbti": "",
+    "height": "166cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "박수범",
+    "role": "Coach · Jack",
+    "birth": "1990.12.10",
+    "blood": "B형",
+    "mbti": "",
+    "height": "175cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "지동원",
+    "role": "Coach · Jack",
+    "birth": "1993.02.04",
+    "blood": "",
+    "mbti": "ISTP",
+    "height": "180cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "배성흠",
+    "role": "Coach · Jack",
+    "birth": "1991.08.17",
+    "blood": "",
+    "mbti": "",
+    "height": "172cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "파도튜브",
+    "role": "Coach · Spade",
+    "birth": "1992.07.15",
+    "blood": "",
+    "mbti": "",
+    "height": "",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "토마토",
+    "role": "3티어 · Player",
+    "tier": 3,
+    "birth": "1999.08.05",
+    "blood": "B형",
+    "mbti": "INTP",
+    "height": "164cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "지두두",
+    "role": "3티어 · Player",
+    "tier": 3,
+    "birth": "1997.09.01",
+    "blood": "O형",
+    "mbti": "INFP",
+    "height": "158cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "햇살",
+    "role": "4티어 · Player",
+    "tier": 4,
+    "birth": "1996.11.21",
+    "blood": "O형",
+    "mbti": "ESTJ",
+    "height": "162cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "찌킹",
+    "role": "4티어 · Player",
+    "tier": 4,
+    "birth": "1997.05.14",
+    "blood": "O형",
+    "mbti": "ENFP",
+    "height": "160cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "치리",
+    "role": "5티어 · Player",
+    "tier": 5,
+    "birth": "2000.12.02",
+    "blood": "",
+    "mbti": "ISFP",
+    "height": "158cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "주하랑",
+    "role": "5티어 · Player",
+    "tier": 5,
+    "birth": "1999.10.15",
+    "blood": "B형",
+    "mbti": "ISTP",
+    "height": "160cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "소주양",
+    "role": "5티어 · Player",
+    "tier": 5,
+    "birth": "1999.02.22",
+    "blood": "A형",
+    "mbti": "ISTP",
+    "height": "162cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "임조이",
+    "role": "6티어 · Player",
+    "tier": 6,
+    "birth": "1998.11.11",
+    "blood": "AB형",
+    "mbti": "ISTP",
+    "height": "166cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "비타밍",
+    "role": "6티어 · Player",
+    "tier": 6,
+    "birth": "2000.01.20",
+    "blood": "A형",
+    "mbti": "ESTP",
+    "height": "163cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "먼진",
+    "role": "7티어 · Player",
+    "tier": 7,
+    "birth": "2001.12.01",
+    "blood": "",
+    "mbti": "ISFJ",
+    "height": "168cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "아리송이",
+    "role": "7티어 · Player",
+    "tier": 7,
+    "birth": "1999.01.02",
+    "blood": "",
+    "mbti": "ISFP",
+    "height": "162cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "진땅콩",
+    "role": "8티어 · Player",
+    "tier": 8,
+    "birth": "2001.01.13",
+    "blood": "",
+    "mbti": "INTP",
+    "height": "156cm",
+    "debut": "",
+    "awards": []
+  },
+  {
+    "name": "낭니",
+    "role": "유스 · Player",
+    "tier": "유스",
+    "birth": "1999.08.11",
+    "blood": "B형",
+    "mbti": "ISTP",
+    "height": "166cm",
+    "debut": "",
+    "awards": []
+  }
+];
+  let liveStatusMap={},lastCheckedAt="",inoutMode="ALL",selectedBoja=BOJA_CATEGORIES[0]?.name||"",tierPlayers=[],tierLiveMap={},tierLiveMode="ALL",selectedProfileName=PROFILE_MEMBERS[0]?.name||"";
   const $=id=>document.getElementById(id);
   const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const safe=url=>{try{const u=new URL(String(url||""),location.href);return /^https?:$/.test(u.protocol)?u.href:"#"}catch{return "#"}};
+  const safeKey=v=>String(v||"").replace(/[.#$/[\]]/g,"_");
   const uid=m=>m.userId||((m.stream||"").match(/station\/([^/?#]+)/)||[])[1]||"";
-  const liveMembers=()=>MEMBERS.map(m=>({...m,status:liveStatusMap[uid(m)]===true?"live":"offline"}));
-  function card(m){const isLive=m.status==="live";return `<article class="member"><div class="member-top"><span class="badge ${isLive?'live':''}">${isLive?'LIVE':'OFFLINE'}</span></div><div class="member-body"><img class="avatar ${isLive?'live':''}" src="${safe(m.profileImage)}" alt="${esc(m.name)}"><div class="name">${esc(m.name)}</div><div class="meta">${esc(m.role)} · ${esc(m.race)} · ${esc(String(m.tier))}</div><div class="actions"><a href="${safe(m.live)}" target="_blank" rel="noopener">방송 보기</a><a href="${safe(m.stream)}" target="_blank" rel="noopener">방송국</a></div></div></article>`}
-  function renderMembers(){const all=liveMembers(), live=all.filter(m=>m.status==='live');$('statAll').textContent=all.length;$('statLive').textContent=live.length;$('liveList').innerHTML=live.length?live.map(card).join(''):'<div class="empty" style="grid-column:1/-1">현재 방송 중인 멤버가 없습니다.</div>';$('profileList').innerHTML=all.map(card).join('')}
-  async function fetchLive(){try{const r=await fetch(LIVE_STATUS_URL,{cache:'no-store'});const d=await r.json();if(d?.statuses){liveStatusMap=d.statuses;lastCheckedAt=d.checkedAt||''}}catch(e){console.warn(e)}renderMembers();$('liveChecked').textContent=lastCheckedAt?new Date(lastCheckedAt).toLocaleString('ko-KR'):'갱신 정보 없음'}
-  function normalizeNotice(x){return {stationName:String(x.stationName||x.writer||'공지'),userId:String(x.userId||''),title:String(x.title||x.subject||''),content:String(x.content||x.body||x.summary||''),time:String(x.time||''),link:String(x.link||'')}}
-  async function fetchNotices(){try{const r=await fetch(NOTICE_JSON_URL+'?t='+Date.now(),{cache:'no-store'});const d=await r.json();const items=(Array.isArray(d?.items)?d.items:[]).map(normalizeNotice).slice(0,40);$('noticeCount').textContent=items.length+'개';$('noticeList').innerHTML=items.length?items.map(n=>{const m=MEMBERS.find(v=>v.userId===n.userId);return `<a class="notice" href="${safe(n.link)}" target="_blank" rel="noopener"><img src="${safe(m?.profileImage||TEAM.logo)}" alt=""><div><div class="notice-title">${esc(n.stationName)} · ${esc(n.title)}</div>${n.content?`<div class="notice-body">${esc(n.content)}</div>`:''}<div class="notice-time">${esc(n.time||'날짜 없음')}</div></div></a>`}).join(''):'<div class="empty">공지 데이터가 없습니다.</div>'}catch(e){$('noticeList').innerHTML='<div class="empty">공지 데이터를 불러오지 못했습니다.</div>'}}
-  function renderInout(){const q=$('inoutSearch').value.trim();const rows=INOUT_HISTORY.map(r=>({...r,events:r.events.filter(e=>(inoutMode==='ALL'||e.status===inoutMode)&&(!q||e.name.includes(q)))})).filter(r=>r.events.length).reverse();$('inoutCount').textContent=rows.reduce((s,r)=>s+r.events.length,0)+'건';$('inoutList').innerHTML=rows.length?rows.map(r=>`<article class="inout"><div class="date">${esc(r.date)}</div><div class="events">${r.events.map(e=>`<span class="event">${esc(e.name)} <small>${esc(e.race)}</small><b class="status ${e.status==='IN'?'in':'out'}">${esc(e.status)}</b></span>`).join('')}</div></article>`).join(''):'<div class="empty">검색 결과가 없습니다.</div>'}
-  function youtubeId(url){return ((String(url).match(/youtu\.be\/([^?&#/]+)/)||String(url).match(/[?&]v=([^?&#/]+)/)||[])[1]||'')}
-  function renderBoja(){const cat=BOJA_CATEGORIES.find(c=>c.name===selectedBoja)||BOJA_CATEGORIES[0];$('bojaCats').innerHTML=BOJA_CATEGORIES.map(c=>`<button data-cat="${esc(c.name)}" class="${c.name===cat.name?'active':''}">${esc(c.name)}</button>`).join('');$('bojaCount').textContent=(cat?.items?.length||0)+'개';$('bojaList').innerHTML=(cat?.items||[]).map(v=>{const id=youtubeId(v.url);const thumb=id?'https://img.youtube.com/vi/'+id+'/mqdefault.jpg':'';return `<article class="video-card">${thumb?`<img class="thumb" src="${thumb}" alt="">`:'<div class="thumb"></div>'}<div><a href="${safe(v.url)}" target="_blank" rel="noopener">${esc(v.title)}</a><div class="video-note">${esc(v.note||'영상')}</div></div></article>`}).join('')||'<div class="empty">등록된 영상이 없습니다.</div>';document.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{selectedBoja=b.dataset.cat;renderBoja()})}
-  function normVideo(x,source){const id=x.videoId||youtubeId(x.url||x.link||'');return {id,title:String(x.title||''),url:String(x.url||x.link||(id?'https://youtu.be/'+id:'')),thumb:String(x.thumbnail||x.thumbnailUrl||(id?'https://img.youtube.com/vi/'+id+'/mqdefault.jpg':'')),source}}
-  async function fetchFantube(){try{const rs=await Promise.allSettled([fetch(YOUTUBE_JSON_URL).then(r=>r.json()),fetch(KAMRINI_JSON_URL).then(r=>r.json())]);const a=rs[0].status==='fulfilled'?(rs[0].value.items||[]):[],b=rs[1].status==='fulfilled'?(rs[1].value.items||[]):[];const items=[...a.map(x=>normVideo(x,x.name||x.channelTitle||'팬튜브')),...b.map(x=>normVideo(x,'캄린이'))].filter(v=>v.id&&v.url);$('fantubeCount').textContent=items.length+'개';$('fantubeList').innerHTML=items.length?items.map(v=>`<article class="video-card"><img class="thumb" src="${safe(v.thumb)}" alt=""><div><a href="${safe(v.url)}" target="_blank" rel="noopener">${esc(v.title)}</a><div class="video-note">${esc(v.source)}</div></div></article>`).join(''):'<div class="empty">팬튜브 영상이 없습니다.</div>'}catch(e){$('fantubeList').innerHTML='<div class="empty">팬튜브 데이터를 불러오지 못했습니다.</div>'}}
-  function openPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===name));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));$('pageName').textContent=({dashboard:'현황판',profile:'프로필',tier:'티어표',notice:'공지',inout:'IN&OUT',boja:'보자충',fantube:'팬튜브'})[name]||name;localStorage.setItem('monstarz-mobile-tab',name);scrollTo(0,0)}
-  document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>openPage(b.dataset.page));$('inoutSearch').oninput=renderInout;$('inoutFilter').onclick=e=>{const b=e.target.closest('button');if(!b)return;inoutMode=b.dataset.value;document.querySelectorAll('#inoutFilter button').forEach(x=>x.classList.toggle('active',x===b));renderInout()};$('refreshBtn').onclick=()=>{fetchLive();fetchNotices();fetchFantube()};
-  $('statRecent').textContent=INOUT_HISTORY.at(-1)?.date||'-';renderMembers();renderInout();renderBoja();fetchLive();fetchNotices();fetchFantube();setInterval(fetchLive,60000);openPage(localStorage.getItem('monstarz-mobile-tab')||'dashboard');
+  const normalizeList=v=>Array.isArray(v)?v:(v&&typeof v==="object"?Object.keys(v).sort((a,b)=>Number(a)-Number(b)).map(k=>v[k]).filter(Boolean):[]);
+  const isLiveValue=v=>v===true||Boolean(v&&(v.live===true||v.status==="live"||v.broadNo||v.broad_no||v.broadcastUrl));
+  const raceCode=v=>{const x=String(v||"").toUpperCase();if(x.startsWith("P"))return"P";if(x.startsWith("T"))return"T";if(x.startsWith("Z"))return"Z";return x||"-"};
+  const raceName=v=>({P:"Protoss",T:"Terran",Z:"Zerg"})[raceCode(v)]||String(v||"-");
+  const memberTier=m=>m.name==="낭니"?"유스":(typeof m.tier==="number"?m.tier+"티어":String(m.tier||m.role||"-"));
+  function liveMembers(){return MEMBERS.map(m=>({...m,status:isLiveValue(liveStatusMap[uid(m)])?"live":"offline"}))}
+  function memberCard(m){const on=m.status==="live";return `<article class="member ${on?"live-on":""}"><div class="member-cover"><span class="live-pill">${on?"LIVE":"OFFLINE"}</span></div><div class="member-body"><img class="avatar" src="${safe(m.profileImage)}" alt="${esc(m.name)}"><div class="member-name-row"><div class="name">${esc(m.name)}</div><span class="race">${esc(raceCode(m.race))}</span></div><div class="meta">${esc(m.role)} · ${esc(memberTier(m))}</div><div class="actions"><a href="${safe(m.live)}" target="_blank" rel="noopener">방송 보기</a><a href="${safe(m.stream)}" target="_blank" rel="noopener">방송국</a></div></div></article>`}
+  function renderDashboard(){const all=liveMembers();$("statAll").textContent=all.length;$("statLive").textContent=all.filter(m=>m.status==="live").length;$("dashboardList").innerHTML=all.map(memberCard).join("")}
+  async function fetchLive(){try{const r=await fetch(LIVE_STATUS_URL,{cache:"no-store"});const d=await r.json();if(d?.statuses){liveStatusMap=d.statuses;lastCheckedAt=d.checkedAt||""}}catch(e){console.warn(e)}renderDashboard();$("liveChecked").textContent=lastCheckedAt?new Date(lastCheckedAt).toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"})+" 갱신":"갱신 정보 없음"}
+  function profileImage(name){return MEMBERS.find(m=>m.name===name)?.profileImage||TEAM.logo}
+  function has(v){return v!==undefined&&v!==null&&String(v).trim()&&String(v).trim()!=="-"}
+  function renderProfileOptions(filter=""){const q=filter.trim();const list=PROFILE_MEMBERS.filter(p=>!q||p.name.includes(q));if(!list.some(p=>p.name===selectedProfileName))selectedProfileName=(list[0]||PROFILE_MEMBERS[0]||{}).name||"";$("profileCount").textContent=PROFILE_MEMBERS.length+"명";$("profileSelect").innerHTML=list.map(p=>`<option value="${esc(p.name)}" ${p.name===selectedProfileName?"selected":""}>${esc(p.name)} · ${esc(p.role||"")}</option>`).join("");renderProfileDetail()}
+  function renderProfileDetail(){const p=PROFILE_MEMBERS.find(x=>x.name===selectedProfileName)||PROFILE_MEMBERS[0];if(!p){$("profileDetail").innerHTML='<div class="empty">프로필 데이터가 없습니다.</div>';return}const facts=[["생년월일",p.birth],["혈액형",p.blood],["MBTI",p.mbti],["신장",p.height],["방송 데뷔",p.debut]].filter(x=>has(x[1]));$("profileDetail").innerHTML=`<article class="profile-card"><div class="profile-photo-wrap"><img class="profile-photo" src="${safe(profileImage(p.name))}" alt="${esc(p.name)}"><span class="profile-role">${esc(p.role||"PROFILE")}</span></div><div class="profile-info"><div class="profile-name">${esc(p.name)}</div><div class="profile-facts">${facts.length?facts.map(x=>`<div class="profile-fact"><span>${esc(x[0])}</span><b>${esc(x[1])}</b></div>`).join(""):'<div class="empty">등록된 상세 정보가 없습니다.</div>'}</div>${Array.isArray(p.awards)&&p.awards.length?`<div class="awards"><h3>수상경력</h3><ul>${p.awards.map(a=>`<li>${esc(a)}</li>`).join("")}</ul></div>`:""}</div></article>`}
+  function normalizeNotice(x){return{stationName:String(x.stationName||x.writer||"공지"),userId:String(x.userId||""),title:String(x.title||x.subject||""),content:String(x.content||x.body||x.summary||""),time:String(x.time||""),link:String(x.link||"")}}
+  async function fetchNotices(){try{const r=await fetch(NOTICE_JSON_URL+"?t="+Date.now(),{cache:"no-store"});const d=await r.json();const items=(Array.isArray(d?.items)?d.items:[]).map(normalizeNotice).slice(0,40);$("noticeCount").textContent=items.length+"개";$("noticeList").innerHTML=items.length?items.map(n=>{const m=MEMBERS.find(v=>v.userId===n.userId);return `<a class="notice" href="${safe(n.link)}" target="_blank" rel="noopener"><img src="${safe(m?.profileImage||TEAM.logo)}" alt=""><div><div class="notice-title">${esc(n.stationName)} · ${esc(n.title)}</div>${n.content?`<div class="notice-body">${esc(n.content)}</div>`:""}<div class="notice-time">${esc(n.time||"날짜 없음")}</div></div></a>`}).join(""):'<div class="empty">공지 데이터가 없습니다.</div>'}catch(e){$("noticeList").innerHTML='<div class="empty">공지 데이터를 불러오지 못했습니다.</div>'}}
+  function renderInout(){const q=$("inoutSearch").value.trim();const rows=INOUT_HISTORY.map(r=>({...r,events:r.events.filter(e=>(inoutMode==="ALL"||e.status===inoutMode)&&(!q||e.name.includes(q)))})).filter(r=>r.events.length).reverse();$("inoutCount").textContent=rows.reduce((s,r)=>s+r.events.length,0)+"건";$("inoutList").innerHTML=rows.length?rows.map(r=>`<article class="inout"><div class="date">${esc(r.date)}</div><div class="events">${r.events.map(e=>`<span class="event">${esc(e.name)} <small>${esc(e.race)}</small><b class="status ${e.status==="IN"?"in":"out"}">${esc(e.status)}</b></span>`).join("")}</div></article>`).join(""):'<div class="empty">검색 결과가 없습니다.</div>'}
+  function youtubeId(url){return((String(url).match(/youtu\.be\/([^?&#/]+)/)||String(url).match(/[?&]v=([^?&#/]+)/)||[])[1]||"")}
+  function renderBoja(){const cat=BOJA_CATEGORIES.find(c=>c.name===selectedBoja)||BOJA_CATEGORIES[0];$("bojaCats").innerHTML=BOJA_CATEGORIES.map(c=>`<button data-cat="${esc(c.name)}" class="${c.name===cat.name?"active":""}">${esc(c.name)}</button>`).join("");$("bojaCount").textContent=(cat?.items?.length||0)+"개";$("bojaList").innerHTML=(cat?.items||[]).map(v=>{const id=youtubeId(v.url),thumb=id?"https://img.youtube.com/vi/"+id+"/mqdefault.jpg":"";return `<article class="video-card">${thumb?`<img class="thumb" src="${thumb}" alt="">`:'<div class="thumb"></div>'}<div><a href="${safe(v.url)}" target="_blank" rel="noopener">${esc(v.title)}</a><div class="video-note">${esc(v.note||"영상")}</div></div></article>`}).join("")||'<div class="empty">등록된 영상이 없습니다.</div>';document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{selectedBoja=b.dataset.cat;renderBoja()})}
+  function normVideo(x,source){const id=x.videoId||youtubeId(x.url||x.link||"");return{id,title:String(x.title||""),url:String(x.url||x.link||(id?"https://youtu.be/"+id:"")),thumb:String(x.thumbnail||x.thumbnailUrl||(id?"https://img.youtube.com/vi/"+id+"/mqdefault.jpg":"")),source}}
+  async function fetchFantube(){try{const rs=await Promise.allSettled([fetch(YOUTUBE_JSON_URL).then(r=>r.json()),fetch(KAMRINI_JSON_URL).then(r=>r.json())]);const a=rs[0].status==="fulfilled"?(rs[0].value.items||[]):[],b=rs[1].status==="fulfilled"?(rs[1].value.items||[]):[];const items=[...a.map(x=>normVideo(x,x.name||x.channelTitle||"팬튜브")),...b.map(x=>normVideo(x,"캄린이"))].filter(v=>v.id&&v.url);$("fantubeCount").textContent=items.length+"개";$("fantubeList").innerHTML=items.length?items.map(v=>`<article class="video-card"><img class="thumb" src="${safe(v.thumb)}" alt=""><div><a href="${safe(v.url)}" target="_blank" rel="noopener">${esc(v.title)}</a><div class="video-note">${esc(v.source)}</div></div></article>`).join(""):'<div class="empty">팬튜브 영상이 없습니다.</div>'}catch(e){$("fantubeList").innerHTML='<div class="empty">팬튜브 데이터를 불러오지 못했습니다.</div>'}}
+  const TIER_ORDER=["G","K","J","O","S","0","1","2","3","4","5","6","7","8","B","N"];
+  const TIER_NAMES={G:"갓티어",K:"킹티어",J:"잭티어",O:"조커티어",S:"스페이드티어",B:"베이비티어",N:"티어없음"};
+  function tierCode(p){return String(p.tierCode??p.tier??p.tierId??"N").replace(/^tier-/,"").toUpperCase()}
+  function tierLabel(p){const c=tierCode(p);return p.tier||TIER_NAMES[c]||(c==="N"?"티어없음":c+"티어")}
+  function tierLiveInfo(p){return tierLiveMap[safeKey(p.userId)]??tierLiveMap[p.userId]??p.live??false}
+  function tierIsLive(p){return isLiveValue(tierLiveInfo(p))}
+  function tierImage(p){return p.image||p.sourceImage||p.profileImage||p.broad?.profileImg||TEAM.logo}
+  function filterTierPlayers(){const q=$("tierSearch").value.trim().toLowerCase(),race=$("tierRace").value;return tierPlayers.filter(p=>(!q||String(p.name||"").toLowerCase().includes(q)||String(p.userId||"").toLowerCase().includes(q))&&(race==="ALL"||raceCode(p.race)===race)&&(tierLiveMode!=="LIVE"||tierIsLive(p)))}
+  function renderTier(){const rows=filterTierPlayers();$("tierCount").textContent=rows.length+"명";const groups={};rows.forEach(p=>{const c=tierCode(p);(groups[c]||(groups[c]=[])).push(p)});const keys=[...TIER_ORDER,...Object.keys(groups).filter(k=>!TIER_ORDER.includes(k))].filter(k=>groups[k]?.length);$("tierList").innerHTML=keys.length?keys.map(k=>`<section class="tier-group"><div class="tier-head"><h3>${esc(TIER_NAMES[k]||(k==="N"?"티어없음":k+"티어"))}</h3><span>${groups[k].length}명</span></div><div class="tier-grid">${groups[k].map(p=>{const live=tierIsLive(p);return `<article class="tier-player ${live?"live-on":""}"><div class="tier-player-top"><img class="tier-avatar" src="${safe(tierImage(p))}" alt=""><div class="tier-player-main"><div class="tier-player-name">${esc(p.name||p.userId)}</div><div class="tier-player-sub">${esc(raceCode(p.race))} · ${live?"LIVE":"OFFLINE"}</div></div></div><div class="tier-player-actions"><button type="button" data-record-user="${esc(p.userId)}" data-record-race="${esc(raceCode(p.race))}" data-record-name="${esc(p.name||p.userId)}">전적</button>${live?`<a href="${safe(p.broadcastUrl||("https://play.sooplive.com/"+p.userId))}" target="_blank" rel="noopener">방송</a>`:""}</div></article>`}).join("")}</div></section>`).join(""):'<div class="empty">조건에 맞는 선수가 없습니다.</div>';document.querySelectorAll("[data-record-user]").forEach(b=>b.onclick=()=>openRecords(b.dataset.recordUser,b.dataset.recordRace,b.dataset.recordName))}
+  async function fetchTier(){try{const [playersRes,liveRes,metaRes]=await Promise.all([fetch(FIREBASE_ROOT+"/players.json",{cache:"no-store"}),fetch(FIREBASE_ROOT+"/liveStatus.json",{cache:"no-store"}),fetch(FIREBASE_ROOT+"/meta.json",{cache:"no-store"})]);tierPlayers=normalizeList(await playersRes.json());tierLiveMap=(await liveRes.json())||{};const meta=await metaRes.json();$("tierStatus").textContent="모바일 전용 티어표 · "+(meta?.updatedAt?new Date(meta.updatedAt).toLocaleString("ko-KR")+" 갱신":"Firebase 데이터 연결");renderTier()}catch(e){console.warn(e);$("tierStatus").textContent="티어 데이터를 불러오지 못했습니다."; $("tierList").innerHTML='<div class="empty">Firebase 연결 상태를 확인해주세요.</div>'}}
+  function recordDate(row){return String(row.date||row.standardDate||row.playedAt||row.createdAt||"-").slice(0,10)}
+  function rowId(row,kind){return String(kind==="winner"?(row.winnerSoopUserId||row.winnerUserId||row.winnerId||row.winner||""):(row.loseSoopUserId||row.loserSoopUserId||row.loseUserId||row.loserUserId||row.loserId||row.loser||""))}
+  function rowName(row,kind){return String(kind==="winner"?(row.winnerNickname||row.winnerName||row.winName||row.winner||""):(row.loserNickname||row.loseNickname||row.loserName||row.loseName||row.loser||""))}
+  async function openRecords(userId,race,name){$("recordTitle").textContent=name+" 전적";$("recordList").innerHTML='<div class="empty">전적 불러오는 중</div>';$("recordModal").classList.add("open");try{const key=safeKey(userId+"_"+race);const r=await fetch(FIREBASE_ROOT+"/records/"+encodeURIComponent(key)+".json",{cache:"no-store"});const rows=normalizeList(await r.json()).slice().reverse().slice(0,80);$("recordList").innerHTML=rows.length?rows.map(row=>{const wid=rowId(row,"winner"),lid=rowId(row,"loser"),win=wid===userId||(!lid&&String(row.result||"").toUpperCase()==="WIN"),opp=win?rowName(row,"loser"):rowName(row,"winner");return `<article class="record"><span>${esc(recordDate(row))}</span><b class="record-result ${win?"win":"lose"}">${win?"승":"패"}</b><span class="record-opponent">${esc(opp||"상대 정보 없음")}</span></article>`}).join(""):'<div class="empty">표시할 전적이 없습니다.</div>'}catch(e){$("recordList").innerHTML='<div class="empty">전적 데이터를 불러오지 못했습니다.</div>'}}
+  function openPage(name){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===name));document.querySelectorAll(".nav [data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===name));$("moreBtn").classList.toggle("active",["inout","boja","fantube"].includes(name));$("pageName").textContent=({dashboard:"현황판",profile:"프로필",tier:"티어표",notice:"공지",inout:"IN&OUT",boja:"보자충",fantube:"팬튜브"})[name]||name;localStorage.setItem("monstarz-mobile-tab",name);window.scrollTo(0,0);if(name==="tier"&&!tierPlayers.length)fetchTier()}
+  function openSheet(){$("moreSheet").classList.add("open");document.body.style.overflow="hidden"}function closeSheet(){$("moreSheet").classList.remove("open");document.body.style.overflow=""}
+  document.querySelectorAll(".nav [data-page]").forEach(b=>b.onclick=()=>openPage(b.dataset.page));$("moreBtn").onclick=openSheet;$("sheetClose").onclick=closeSheet;$("moreSheet").onclick=e=>{if(e.target===$("moreSheet"))closeSheet()};document.querySelectorAll("[data-more-page]").forEach(b=>b.onclick=()=>{closeSheet();openPage(b.dataset.morePage)});$("recordClose").onclick=()=>$("recordModal").classList.remove("open");$("recordModal").onclick=e=>{if(e.target===$("recordModal"))$("recordModal").classList.remove("open")};
+  $("profileSearch").oninput=e=>renderProfileOptions(e.target.value);$("profileSelect").onchange=e=>{selectedProfileName=e.target.value;renderProfileDetail()};$("inoutSearch").oninput=renderInout;$("inoutFilter").onclick=e=>{const b=e.target.closest("button");if(!b)return;inoutMode=b.dataset.value;document.querySelectorAll("#inoutFilter button").forEach(x=>x.classList.toggle("active",x===b));renderInout()};$("tierSearch").oninput=renderTier;$("tierRace").onchange=renderTier;$("tierLiveFilter").onclick=e=>{const b=e.target.closest("button");if(!b)return;tierLiveMode=b.dataset.live;document.querySelectorAll("#tierLiveFilter button").forEach(x=>x.classList.toggle("active",x===b));renderTier()};$("refreshBtn").onclick=()=>{fetchLive();fetchNotices();fetchFantube();if(tierPlayers.length)fetchTier()};
+  $("statRecent").textContent=INOUT_HISTORY.at(-1)?.date||"-";renderDashboard();renderProfileOptions();renderInout();renderBoja();fetchLive();fetchNotices();fetchFantube();setInterval(fetchLive,60000);openPage(localStorage.getItem("monstarz-mobile-tab")||"dashboard");
+
 </script>
 </body>
 </html>
