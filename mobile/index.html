@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#07172d">
   <title>캄몬스타즈 모바일</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MONSTARZ">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
   <style>
     :root{--bg:#050b16;--panel:#07172d;--panel2:#0b1f3c;--line:rgba(112,164,238,.22);--line2:rgba(112,164,238,.12);--text:#f6f9ff;--muted:#8ea8c7;--soft:#b9cbe1;--blue:#1d66ff;--blue2:#56a1ff;--gold:#f6b93b;--red:#ef4444;--green:#22c55e;--nav:68px;--shadow:0 16px 36px rgba(0,0,0,.28)}
@@ -454,5 +459,15 @@
   $("statRecent").textContent=INOUT_HISTORY.at(-1)?.date||"-";renderDashboard();renderProfileOptions();renderInout();renderBoja();fetchLive();fetchNotices();fetchFantube();setInterval(fetchLive,60000);openPage(localStorage.getItem("monstarz-mobile-tab")||"dashboard");
 
 </script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch((error) => {
+        console.warn("MONSTARZ PWA service worker registration failed:", error);
+      });
+    });
+  }
+</script>
+
 </body>
 </html>
