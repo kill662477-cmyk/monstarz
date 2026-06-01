@@ -8342,18 +8342,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="section-head game-section-head">
           <div>
             <h2>🎮 캄몬스타즈 오락실</h2>
-            <div id="arcadeGameSubtitle" class="inout-title-sub">MONSTARS RUN GAME</div>
+            <div id="arcadeGameSubtitle" class="inout-title-sub">CALMON GROW GAME</div>
           </div>
           <div class="count">2 GAMES</div>
         </div>
         <div class="arcade-game-tabs" role="tablist" aria-label="오락실 게임 선택">
-          <button id="arcadeTabRun" class="arcade-game-tab active" type="button" role="tab" aria-selected="true" aria-controls="arcadeFrameRun" data-arcade-target="run">캄몬런</button>
-          <button id="arcadeTabGrow" class="arcade-game-tab" type="button" role="tab" aria-selected="false" aria-controls="arcadeFrameGrow" data-arcade-target="grow">캄몬키우기</button>
-          <a id="arcadeGameOpenLink" class="arcade-game-open-link" href="https://monstarzrun.vercel.app/" target="_blank" rel="noopener noreferrer">새 창에서 열기 ↗</a>
+          <button id="arcadeTabGrow" class="arcade-game-tab active" type="button" role="tab" aria-selected="true" aria-controls="arcadeFrameGrow" data-arcade-target="grow">캄몬키우기</button>
+          <button id="arcadeTabRun" class="arcade-game-tab" type="button" role="tab" aria-selected="false" aria-controls="arcadeFrameRun" data-arcade-target="run">캄몬런</button>
+          <a id="arcadeGameOpenLink" class="arcade-game-open-link" href="https://kill662477-cmyk.github.io/calmmongrow/" target="_blank" rel="noopener noreferrer">새 창에서 열기 ↗</a>
         </div>
         <div class="game-wrap">
-          <iframe id="arcadeFrameRun" class="game-embed-frame" data-arcade-game="run" src="https://monstarzrun.vercel.app/" title="캄몬런" loading="lazy" allow="fullscreen; gamepad" allowfullscreen></iframe>
-          <iframe id="arcadeFrameGrow" class="game-embed-frame" data-arcade-game="grow" data-src="https://kill662477-cmyk.github.io/calmmongrow/" title="캄몬키우기" loading="lazy" allow="fullscreen; gamepad" allowfullscreen hidden></iframe>
+          <iframe id="arcadeFrameGrow" class="game-embed-frame" data-arcade-game="grow" src="https://kill662477-cmyk.github.io/calmmongrow/" title="캄몬키우기" loading="lazy" allow="fullscreen; gamepad" allowfullscreen></iframe>
+          <iframe id="arcadeFrameRun" class="game-embed-frame" data-arcade-game="run" data-src="https://monstarzrun.vercel.app/" title="캄몬런" loading="lazy" allow="fullscreen; gamepad" allowfullscreen hidden></iframe>
         </div>
       </section>
     </div>
@@ -13263,7 +13263,7 @@ window.__DUCK_ROULETTE_CONFIG__=${configJson};
   };
 
   function normalizeGameKey(value) {
-    return Object.prototype.hasOwnProperty.call(GAME_CONFIG, value) ? value : "run";
+    return Object.prototype.hasOwnProperty.call(GAME_CONFIG, value) ? value : "grow";
   }
 
   function activateArcadeGame(gameKey, persist) {
@@ -13306,7 +13306,7 @@ window.__DUCK_ROULETTE_CONFIG__=${configJson};
       });
     });
 
-    var initialGame = "run";
+    var initialGame = "grow";
     try { initialGame = normalizeGameKey(sessionStorage.getItem(STORAGE_KEY)); } catch (error) {}
     activateArcadeGame(initialGame, false);
   }
