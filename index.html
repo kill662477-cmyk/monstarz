@@ -5494,6 +5494,110 @@ body.light-mode .profile-awards {
   border-bottom: 0!important;
 }
 
+.arcade-game-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 8px;
+  border: 1px solid var(--sr-line);
+  background: var(--sr-board-bg);
+  box-shadow: var(--sr-shadow);
+}
+
+.arcade-game-tab {
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1px solid rgba(112,164,238,.24);
+  border-radius: 7px;
+  background: rgba(255,255,255,.045);
+  color: var(--sr-button-text);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: -.03em;
+  cursor: pointer;
+  transition: .16s ease;
+}
+
+.arcade-game-tab:hover {
+  transform: translateY(-1px);
+  border-color: rgba(86,161,255,.58);
+  background: rgba(29,102,255,.14);
+  color: var(--sr-title);
+}
+
+.arcade-game-tab.active {
+  border-color: rgba(86,161,255,.62);
+  background: var(--sr-active-bg);
+  color: #fff;
+  box-shadow: inset 3px 0 0 #56a1ff, 0 8px 18px rgba(29,102,255,.16);
+}
+
+.arcade-game-open-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  margin-left: auto;
+  padding: 0 12px;
+  border: 1px solid rgba(112,164,238,.24);
+  border-radius: 7px;
+  background: rgba(255,255,255,.045);
+  color: var(--sr-button-text);
+  font-size: 11px;
+  font-weight: 950;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.arcade-game-open-link:hover {
+  border-color: rgba(86,161,255,.58);
+  background: rgba(29,102,255,.14);
+  color: var(--sr-title);
+}
+
+.game-embed-frame[hidden] {
+  display: none !important;
+}
+
+.game-embed-frame[data-arcade-game="grow"] {
+  height: min(960px,82vh);
+  min-height: 780px;
+  background: #07111f;
+}
+
+body.light-mode .arcade-game-tabs {
+  background: linear-gradient(180deg,#ffffff,#eef6ff);
+  border-color: rgba(36,99,168,.18);
+}
+
+body.light-mode .arcade-game-tab,
+body.light-mode .arcade-game-open-link {
+  border-color: rgba(36,99,168,.18);
+  background: rgba(29,116,255,.06);
+  color: #24476e;
+}
+
+body.light-mode .arcade-game-tab.active {
+  color: #fff;
+}
+
+@media (max-width:900px) {
+  .arcade-game-tabs {
+    flex-wrap: wrap;
+  }
+
+  .arcade-game-open-link {
+    margin-left: 0;
+  }
+
+  .game-embed-frame[data-arcade-game="grow"] {
+    min-height: 680px;
+    height: 78vh;
+  }
+}
+
 .member-card {
   cursor: pointer;
 }
@@ -8238,12 +8342,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="section-head game-section-head">
           <div>
             <h2>🎮 캄몬스타즈 오락실</h2>
-            <div class="inout-title-sub">MONSTARS RUN GAME</div>
+            <div id="arcadeGameSubtitle" class="inout-title-sub">MONSTARS RUN GAME</div>
           </div>
-          <div class="count">GAME</div>
+          <div class="count">2 GAMES</div>
+        </div>
+        <div class="arcade-game-tabs" role="tablist" aria-label="오락실 게임 선택">
+          <button id="arcadeTabRun" class="arcade-game-tab active" type="button" role="tab" aria-selected="true" aria-controls="arcadeFrameRun" data-arcade-target="run">캄몬런</button>
+          <button id="arcadeTabGrow" class="arcade-game-tab" type="button" role="tab" aria-selected="false" aria-controls="arcadeFrameGrow" data-arcade-target="grow">캄몬키우기</button>
+          <a id="arcadeGameOpenLink" class="arcade-game-open-link" href="https://monstarzrun.vercel.app/" target="_blank" rel="noopener noreferrer">새 창에서 열기 ↗</a>
         </div>
         <div class="game-wrap">
-          <iframe src="https://monstarzrun.vercel.app/" title="캄몬스타즈 오락실" loading="lazy" allow="fullscreen; gamepad" allowfullscreen></iframe>
+          <iframe id="arcadeFrameRun" class="game-embed-frame" data-arcade-game="run" src="https://monstarzrun.vercel.app/" title="캄몬런" loading="lazy" allow="fullscreen; gamepad" allowfullscreen></iframe>
+          <iframe id="arcadeFrameGrow" class="game-embed-frame" data-arcade-game="grow" data-src="https://kill662477-cmyk.github.io/calmmongrow/" title="캄몬키우기" loading="lazy" allow="fullscreen; gamepad" allowfullscreen hidden></iframe>
         </div>
       </section>
     </div>
@@ -13130,6 +13240,79 @@ window.__DUCK_ROULETTE_CONFIG__=${configJson};
     ev.stopImmediatePropagation();
     openModal(card);
   }, true);
+})();
+</script>
+
+
+<script id="monstars-arcade-game-tabs-script">
+(function(){
+  var STORAGE_KEY = "monstarz-arcade-game";
+  var GAME_CONFIG = {
+    run: {
+      tabId: "arcadeTabRun",
+      frameId: "arcadeFrameRun",
+      subtitle: "MONSTARS RUN GAME",
+      url: "https://monstarzrun.vercel.app/"
+    },
+    grow: {
+      tabId: "arcadeTabGrow",
+      frameId: "arcadeFrameGrow",
+      subtitle: "CALMON GROW GAME",
+      url: "https://kill662477-cmyk.github.io/calmmongrow/"
+    }
+  };
+
+  function normalizeGameKey(value) {
+    return Object.prototype.hasOwnProperty.call(GAME_CONFIG, value) ? value : "run";
+  }
+
+  function activateArcadeGame(gameKey, persist) {
+    var safeKey = normalizeGameKey(gameKey);
+    Object.keys(GAME_CONFIG).forEach(function(key){
+      var item = GAME_CONFIG[key];
+      var tab = document.getElementById(item.tabId);
+      var frame = document.getElementById(item.frameId);
+      var isActive = key === safeKey;
+      if (tab) {
+        tab.classList.toggle("active", isActive);
+        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+        tab.setAttribute("tabindex", isActive ? "0" : "-1");
+      }
+      if (frame) {
+        if (isActive && !frame.getAttribute("src") && frame.dataset.src) {
+          frame.setAttribute("src", frame.dataset.src);
+        }
+        frame.hidden = !isActive;
+      }
+    });
+
+    var active = GAME_CONFIG[safeKey];
+    var subtitle = document.getElementById("arcadeGameSubtitle");
+    var openLink = document.getElementById("arcadeGameOpenLink");
+    if (subtitle) subtitle.textContent = active.subtitle;
+    if (openLink) openLink.href = active.url;
+
+    if (persist !== false) {
+      try { sessionStorage.setItem(STORAGE_KEY, safeKey); } catch (error) {}
+    }
+  }
+
+  function bindArcadeGameTabs() {
+    document.querySelectorAll(".arcade-game-tab[data-arcade-target]").forEach(function(tab){
+      if (tab.__arcadeBound) return;
+      tab.__arcadeBound = true;
+      tab.addEventListener("click", function(){
+        activateArcadeGame(tab.getAttribute("data-arcade-target"), true);
+      });
+    });
+
+    var initialGame = "run";
+    try { initialGame = normalizeGameKey(sessionStorage.getItem(STORAGE_KEY)); } catch (error) {}
+    activateArcadeGame(initialGame, false);
+  }
+
+  document.addEventListener("DOMContentLoaded", bindArcadeGameTabs);
+  setTimeout(bindArcadeGameTabs, 0);
 })();
 </script>
 
