@@ -2,960 +2,178 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  />
-  <meta name="theme-color" content="#111827" />
-
-  <title>MONSTARZ 모바일</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#07172d" />
+  <title>캄몬스타즈 모바일</title>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
   <style>
-    :root {
-      --bg: #0f172a;
-      --bg-soft: #111827;
-      --panel: #1e293b;
-      --panel-light: #263449;
-      --line: rgba(255, 255, 255, 0.09);
-      --text: #f8fafc;
-      --text-soft: #cbd5e1;
-      --text-muted: #94a3b8;
-      --accent: #60a5fa;
-      --accent-soft: rgba(96, 165, 250, 0.14);
-      --danger: #fb7185;
-      --success: #4ade80;
-      --shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
-      --radius-lg: 22px;
-      --radius-md: 16px;
-      --radius-sm: 12px;
-      --header-height: 62px;
-      --bottom-nav-height: 74px;
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html,
-    body {
-      width: 100%;
-      min-height: 100%;
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family:
-        Pretendard,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-    }
-
-    body {
-      overflow-x: hidden;
-    }
-
-    button,
-    a {
-      font: inherit;
-    }
-
-    button {
-      border: 0;
-      cursor: pointer;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .app-shell {
-      min-height: 100vh;
-      padding-bottom:
-        calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
-    }
-
-    /* 상단 헤더 */
-    .top-header {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      height: var(--header-height);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding:
-        env(safe-area-inset-top)
-        18px
-        0;
-      background: rgba(15, 23, 42, 0.94);
-      border-bottom: 1px solid var(--line);
-      backdrop-filter: blur(16px);
-    }
-
-    .brand-wrap {
-      min-width: 0;
-    }
-
-    .brand {
-      margin: 0;
-      font-size: 19px;
-      font-weight: 900;
-      letter-spacing: 0.4px;
-    }
-
-    .page-title {
-      margin-top: 2px;
-      color: var(--text-muted);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .header-button {
-      flex: 0 0 auto;
-      min-width: 42px;
-      height: 38px;
-      padding: 0 12px;
-      border-radius: 12px;
-      color: var(--text);
-      background: var(--panel);
-      border: 1px solid var(--line);
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    /* 공통 콘텐츠 */
-    .content {
-      width: min(100%, 680px);
-      margin: 0 auto;
-      padding: 18px 16px 28px;
-    }
-
-    .page {
-      display: none;
-      animation: pageIn 0.18s ease-out;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    @keyframes pageIn {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .hero-card {
-      padding: 20px;
-      border-radius: var(--radius-lg);
-      background:
-        linear-gradient(
-          135deg,
-          rgba(96, 165, 250, 0.25),
-          rgba(30, 41, 59, 0.98)
-        );
-      border: 1px solid rgba(96, 165, 250, 0.22);
-      box-shadow: var(--shadow);
-    }
-
-    .hero-label {
-      color: #bfdbfe;
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .hero-title {
-      margin: 8px 0 0;
-      font-size: 25px;
-      line-height: 1.28;
-      font-weight: 900;
-    }
-
-    .hero-desc {
-      margin: 10px 0 0;
-      color: var(--text-soft);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .section {
-      margin-top: 22px;
-    }
-
-    .section-title-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 11px;
-    }
-
-    .section-title {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 900;
-    }
-
-    .section-subtitle {
-      color: var(--text-muted);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 11px;
-    }
-
-    .menu-card {
-      min-height: 110px;
-      padding: 15px;
-      border-radius: var(--radius-md);
-      color: var(--text);
-      text-align: left;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
-    }
-
-    .menu-card:active {
-      transform: scale(0.985);
-      background: var(--panel-light);
-    }
-
-    .menu-card-icon {
-      display: block;
-      margin-bottom: 14px;
-      font-size: 23px;
-    }
-
-    .menu-card-title {
-      display: block;
-      font-size: 15px;
-      font-weight: 900;
-    }
-
-    .menu-card-desc {
-      display: block;
-      margin-top: 5px;
-      color: var(--text-muted);
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    .list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .list-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      width: 100%;
-      min-height: 74px;
-      padding: 14px;
-      border-radius: var(--radius-md);
-      color: var(--text);
-      text-align: left;
-      background: var(--panel);
-      border: 1px solid var(--line);
-    }
-
-    .list-card:active {
-      background: var(--panel-light);
-    }
-
-    .list-icon {
-      display: grid;
-      flex: 0 0 auto;
-      width: 42px;
-      height: 42px;
-      place-items: center;
-      border-radius: 13px;
-      background: var(--accent-soft);
-      font-size: 20px;
-    }
-
-    .list-body {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .list-title {
-      overflow: hidden;
-      font-size: 14px;
-      font-weight: 900;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .list-desc {
-      overflow: hidden;
-      margin-top: 4px;
-      color: var(--text-muted);
-      font-size: 12px;
-      line-height: 1.4;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .list-arrow {
-      flex: 0 0 auto;
-      color: var(--text-muted);
-      font-size: 18px;
-    }
-
-    .empty-box {
-      padding: 26px 18px;
-      border-radius: var(--radius-md);
-      color: var(--text-muted);
-      text-align: center;
-      background: var(--panel);
-      border: 1px dashed rgba(255, 255, 255, 0.14);
-      font-size: 13px;
-      line-height: 1.7;
-    }
-
-    .status-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 14px;
-      padding: 8px 11px;
-      border-radius: 999px;
-      color: #bbf7d0;
-      background: rgba(74, 222, 128, 0.12);
-      border: 1px solid rgba(74, 222, 128, 0.18);
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--success);
-      box-shadow: 0 0 14px rgba(74, 222, 128, 0.9);
-    }
-
-    /* 하단 내비게이션 */
-    .bottom-nav {
-      position: fixed;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      z-index: 40;
-      height:
-        calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
-      padding:
-        7px
-        8px
-        env(safe-area-inset-bottom);
-      background: rgba(15, 23, 42, 0.96);
-      border-top: 1px solid var(--line);
-      backdrop-filter: blur(18px);
-    }
-
-    .bottom-nav-inner {
-      display: grid;
-      width: min(100%, 680px);
-      height: 100%;
-      margin: 0 auto;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 3px;
-    }
-
-    .nav-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 4px;
-      border-radius: 12px;
-      color: var(--text-muted);
-      background: transparent;
-      font-size: 10px;
-      font-weight: 800;
-    }
-
-    .nav-button.active {
-      color: #bfdbfe;
-      background: var(--accent-soft);
-    }
-
-    .nav-icon {
-      font-size: 19px;
-      line-height: 1;
-    }
-
-    /* 더보기 바텀 시트 */
-    .sheet-dim {
-      position: fixed;
-      inset: 0;
-      z-index: 60;
-      display: none;
-      background: rgba(0, 0, 0, 0.52);
-    }
-
-    .sheet-dim.open {
-      display: block;
-    }
-
-    .bottom-sheet {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      padding:
-        12px
-        16px
-        calc(18px + env(safe-area-inset-bottom));
-      border-radius: 22px 22px 0 0;
-      background: var(--bg-soft);
-      border-top: 1px solid var(--line);
-      box-shadow: 0 -14px 34px rgba(0, 0, 0, 0.34);
-      animation: sheetUp 0.2s ease-out;
-    }
-
-    @keyframes sheetUp {
-      from {
-        transform: translateY(100%);
-      }
-
-      to {
-        transform: translateY(0);
-      }
-    }
-
-    .sheet-handle {
-      width: 42px;
-      height: 4px;
-      margin: 0 auto 16px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.24);
-    }
-
-    .sheet-title {
-      margin: 0 0 12px;
-      font-size: 16px;
-      font-weight: 900;
-    }
-
-    .sheet-menu {
-      display: grid;
-      gap: 9px;
-    }
-
-    .sheet-menu-button,
-    .sheet-menu-link {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      width: 100%;
-      min-height: 54px;
-      padding: 0 14px;
-      border-radius: 14px;
-      color: var(--text);
-      text-align: left;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      font-size: 14px;
-      font-weight: 900;
-    }
-
-    .sheet-menu-button:active,
-    .sheet-menu-link:active {
-      background: var(--panel-light);
-    }
-
-    .sheet-menu-icon {
-      width: 24px;
-      text-align: center;
-      font-size: 18px;
-    }
-
-    .sheet-close {
-      width: 100%;
-      min-height: 50px;
-      margin-top: 12px;
-      border-radius: 14px;
-      color: var(--text-soft);
-      background: rgba(255, 255, 255, 0.06);
-      font-size: 14px;
-      font-weight: 900;
-    }
-
-    @media (min-width: 560px) {
-      .card-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-    }
+    :root{--bg:#050b16;--panel:#07172d;--card:#0b1f3c;--line:rgba(112,164,238,.22);--text:#f6f9ff;--muted:#8ea8c7;--blue:#1d66ff;--gold:#f6b93b;--red:#ef4444;--green:#22c55e;--nav:74px}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{background:radial-gradient(circle at 20% 0%,rgba(29,102,255,.2),transparent 28%),linear-gradient(180deg,#030813,#071529 42%,#040914)}a{color:inherit;text-decoration:none}button,input{font:inherit}button{border:0;cursor:pointer}img{display:block;max-width:100%}
+    .app{min-height:100vh;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.top{position:sticky;top:0;z-index:20;padding:14px 16px;background:rgba(4,12,25,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(16px)}.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#06142a}.title{font-size:20px;font-weight:950;letter-spacing:-.06em}.subtitle{margin-top:3px;color:var(--muted);font-size:11px;font-weight:800}.head-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.refresh{min-height:36px;padding:0 12px;border-radius:10px;color:#fff;background:rgba(29,102,255,.2);border:1px solid rgba(88,154,255,.36);font-size:12px;font-weight:900}
+    .content{width:min(100%,720px);margin:0 auto;padding:14px}.page{display:none}.page.active{display:block}.section{margin-top:16px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:10px}h2,h3,p{margin:0}h2{font-size:19px;letter-spacing:-.05em}h3{font-size:15px;letter-spacing:-.04em}.count,.muted{color:var(--muted);font-size:11px;font-weight:800}
+    .hero{padding:18px;border-radius:18px;background:radial-gradient(circle at 84% 0%,rgba(246,185,59,.15),transparent 28%),linear-gradient(135deg,rgba(11,31,60,.98),rgba(5,13,27,.98));border:1px solid var(--line)}.hero .eyebrow{color:var(--gold);font-size:10px;font-weight:950;letter-spacing:.14em}.hero h2{margin-top:8px;font-size:25px}.hero p{margin-top:8px;color:#b7c9de;font-size:13px;line-height:1.55}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.stat{padding:10px;border-radius:12px;background:rgba(255,255,255,.045);border:1px solid var(--line)}.stat b{display:block;margin-top:4px;font-size:20px}.stat span{color:var(--muted);font-size:10px;font-weight:800}
+    .live-grid,.profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.member{overflow:hidden;border-radius:14px;background:linear-gradient(180deg,rgba(11,31,60,.96),rgba(5,13,27,.98));border:1px solid var(--line)}.member-top{height:54px;padding:8px;background:linear-gradient(135deg,rgba(29,102,255,.84),rgba(14,47,106,.96));display:flex;justify-content:flex-end}.badge{display:inline-flex;align-items:center;min-height:20px;padding:0 7px;border-radius:999px;font-size:10px;font-weight:950;background:rgba(5,14,29,.62);border:1px solid rgba(255,255,255,.14)}.badge.live{color:#fee2e2;background:rgba(239,68,68,.28)}.member-body{padding:0 10px 10px;margin-top:-26px}.avatar{width:54px;height:54px;border-radius:13px;object-fit:cover;background:#06142a;border:2px solid rgba(255,255,255,.2)}.avatar.live{border-color:#fb7185;box-shadow:0 0 18px rgba(239,68,68,.35)}.name{margin-top:8px;font-size:16px;font-weight:950;letter-spacing:-.05em}.meta{margin-top:4px;color:var(--muted);font-size:11px;font-weight:800}.actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}.actions a{display:flex;min-height:30px;align-items:center;justify-content:center;border-radius:8px;background:rgba(29,102,255,.14);border:1px solid rgba(88,154,255,.22);font-size:11px;font-weight:900}
+    .toolbar{display:flex;gap:8px;margin-bottom:10px}.toolbar input{min-width:0;flex:1;height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--line);outline:none;color:#fff;background:rgba(5,16,31,.88)}.filter{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}.filter button{white-space:nowrap;min-height:34px;padding:0 11px;border-radius:999px;color:#c8d9ee;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:11px;font-weight:900}.filter button.active{color:#fff;background:linear-gradient(90deg,#174faa,#0e2f6a)}
+    .notice-list,.inout-list,.video-list{display:grid;gap:9px}.notice{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;padding:12px;border-radius:14px;background:linear-gradient(180deg,rgba(11,31,60,.95),rgba(5,13,27,.98));border:1px solid var(--line)}.notice img{width:44px;height:44px;border-radius:11px;object-fit:cover;background:#06142a}.notice-title{font-size:14px;font-weight:950;line-height:1.35}.notice-body{display:-webkit-box;margin-top:5px;overflow:hidden;color:#b7c9de;font-size:12px;line-height:1.45;-webkit-box-orient:vertical;-webkit-line-clamp:2}.notice-time{margin-top:6px;color:var(--muted);font-size:10px;font-weight:800}
+    .inout{display:grid;grid-template-columns:76px 1fr;gap:8px;padding:10px;border-radius:13px;background:linear-gradient(180deg,rgba(11,31,60,.95),rgba(5,13,27,.98));border:1px solid var(--line)}.date{display:flex;align-items:center;justify-content:center;border-radius:9px;background:rgba(29,102,255,.15);color:#dbeafe;font-size:11px;font-weight:950}.events{display:flex;flex-wrap:wrap;gap:5px}.event{display:inline-flex;gap:5px;align-items:center;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:11px;font-weight:900}.status{padding:2px 5px;border-radius:999px;font-size:9px}.status.in{background:rgba(37,99,235,.38);color:#dbeafe}.status.out{background:rgba(239,68,68,.38);color:#fee2e2}
+    .boja-cats{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px}.video-card{display:grid;grid-template-columns:112px 1fr;gap:10px;padding:10px;border-radius:13px;background:linear-gradient(180deg,rgba(11,31,60,.95),rgba(5,13,27,.98));border:1px solid var(--line)}.thumb{width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:#06142a}.video-card a{font-size:13px;font-weight:950;line-height:1.35}.video-note{margin-top:6px;color:var(--muted);font-size:10px;font-weight:800}
+    .tier-frame{width:100%;min-height:calc(100vh - 150px);border:1px solid var(--line);border-radius:14px;background:#fff}.empty{padding:20px;text-align:center;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:13px}
+    .bottom{position:fixed;right:0;bottom:0;left:0;z-index:30;height:calc(var(--nav) + env(safe-area-inset-bottom));padding:7px 6px env(safe-area-inset-bottom);background:rgba(4,10,22,.96);border-top:1px solid var(--line);backdrop-filter:blur(16px)}.nav{display:flex;height:100%;overflow-x:auto;gap:3px;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.nav button{flex:0 0 70px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;border-radius:10px;color:#8ea8c7;background:transparent;font-size:10px;font-weight:900}.nav button.active{color:#fff;background:rgba(29,102,255,.2)}.ico{font-size:18px}
+    @media(min-width:600px){.live-grid,.profile-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
   </style>
 </head>
-
 <body>
-  <div class="app-shell">
-    <!-- 상단 -->
-    <header class="top-header">
-      <div class="brand-wrap">
-        <h1 class="brand">MONSTARZ</h1>
-        <div id="pageTitle" class="page-title">현황판</div>
-      </div>
+<div class="app">
+  <header class="top"><div class="head-row"><div class="brand"><img class="logo" src="https://stimg.sooplive.com/NORMAL_BBS/0/16216050/30546a167f55e2168.gif" alt="캄몬스타즈"><div><div class="title">MONSTARZ</div><div id="pageName" class="subtitle">현황판</div></div></div><button id="refreshBtn" class="refresh" type="button">새로고침</button></div></header>
+  <main class="content">
+    <section id="dashboard" class="page active"><div class="hero"><div class="eyebrow">MONSTARZ MOBILE</div><h2>캄몬스타즈 현황판</h2><p>모바일 전용 화면입니다. PC 화면과 분리되어 독립적으로 수정됩니다.</p><div class="stats"><div class="stat"><span>전체 멤버</span><b id="statAll">0</b></div><div class="stat"><span>현재 LIVE</span><b id="statLive">0</b></div><div class="stat"><span>최근 IN</span><b id="statRecent">-</b></div></div></div><div class="section"><div class="section-head"><h2>방송 중</h2><span id="liveChecked" class="count">확인 중</span></div><div id="liveList" class="live-grid"></div></div></section>
+    <section id="profile" class="page"><div class="section-head"><h2>프로필</h2><span class="count">멤버 목록</span></div><div id="profileList" class="profile-grid"></div></section>
+    <section id="tier" class="page"><div class="section-head"><h2>티어표</h2><span class="count">기존 티어표 연결</span></div><iframe class="tier-frame" src="../tierboard_calm_tab.html" title="캄몬스타즈 티어표" loading="lazy"></iframe></section>
+    <section id="notice" class="page"><div class="section-head"><h2>공지</h2><span id="noticeCount" class="count">0개</span></div><div id="noticeList" class="notice-list"><div class="empty">공지 불러오는 중</div></div></section>
+    <section id="inout" class="page"><div class="section-head"><h2>IN&amp;OUT</h2><span id="inoutCount" class="count">0건</span></div><div class="toolbar"><input id="inoutSearch" placeholder="이름 검색" autocomplete="off"></div><div id="inoutFilter" class="filter"><button class="active" data-value="ALL">전체</button><button data-value="IN">IN</button><button data-value="OUT">OUT</button></div><div id="inoutList" class="inout-list"></div></section>
+    <section id="boja" class="page"><div class="section-head"><h2>보자충</h2><span id="bojaCount" class="count">0개</span></div><div id="bojaCats" class="boja-cats filter"></div><div id="bojaList" class="video-list"></div></section>
+    <section id="fantube" class="page"><div class="section-head"><h2>팬튜브</h2><span id="fantubeCount" class="count">0개</span></div><div id="fantubeList" class="video-list"><div class="empty">팬튜브 불러오는 중</div></div></section>
+  </main>
+  <nav class="bottom"><div class="nav"><button class="active" data-page="dashboard"><span class="ico">⌂</span>현황판</button><button data-page="profile"><span class="ico">👤</span>프로필</button><button data-page="tier"><span class="ico">🏆</span>티어표</button><button data-page="notice"><span class="ico">📢</span>공지</button><button data-page="inout"><span class="ico">↔</span>IN&amp;OUT</button><button data-page="boja"><span class="ico">★</span>보자충</button><button data-page="fantube"><span class="ico">▶</span>팬튜브</button></div></nav>
+</div>
+<script>
+  const TEAM = {
+    name: "캄몬스타즈 (since : 24.07.08)",
+    description: "",
+    logo: "https://stimg.sooplive.com/NORMAL_BBS/0/16216050/30546a167f55e2168.gif",
+    updatedAt: "2026-04-04 23:00"
+  };
+  const LIVE_STATUS_URL = "https://livecheck-2.onrender.com/live-status";
+  const YOUTUBE_JSON_URL = "https://raw.githubusercontent.com/kill662477-cmyk/youtube/main/youtube.json";
+  const KAMRINI_JSON_URL = "https://raw.githubusercontent.com/kill662477-cmyk/RINI/main/data/kamrini-videos.json";
+  const NOTICE_JSON_URL = "https://raw.githubusercontent.com/kill662477-cmyk/silver0love/main/notices.json";
+  const BOJA_CATEGORIES = [
+    {
+      name: "김윤환",
+      items: [
+        { title: "09김윤환", url: "https://youtu.be/6ahN19lIHaA?si=xmodKKcQ3YywFxkz", note: "유튜브" },
+        { title: "인생이 구라인 남자", url: "https://www.youtube.com/watch?v=D2Z1YL_nrgU", note: "유튜브" },
+        { title: "이남자를 찾습니다.", url: "https://youtu.be/6mO-BiXHqfY?si=mfuPDPRXlWH91oP1", note: "유튜브" },
+        { title: "권석두의 일기", url: "https://www.youtube.com/watch?v=3KtNJxoYyX4", note: "유튜브" }
+      ]
+    },
+    {
+      name: "몬스타즈",
+      items: [
+        { title: "꽃다발 잔혹사", url: "https://www.youtube.com/watch?v=4gQHhD040Mw&t=12s", note: "유튜브" },
+        { title: "MV", url: "https://vod.sooplive.com/player/146974661", note: "SOOP VOD" },
+        { title: "시즌1", url: "https://www.youtube.com/watch?v=ZbZC8pNkD4M&list=PL-PBKf1_yEtvdd0e4JlcvT4DJjf3XiTPD&index=23", note: "유튜브" },
+        { title: "새로운시작 2025", url: "https://www.youtube.com/watch?v=BNMhlxIsQME&list=PL-PBKf1_yEttbfXpuUeOZAVhVxCVUBEai&index=3", note: "유튜브" },
+        { title: "시즌2종료", url: "https://www.youtube.com/watch?v=pDsFjx8AD3o", note: "유튜브" },
+        { title: "RE몬스타즈", url: "https://vod.sooplive.com/player/161623223", note: "SOOP VOD" },
+        { title: "위아MV", url: "https://vod.sooplive.com/player/144331057", note: "SOOP VOD" },
+        { title: "시즌3", url: "https://www.youtube.com/watch?v=aZudQBdk01Q&list=PL-PBKf1_yEttbfXpuUeOZAVhVxCVUBEai&index=12", note: "유튜브" },
+        { title: "2025 몬스타즈", url: "https://vod.sooplive.com/player/181299111", note: "SOOP VOD" },
+        { title: "빠지여행", url: "https://www.youtube.com/watch?v=leCvpRO_8r8", note: "유튜브" },
+        { title: "2026", url: "https://www.youtube.com/watch?v=lPzCn_-_-cg&list=PL-PBKf1_yEtsDMDmfTMrCX3sm4WQf4vgU&index=16", note: "유튜브" },
+      ]
+    },
+    {
+      name: "정훈교육",
+      items: [
+        { title: "몽군 유스 정훈교육", url: "https://www.youtube.com/watch?v=UaN9IXXdOhw", note: "유튜브" },
+        { title: "토마토 디코강의", url: "https://www.youtube.com/watch?v=rWPrVmznRu4", note: "유튜브" }
+      ]
+    }
+  ];
+  const INOUT_HISTORY = [
+    { date: "24.07.08", events: [{ name: "김윤환", race: "Z", status: "IN" }, { name: "이경민", race: "P", status: "IN" }] },
+    { date: "24.07.09", events: [{ name: "졈니", race: "P", status: "IN" }, { name: "디임", race: "P", status: "IN" }] },
+    { date: "24.07.12", events: [{ name: "앵지", race: "Z", status: "IN" }] },
+    { date: "24.07.17", events: [{ name: "토마토", race: "P", status: "IN" }, { name: "임조이", race: "Z", status: "IN" }] },
+    { date: "24.07.20", events: [{ name: "킹지", race: "P", status: "IN" }, { name: "킹지", race: "P", status: "OUT" }] },
+    { date: "24.08.07", events: [{ name: "효짱", race: "P", status: "IN" }, { name: "한쪼니", race: "P", status: "IN" }] },
+    { date: "24.08.17", events: [{ name: "모리", race: "T", status: "IN" }, { name: "몽군", race: "T", status: "IN" }] },
+    { date: "24.08.19", events: [{ name: "치리", race: "Z", status: "IN" }] },
+    { date: "24.09.01", events: [{ name: "강덕구", race: "T", status: "IN" }] },
+    { date: "24.09.25", events: [{ name: "강덕구", race: "T", status: "OUT" }] },
+    { date: "24.09.30", events: [{ name: "수입뿌드", race: "P", status: "IN" }] },
+    { date: "24.10.18", events: [{ name: "박준오", race: "Z", status: "IN" }] },
+    { date: "24.10.31", events: [{ name: "정윤종", race: "P", status: "IN" }] },
+    { date: "24.11.02", events: [{ name: "세나", race: "Z", status: "IN" }] },
+    { date: "25.01.08", events: [{ name: "디임", race: "P", status: "OUT" }] },
+    { date: "25.02.28", events: [{ name: "다예", race: "Z", status: "IN" }] },
+    { date: "25.03.06", events: [{ name: "막내현진", race: "P", status: "IN" }, { name: "송혜림", race: "T", status: "IN" }, { name: "진땅콩", race: "T", status: "IN" }] },
+    { date: "25.03.07", events: [{ name: "진땅콩", race: "T", status: "OUT" }] },
+    { date: "25.06.12", events: [{ name: "송혜림", race: "T", status: "OUT" }] },
+    { date: "25.07.14", events: [{ name: "세나", race: "Z", status: "OUT" }, { name: "앵지", race: "Z", status: "OUT" }, { name: "졈니", race: "P", status: "OUT" }, { name: "몽군", race: "T", status: "OUT" }, { name: "효짱", race: "P", status: "OUT" }, { name: "한쪼니", race: "P", status: "OUT" }] },
+    { date: "25.07.26", events: [{ name: "황병영", race: "T", status: "IN" }, { name: "지동원", race: "T", status: "IN" }] },
+    { date: "25.07.27", events: [{ name: "진땅콩", race: "P", status: "IN" }] },
+    { date: "25.08.04", events: [{ name: "두디", race: "Z", status: "IN" }, { name: "조일장", race: "Z", status: "IN" }] },
+    { date: "25.08.05", events: [{ name: "주하랑", race: "P", status: "IN" }] },
+    { date: "25.08.07", events: [{ name: "햇살", race: "T", status: "IN" }] },
+    { date: "25.09.24", events: [{ name: "소주양", race: "T", status: "IN" }] },
+    { date: "25.10.30", events: [{ name: "두디", race: "Z", status: "OUT" }, { name: "모리", race: "T", status: "OUT" }, { name: "막내현진", race: "P", status: "OUT" }] },
+    { date: "25.11.03", events: [{ name: "파도튜브", race: "P", status: "IN" }] },
+    { date: "25.12.05", events: [{ name: "박쭈이", race: "Z", status: "IN" }] },
+    { date: "26.01.14", events: [{ name: "정윤종", race: "P", status: "OUT" }] },
+    { date: "26.01.17", events: [{ name: "박수범", race: "P", status: "IN" }, { name: "배성흠", race: "Z", status: "IN" }, { name: "먼진", race: "Z", status: "IN" }, { name: "다예", race: "Z", status: "OUT" }] },
+    { date: "26.03.14", events: [{ name: "조일장", race: "Z", status: "OUT" }, { name: "황병영", race: "T", status: "OUT" }, { name: "수뿌", race: "P", status: "OUT" }] },
+    { date: "26.03.16", events: [{ name: "비타밍", race: "T", status: "IN" }] },
+    { date: "26.03.19", events: [{ name: "지두두", race: "T", status: "IN" }, { name: "아리송이", race: "P", status: "IN" }] },
+    { date: "26.03.21", events: [{ name: "박쭈이", race: "Z", status: "OUT" }] },
+    { date: "26.03.26", events: [{ name: "사테", race: "T", status: "IN" }, { name: "찌킹", race: "Z", status: "IN" }] },
+    { date: "26.04.28", events: [{ name: "낭니", race: "Z", status: "IN" }] }, 
+    { date: "26.05.04", events: [{ name: "이경민", race: "P", status: "OUT" }] }
+  ];
+  const MEMBERS = [
+    { name: "김윤환", userId: "brainzerg7", type: "leader", role: "감독", tier: "Jack", race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/br/brainzerg7/m/brainzerg7.webp", stream: "https://www.sooplive.com/station/brainzerg7", live: "https://play.sooplive.com/brainzerg7", youtube: "http://www.youtube.com/@calmtube2", profile: "#" },
+    { name: "사테", userId: "hoonykkk", type: "coach", role: "코치", tier: "King", race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ho/hoonykkk/m/hoonykkk.webp", stream: "https://www.sooplive.com/station/hoonykkk", live: "https://play.sooplive.com/hoonykkk", youtube: "#", profile: "#" },
+    { name: "박준오", userId: "h78ert", type: "coach", role: "코치", tier: "King", race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/h7/h78ert/m/h78ert.webp", stream: "https://www.sooplive.com/station/h78ert", live: "https://play.sooplive.com/h78ert", youtube: "#", profile: "#" },
+    { name: "박수범", userId: "jihoon002", type: "coach", role: "코치", tier: "Jack", race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ji/jihoon002/m/jihoon002.webp", stream: "https://www.sooplive.com/station/jihoon002", live: "https://play.sooplive.com/jihoon002", youtube: "#", profile: "#" },
+    { name: "지동원", userId: "rondobba", type: "coach", role: "코치", tier: "Jack", race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ro/rondobba/m/rondobba.webp", stream: "https://www.sooplive.com/station/rondobba", live: "https://play.sooplive.com/rondobba", youtube: "#", profile: "#" },
+    { name: "배성흠", userId: "goodzerg", type: "coach", role: "코치", tier: "Jack", race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/go/goodzerg/m/goodzerg.webp", stream: "https://www.sooplive.com/station/goodzerg", live: "https://play.sooplive.com/goodzerg", youtube: "#", profile: "#" },
+    { name: "파도튜브", userId: "kthrs9207", type: "coach", role: "코치", tier: "Spade", race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/kt/kthrs9207/m/kthrs9207.webp", stream: "https://www.sooplive.com/station/kthrs9207", live: "https://play.sooplive.com/kthrs9207", youtube: "http://www.youtube.com/@padotube9207", profile: "#" },
 
-      <button
-        id="moreHeaderButton"
-        class="header-button"
-        type="button"
-        aria-label="더보기 열기"
-      >
-        메뉴
-      </button>
-    </header>
+    { name: "토마토", userId: "freshtomato", type: "player", role: "학생", tier: 3, race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/fr/freshtomato/m/freshtomato.webp", stream: "https://www.sooplive.com/station/freshtomato", live: "https://play.sooplive.com/freshtomato", youtube: "https://www.youtube.com/channel/UCoBw6khRoeei_tgSBueVUXw", profile: "#" },
+    { name: "지두두", userId: "wjswlgns09", type: "player", role: "학생", tier: 3, race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/wj/wjswlgns09/m/wjswlgns09.webp", stream: "https://www.sooplive.com/station/wjswlgns09", live: "https://play.sooplive.com/wjswlgns09", youtube: "#", profile: "#" },
 
-    <!-- 본문 -->
-    <main class="content">
-      <!-- 현황판 -->
-      <section id="page-dashboard" class="page active">
-        <div class="hero-card">
-          <div class="hero-label">MONSTARZ MOBILE</div>
+    { name: "햇살", userId: "thelddl", type: "player", role: "학생", tier: 4, race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/th/thelddl/m/thelddl.webp", stream: "https://www.sooplive.com/station/thelddl", live: "https://play.sooplive.com/thelddl", youtube: "#", profile: "#" },
+    { name: "찌킹", userId: "alaelddl97", type: "player", role: "학생", tier: 4, race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/al/alaelddl97/m/alaelddl97.webp", stream: "https://www.sooplive.com/station/alaelddl97", live: "https://play.sooplive.com/alaelddl97", youtube: "#", profile: "#" },
 
-          <h2 class="hero-title">
-            캄몬스타즈<br />
-            모바일 현황판
-          </h2>
+    { name: "치리", userId: "db001202", type: "player", role: "학생", tier: 5, race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/db/db001202/m/db001202.webp", stream: "https://www.sooplive.com/station/db001202", live: "https://play.sooplive.com/db001202", youtube: "#", profile: "#" },
+    { name: "주하랑", userId: "fpahsdltu1", type: "player", role: "학생", tier: 5, race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/fp/fpahsdltu1/m/fpahsdltu1.webp", stream: "https://www.sooplive.com/station/fpahsdltu1", live: "https://play.sooplive.com/fpahsdltu1", youtube: "#", profile: "#" },
+    { name: "소주양", userId: "soju2022", type: "player", role: "학생", tier: 5, race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/so/soju2022/m/soju2022.webp", stream: "https://www.sooplive.com/station/soju2022", live: "https://play.sooplive.com/soju2022", youtube: "#", profile: "#" },
 
-          <p class="hero-desc">
-            방송 상태, 프로필, 티어표와 주요 콘텐츠를
-            모바일에서 빠르게 확인할 수 있습니다.
-          </p>
+    { name: "임조이", userId: "dlaguswl501", type: "player", role: "학생", tier: 6, race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/dl/dlaguswl501/m/dlaguswl501.webp", stream: "https://www.sooplive.com/station/dlaguswl501", live: "https://play.sooplive.com/dlaguswl501", youtube: "#", profile: "#" },
+    { name: "비타밍", userId: "seemin88", type: "player", role: "학생", tier: 6, race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/se/seemin88/m/seemin88.webp", stream: "https://www.sooplive.com/station/seemin88", live: "https://play.sooplive.com/seemin88", youtube: "#", profile: "#" },
 
-          <div class="status-chip">
-            <span class="status-dot"></span>
-            모바일 전용 화면 정상 작동 중
-          </div>
-        </div>
+    { name: "먼진", userId: "2meonjin", type: "player", role: "학생", tier: 7, race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/2m/2meonjin/m/2meonjin.webp", stream: "https://www.sooplive.com/station/2meonjin", live: "https://play.sooplive.com/2meonjin", youtube: "#", profile: "#" },
+    { name: "아리송이", userId: "vldpfm2", type: "player", role: "학생", tier: 7, race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/vl/vldpfm2/vldpfm2.jpg", stream: "https://www.sooplive.com/station/vldpfm2", live: "https://play.sooplive.com/vldpfm2", youtube: "#", profile: "#" },
 
-        <div class="section">
-          <div class="section-title-row">
-            <h3 class="section-title">빠른 메뉴</h3>
-            <span class="section-subtitle">자주 찾는 콘텐츠</span>
-          </div>
+    { name: "진땅콩", userId: "wlswn6565", type: "player", role: "학생", tier: 8, race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/wl/wlswn6565/m/wlswn6565.webp", stream: "https://www.sooplive.com/station/wlswn6565", live: "https://play.sooplive.com/wlswn6565", youtube: "#", profile: "#" },
+   { name: "낭니", userId: "sksmsskdsl10", type: "player", role: "학생", tier: 9, race: "Zerg", status: "offline",
+      profileImage: "https://stimg.sooplive.com/LOGO/sk/sksmsskdsl10/m/sksmsskdsl10.webp",
+      stream: "https://www.sooplive.com/station/sksmsskdsl10",
+      live: "https://play.sooplive.com/sksmsskdsl10",
+      youtube: "#",
+      profile: "#" }
+];
 
-          <div class="card-grid">
-            <button
-              class="menu-card"
-              type="button"
-              data-open-page="profile"
-            >
-              <span class="menu-card-icon">👤</span>
-              <span class="menu-card-title">프로필</span>
-              <span class="menu-card-desc">멤버 정보 확인</span>
-            </button>
-
-            <button
-              class="menu-card"
-              type="button"
-              data-open-page="tierboard"
-            >
-              <span class="menu-card-icon">🏆</span>
-              <span class="menu-card-title">티어표</span>
-              <span class="menu-card-desc">스타 티어표 확인</span>
-            </button>
-
-            <button
-              class="menu-card"
-              type="button"
-              data-open-page="notice"
-            >
-              <span class="menu-card-icon">📢</span>
-              <span class="menu-card-title">공지</span>
-              <span class="menu-card-desc">최근 공지 확인</span>
-            </button>
-
-            <button
-              class="menu-card"
-              type="button"
-              data-open-page="inout"
-            >
-              <span class="menu-card-icon">🔄</span>
-              <span class="menu-card-title">IN&amp;OUT</span>
-              <span class="menu-card-desc">멤버 변동 확인</span>
-            </button>
-
-            <button
-              class="menu-card"
-              type="button"
-              data-open-page="bojachoong"
-            >
-              <span class="menu-card-icon">📊</span>
-              <span class="menu-card-title">보자충</span>
-              <span class="menu-card-desc">보자충 콘텐츠</span>
-            </button>
-
-            <button
-              class="menu-card"
-              type="button"
-              data-open-page="fantube"
-            >
-              <span class="menu-card-icon">🎬</span>
-              <span class="menu-card-title">팬튜브</span>
-              <span class="menu-card-desc">팬 영상 콘텐츠</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="section-title-row">
-            <h3 class="section-title">방송 현황</h3>
-            <span class="section-subtitle">추후 데이터 연결 예정</span>
-          </div>
-
-          <div class="empty-box">
-            현재는 모바일 기본 화면만 구성된 상태입니다.<br />
-            다음 작업에서 기존 방송 데이터를 연결합니다.
-          </div>
-        </div>
-      </section>
-
-      <!-- 프로필 -->
-      <section id="page-profile" class="page">
-        <div class="section-title-row">
-          <h2 class="section-title">프로필</h2>
-          <span class="section-subtitle">멤버 소개</span>
-        </div>
-
-        <div class="empty-box">
-          멤버 프로필 카드가 표시될 영역입니다.<br />
-          기존 프로필 데이터를 모바일 카드 형식으로 연결합니다.
-        </div>
-      </section>
-
-      <!-- 티어표 -->
-      <section id="page-tierboard" class="page">
-        <div class="section-title-row">
-          <h2 class="section-title">티어표</h2>
-          <span class="section-subtitle">스타크래프트 티어표</span>
-        </div>
-
-        <div class="empty-box">
-          모바일 전용 티어표가 표시될 영역입니다.<br />
-          기존 Firebase 데이터를 연결하여 별도로 구성합니다.
-        </div>
-      </section>
-
-      <!-- 공지 -->
-      <section id="page-notice" class="page">
-        <div class="section-title-row">
-          <h2 class="section-title">공지</h2>
-          <span class="section-subtitle">최근 소식</span>
-        </div>
-
-        <div class="list">
-          <div class="list-card">
-            <div class="list-icon">📢</div>
-
-            <div class="list-body">
-              <div class="list-title">공지 목록 연결 예정</div>
-              <div class="list-desc">
-                다음 작업에서 기존 notices.json 데이터를 불러옵니다.
-              </div>
-            </div>
-
-            <div class="list-arrow">›</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- IN&OUT -->
-      <section id="page-inout" class="page">
-        <div class="section-title-row">
-          <h2 class="section-title">IN&amp;OUT</h2>
-          <span class="section-subtitle">멤버 변동 내역</span>
-        </div>
-
-        <div class="empty-box">
-          IN&amp;OUT 콘텐츠가 표시될 영역입니다.
-        </div>
-      </section>
-
-      <!-- 보자충 -->
-      <section id="page-bojachoong" class="page">
-        <div class="section-title-row">
-          <h2 class="section-title">보자충</h2>
-          <span class="section-subtitle">콘텐츠 목록</span>
-        </div>
-
-        <div class="empty-box">
-          보자충 콘텐츠가 표시될 영역입니다.
-        </div>
-      </section>
-
-      <!-- 팬튜브 -->
-      <section id="page-fantube" class="page">
-        <div class="section-title-row">
-          <h2 class="section-title">팬튜브</h2>
-          <span class="section-subtitle">팬 영상 콘텐츠</span>
-        </div>
-
-        <div class="empty-box">
-          팬튜브 콘텐츠가 표시될 영역입니다.
-        </div>
-      </section>
-    </main>
-
-    <!-- 하단 고정 메뉴 -->
-    <nav class="bottom-nav" aria-label="하단 메뉴">
-      <div class="bottom-nav-inner">
-        <button
-          class="nav-button active"
-          type="button"
-          data-nav-page="dashboard"
-        >
-          <span class="nav-icon">🏠</span>
-          <span>현황판</span>
-        </button>
-
-        <button
-          class="nav-button"
-          type="button"
-          data-nav-page="profile"
-        >
-          <span class="nav-icon">👤</span>
-          <span>프로필</span>
-        </button>
-
-        <button
-          class="nav-button"
-          type="button"
-          data-nav-page="tierboard"
-        >
-          <span class="nav-icon">🏆</span>
-          <span>티어표</span>
-        </button>
-
-        <button
-          class="nav-button"
-          type="button"
-          data-nav-page="notice"
-        >
-          <span class="nav-icon">📢</span>
-          <span>공지</span>
-        </button>
-
-        <button
-          id="moreNavButton"
-          class="nav-button"
-          type="button"
-        >
-          <span class="nav-icon">☰</span>
-          <span>더보기</span>
-        </button>
-      </div>
-    </nav>
-  </div>
-
-  <!-- 더보기 팝업 -->
-  <div id="moreSheetDim" class="sheet-dim">
-    <section
-      class="bottom-sheet"
-      role="dialog"
-      aria-modal="true"
-      aria-label="더보기 메뉴"
-    >
-      <div class="sheet-handle"></div>
-
-      <h2 class="sheet-title">더보기</h2>
-
-      <div class="sheet-menu">
-        <button
-          class="sheet-menu-button"
-          type="button"
-          data-sheet-page="inout"
-        >
-          <span class="sheet-menu-icon">🔄</span>
-          <span>IN&amp;OUT</span>
-        </button>
-
-        <button
-          class="sheet-menu-button"
-          type="button"
-          data-sheet-page="bojachoong"
-        >
-          <span class="sheet-menu-icon">📊</span>
-          <span>보자충</span>
-        </button>
-
-        <button
-          class="sheet-menu-button"
-          type="button"
-          data-sheet-page="fantube"
-        >
-          <span class="sheet-menu-icon">🎬</span>
-          <span>팬튜브</span>
-        </button>
-
-        <a class="sheet-menu-link" href="/">
-          <span class="sheet-menu-icon">💻</span>
-          <span>PC 버전으로 이동</span>
-        </a>
-      </div>
-
-      <button
-        id="sheetCloseButton"
-        class="sheet-close"
-        type="button"
-      >
-        닫기
-      </button>
-    </section>
-  </div>
-
-  <script>
-    (() => {
-      "use strict";
-
-      const PAGE_TITLES = {
-        dashboard: "현황판",
-        profile: "프로필",
-        tierboard: "티어표",
-        notice: "공지",
-        inout: "IN&OUT",
-        bojachoong: "보자충",
-        fantube: "팬튜브"
-      };
-
-      const pageTitle = document.getElementById("pageTitle");
-      const pages = Array.from(document.querySelectorAll(".page"));
-      const navButtons = Array.from(
-        document.querySelectorAll("[data-nav-page]")
-      );
-
-      const moreSheetDim = document.getElementById("moreSheetDim");
-      const moreNavButton = document.getElementById("moreNavButton");
-      const moreHeaderButton = document.getElementById(
-        "moreHeaderButton"
-      );
-      const sheetCloseButton = document.getElementById(
-        "sheetCloseButton"
-      );
-
-      function isValidPage(pageName) {
-        return Object.prototype.hasOwnProperty.call(
-          PAGE_TITLES,
-          pageName
-        );
-      }
-
-      function setActivePage(pageName) {
-        if (!isValidPage(pageName)) {
-          pageName = "dashboard";
-        }
-
-        pages.forEach((page) => {
-          page.classList.toggle(
-            "active",
-            page.id === `page-${pageName}`
-          );
-        });
-
-        navButtons.forEach((button) => {
-          button.classList.toggle(
-            "active",
-            button.dataset.navPage === pageName
-          );
-        });
-
-        pageTitle.textContent = PAGE_TITLES[pageName];
-
-        try {
-          localStorage.setItem("monstarz-mobile-active-page", pageName);
-        } catch (error) {
-          console.warn("현재 탭 저장 실패:", error);
-        }
-
-        window.scrollTo({
-          top: 0,
-          behavior: "instant"
-        });
-      }
-
-      function openMoreSheet() {
-        moreSheetDim.classList.add("open");
-        document.body.style.overflow = "hidden";
-      }
-
-      function closeMoreSheet() {
-        moreSheetDim.classList.remove("open");
-        document.body.style.overflow = "";
-      }
-
-      navButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          setActivePage(button.dataset.navPage);
-        });
-      });
-
-      document
-        .querySelectorAll("[data-open-page]")
-        .forEach((button) => {
-          button.addEventListener("click", () => {
-            setActivePage(button.dataset.openPage);
-          });
-        });
-
-      document
-        .querySelectorAll("[data-sheet-page]")
-        .forEach((button) => {
-          button.addEventListener("click", () => {
-            closeMoreSheet();
-            setActivePage(button.dataset.sheetPage);
-          });
-        });
-
-      moreNavButton.addEventListener("click", openMoreSheet);
-      moreHeaderButton.addEventListener("click", openMoreSheet);
-      sheetCloseButton.addEventListener("click", closeMoreSheet);
-
-      moreSheetDim.addEventListener("click", (event) => {
-        if (event.target === moreSheetDim) {
-          closeMoreSheet();
-        }
-      });
-
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-          closeMoreSheet();
-        }
-      });
-
-      let initialPage = "dashboard";
-
-      try {
-        const savedPage = localStorage.getItem(
-          "monstarz-mobile-active-page"
-        );
-
-        if (savedPage && isValidPage(savedPage)) {
-          initialPage = savedPage;
-        }
-      } catch (error) {
-        console.warn("저장된 탭 불러오기 실패:", error);
-      }
-
-      setActivePage(initialPage);
-    })();
-  </script>
+  let liveStatusMap={}, lastCheckedAt="", inoutMode="ALL", selectedBoja=BOJA_CATEGORIES[0]?.name||"";
+  const $=id=>document.getElementById(id);
+  const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const safe=url=>{try{const u=new URL(String(url||""),location.href);return /^https?:$/.test(u.protocol)?u.href:"#"}catch{return "#"}};
+  const uid=m=>m.userId||((m.stream||"").match(/station\/([^/?#]+)/)||[])[1]||"";
+  const liveMembers=()=>MEMBERS.map(m=>({...m,status:liveStatusMap[uid(m)]===true?"live":"offline"}));
+  function card(m){const isLive=m.status==="live";return `<article class="member"><div class="member-top"><span class="badge ${isLive?'live':''}">${isLive?'LIVE':'OFFLINE'}</span></div><div class="member-body"><img class="avatar ${isLive?'live':''}" src="${safe(m.profileImage)}" alt="${esc(m.name)}"><div class="name">${esc(m.name)}</div><div class="meta">${esc(m.role)} · ${esc(m.race)} · ${esc(String(m.tier))}</div><div class="actions"><a href="${safe(m.live)}" target="_blank" rel="noopener">방송 보기</a><a href="${safe(m.stream)}" target="_blank" rel="noopener">방송국</a></div></div></article>`}
+  function renderMembers(){const all=liveMembers(), live=all.filter(m=>m.status==='live');$('statAll').textContent=all.length;$('statLive').textContent=live.length;$('liveList').innerHTML=live.length?live.map(card).join(''):'<div class="empty" style="grid-column:1/-1">현재 방송 중인 멤버가 없습니다.</div>';$('profileList').innerHTML=all.map(card).join('')}
+  async function fetchLive(){try{const r=await fetch(LIVE_STATUS_URL,{cache:'no-store'});const d=await r.json();if(d?.statuses){liveStatusMap=d.statuses;lastCheckedAt=d.checkedAt||''}}catch(e){console.warn(e)}renderMembers();$('liveChecked').textContent=lastCheckedAt?new Date(lastCheckedAt).toLocaleString('ko-KR'):'갱신 정보 없음'}
+  function normalizeNotice(x){return {stationName:String(x.stationName||x.writer||'공지'),userId:String(x.userId||''),title:String(x.title||x.subject||''),content:String(x.content||x.body||x.summary||''),time:String(x.time||''),link:String(x.link||'')}}
+  async function fetchNotices(){try{const r=await fetch(NOTICE_JSON_URL+'?t='+Date.now(),{cache:'no-store'});const d=await r.json();const items=(Array.isArray(d?.items)?d.items:[]).map(normalizeNotice).slice(0,40);$('noticeCount').textContent=items.length+'개';$('noticeList').innerHTML=items.length?items.map(n=>{const m=MEMBERS.find(v=>v.userId===n.userId);return `<a class="notice" href="${safe(n.link)}" target="_blank" rel="noopener"><img src="${safe(m?.profileImage||TEAM.logo)}" alt=""><div><div class="notice-title">${esc(n.stationName)} · ${esc(n.title)}</div>${n.content?`<div class="notice-body">${esc(n.content)}</div>`:''}<div class="notice-time">${esc(n.time||'날짜 없음')}</div></div></a>`}).join(''):'<div class="empty">공지 데이터가 없습니다.</div>'}catch(e){$('noticeList').innerHTML='<div class="empty">공지 데이터를 불러오지 못했습니다.</div>'}}
+  function renderInout(){const q=$('inoutSearch').value.trim();const rows=INOUT_HISTORY.map(r=>({...r,events:r.events.filter(e=>(inoutMode==='ALL'||e.status===inoutMode)&&(!q||e.name.includes(q)))})).filter(r=>r.events.length).reverse();$('inoutCount').textContent=rows.reduce((s,r)=>s+r.events.length,0)+'건';$('inoutList').innerHTML=rows.length?rows.map(r=>`<article class="inout"><div class="date">${esc(r.date)}</div><div class="events">${r.events.map(e=>`<span class="event">${esc(e.name)} <small>${esc(e.race)}</small><b class="status ${e.status==='IN'?'in':'out'}">${esc(e.status)}</b></span>`).join('')}</div></article>`).join(''):'<div class="empty">검색 결과가 없습니다.</div>'}
+  function youtubeId(url){return ((String(url).match(/youtu\.be\/([^?&#/]+)/)||String(url).match(/[?&]v=([^?&#/]+)/)||[])[1]||'')}
+  function renderBoja(){const cat=BOJA_CATEGORIES.find(c=>c.name===selectedBoja)||BOJA_CATEGORIES[0];$('bojaCats').innerHTML=BOJA_CATEGORIES.map(c=>`<button data-cat="${esc(c.name)}" class="${c.name===cat.name?'active':''}">${esc(c.name)}</button>`).join('');$('bojaCount').textContent=(cat?.items?.length||0)+'개';$('bojaList').innerHTML=(cat?.items||[]).map(v=>{const id=youtubeId(v.url);const thumb=id?'https://img.youtube.com/vi/'+id+'/mqdefault.jpg':'';return `<article class="video-card">${thumb?`<img class="thumb" src="${thumb}" alt="">`:'<div class="thumb"></div>'}<div><a href="${safe(v.url)}" target="_blank" rel="noopener">${esc(v.title)}</a><div class="video-note">${esc(v.note||'영상')}</div></div></article>`}).join('')||'<div class="empty">등록된 영상이 없습니다.</div>';document.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{selectedBoja=b.dataset.cat;renderBoja()})}
+  function normVideo(x,source){const id=x.videoId||youtubeId(x.url||x.link||'');return {id,title:String(x.title||''),url:String(x.url||x.link||(id?'https://youtu.be/'+id:'')),thumb:String(x.thumbnail||x.thumbnailUrl||(id?'https://img.youtube.com/vi/'+id+'/mqdefault.jpg':'')),source}}
+  async function fetchFantube(){try{const rs=await Promise.allSettled([fetch(YOUTUBE_JSON_URL).then(r=>r.json()),fetch(KAMRINI_JSON_URL).then(r=>r.json())]);const a=rs[0].status==='fulfilled'?(rs[0].value.items||[]):[],b=rs[1].status==='fulfilled'?(rs[1].value.items||[]):[];const items=[...a.map(x=>normVideo(x,x.name||x.channelTitle||'팬튜브')),...b.map(x=>normVideo(x,'캄린이'))].filter(v=>v.id&&v.url);$('fantubeCount').textContent=items.length+'개';$('fantubeList').innerHTML=items.length?items.map(v=>`<article class="video-card"><img class="thumb" src="${safe(v.thumb)}" alt=""><div><a href="${safe(v.url)}" target="_blank" rel="noopener">${esc(v.title)}</a><div class="video-note">${esc(v.source)}</div></div></article>`).join(''):'<div class="empty">팬튜브 영상이 없습니다.</div>'}catch(e){$('fantubeList').innerHTML='<div class="empty">팬튜브 데이터를 불러오지 못했습니다.</div>'}}
+  function openPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===name));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));$('pageName').textContent=({dashboard:'현황판',profile:'프로필',tier:'티어표',notice:'공지',inout:'IN&OUT',boja:'보자충',fantube:'팬튜브'})[name]||name;localStorage.setItem('monstarz-mobile-tab',name);scrollTo(0,0)}
+  document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>openPage(b.dataset.page));$('inoutSearch').oninput=renderInout;$('inoutFilter').onclick=e=>{const b=e.target.closest('button');if(!b)return;inoutMode=b.dataset.value;document.querySelectorAll('#inoutFilter button').forEach(x=>x.classList.toggle('active',x===b));renderInout()};$('refreshBtn').onclick=()=>{fetchLive();fetchNotices();fetchFantube()};
+  $('statRecent').textContent=INOUT_HISTORY.at(-1)?.date||'-';renderMembers();renderInout();renderBoja();fetchLive();fetchNotices();fetchFantube();setInterval(fetchLive,60000);openPage(localStorage.getItem('monstarz-mobile-tab')||'dashboard');
+</script>
 </body>
 </html>
