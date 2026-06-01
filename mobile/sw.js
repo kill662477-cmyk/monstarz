@@ -1,4 +1,4 @@
-const CACHE_NAME = "monstarz-mobile-v1";
+const CACHE_NAME = "monstarz-mobile-v2";
 
 const APP_SHELL = [
   "/mobile/",
