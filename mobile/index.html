@@ -1,36 +1,961 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+  <meta name="theme-color" content="#111827" />
+
   <title>MONSTARZ 모바일</title>
+
   <style>
-    body {
-      margin: 0;
-      padding: 32px 20px;
-      font-family: Arial, sans-serif;
-      background: #111827;
-      color: #ffffff;
+    :root {
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --panel: #1e293b;
+      --panel-light: #263449;
+      --line: rgba(255, 255, 255, 0.09);
+      --text: #f8fafc;
+      --text-soft: #cbd5e1;
+      --text-muted: #94a3b8;
+      --accent: #60a5fa;
+      --accent-soft: rgba(96, 165, 250, 0.14);
+      --danger: #fb7185;
+      --success: #4ade80;
+      --shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --header-height: 62px;
+      --bottom-nav-height: 74px;
     }
 
-    .card {
-      max-width: 420px;
-      margin: 0 auto;
-      padding: 24px;
-      border-radius: 18px;
-      background: #1f2937;
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        Pretendard,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    button,
+    a {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
     }
 
     a {
-      color: #93c5fd;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      padding-bottom:
+        calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+    }
+
+    /* 상단 헤더 */
+    .top-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding:
+        env(safe-area-inset-top)
+        18px
+        0;
+      background: rgba(15, 23, 42, 0.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand-wrap {
+      min-width: 0;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+    }
+
+    .page-title {
+      margin-top: 2px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .header-button {
+      flex: 0 0 auto;
+      min-width: 42px;
+      height: 38px;
+      padding: 0 12px;
+      border-radius: 12px;
+      color: var(--text);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    /* 공통 콘텐츠 */
+    .content {
+      width: min(100%, 680px);
+      margin: 0 auto;
+      padding: 18px 16px 28px;
+    }
+
+    .page {
+      display: none;
+      animation: pageIn 0.18s ease-out;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes pageIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-card {
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(
+          135deg,
+          rgba(96, 165, 250, 0.25),
+          rgba(30, 41, 59, 0.98)
+        );
+      border: 1px solid rgba(96, 165, 250, 0.22);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-label {
+      color: #bfdbfe;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .hero-title {
+      margin: 8px 0 0;
+      font-size: 25px;
+      line-height: 1.28;
+      font-weight: 900;
+    }
+
+    .hero-desc {
+      margin: 10px 0 0;
+      color: var(--text-soft);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .section {
+      margin-top: 22px;
+    }
+
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 11px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .section-subtitle {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 11px;
+    }
+
+    .menu-card {
+      min-height: 110px;
+      padding: 15px;
+      border-radius: var(--radius-md);
+      color: var(--text);
+      text-align: left;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+    }
+
+    .menu-card:active {
+      transform: scale(0.985);
+      background: var(--panel-light);
+    }
+
+    .menu-card-icon {
+      display: block;
+      margin-bottom: 14px;
+      font-size: 23px;
+    }
+
+    .menu-card-title {
+      display: block;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .menu-card-desc {
+      display: block;
+      margin-top: 5px;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .list-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 74px;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      color: var(--text);
+      text-align: left;
+      background: var(--panel);
+      border: 1px solid var(--line);
+    }
+
+    .list-card:active {
+      background: var(--panel-light);
+    }
+
+    .list-icon {
+      display: grid;
+      flex: 0 0 auto;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 13px;
+      background: var(--accent-soft);
+      font-size: 20px;
+    }
+
+    .list-body {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .list-title {
+      overflow: hidden;
+      font-size: 14px;
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .list-desc {
+      overflow: hidden;
+      margin-top: 4px;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.4;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .list-arrow {
+      flex: 0 0 auto;
+      color: var(--text-muted);
+      font-size: 18px;
+    }
+
+    .empty-box {
+      padding: 26px 18px;
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+      text-align: center;
+      background: var(--panel);
+      border: 1px dashed rgba(255, 255, 255, 0.14);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      color: #bbf7d0;
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.18);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 14px rgba(74, 222, 128, 0.9);
+    }
+
+    /* 하단 내비게이션 */
+    .bottom-nav {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 40;
+      height:
+        calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+      padding:
+        7px
+        8px
+        env(safe-area-inset-bottom);
+      background: rgba(15, 23, 42, 0.96);
+      border-top: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+    }
+
+    .bottom-nav-inner {
+      display: grid;
+      width: min(100%, 680px);
+      height: 100%;
+      margin: 0 auto;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 3px;
+    }
+
+    .nav-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      background: transparent;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .nav-button.active {
+      color: #bfdbfe;
+      background: var(--accent-soft);
+    }
+
+    .nav-icon {
+      font-size: 19px;
+      line-height: 1;
+    }
+
+    /* 더보기 바텀 시트 */
+    .sheet-dim {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: none;
+      background: rgba(0, 0, 0, 0.52);
+    }
+
+    .sheet-dim.open {
+      display: block;
+    }
+
+    .bottom-sheet {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      padding:
+        12px
+        16px
+        calc(18px + env(safe-area-inset-bottom));
+      border-radius: 22px 22px 0 0;
+      background: var(--bg-soft);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -14px 34px rgba(0, 0, 0, 0.34);
+      animation: sheetUp 0.2s ease-out;
+    }
+
+    @keyframes sheetUp {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    .sheet-handle {
+      width: 42px;
+      height: 4px;
+      margin: 0 auto 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    .sheet-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .sheet-menu {
+      display: grid;
+      gap: 9px;
+    }
+
+    .sheet-menu-button,
+    .sheet-menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 54px;
+      padding: 0 14px;
+      border-radius: 14px;
+      color: var(--text);
+      text-align: left;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .sheet-menu-button:active,
+    .sheet-menu-link:active {
+      background: var(--panel-light);
+    }
+
+    .sheet-menu-icon {
+      width: 24px;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    .sheet-close {
+      width: 100%;
+      min-height: 50px;
+      margin-top: 12px;
+      border-radius: 14px;
+      color: var(--text-soft);
+      background: rgba(255, 255, 255, 0.06);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    @media (min-width: 560px) {
+      .card-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
     }
   </style>
 </head>
+
 <body>
-  <main class="card">
-    <h1>MONSTARZ 모바일 테스트</h1>
-    <p>모바일 전용 페이지가 정상적으로 분리되었습니다.</p>
-    <a href="/">PC 버전으로 이동</a>
-  </main>
+  <div class="app-shell">
+    <!-- 상단 -->
+    <header class="top-header">
+      <div class="brand-wrap">
+        <h1 class="brand">MONSTARZ</h1>
+        <div id="pageTitle" class="page-title">현황판</div>
+      </div>
+
+      <button
+        id="moreHeaderButton"
+        class="header-button"
+        type="button"
+        aria-label="더보기 열기"
+      >
+        메뉴
+      </button>
+    </header>
+
+    <!-- 본문 -->
+    <main class="content">
+      <!-- 현황판 -->
+      <section id="page-dashboard" class="page active">
+        <div class="hero-card">
+          <div class="hero-label">MONSTARZ MOBILE</div>
+
+          <h2 class="hero-title">
+            캄몬스타즈<br />
+            모바일 현황판
+          </h2>
+
+          <p class="hero-desc">
+            방송 상태, 프로필, 티어표와 주요 콘텐츠를
+            모바일에서 빠르게 확인할 수 있습니다.
+          </p>
+
+          <div class="status-chip">
+            <span class="status-dot"></span>
+            모바일 전용 화면 정상 작동 중
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title-row">
+            <h3 class="section-title">빠른 메뉴</h3>
+            <span class="section-subtitle">자주 찾는 콘텐츠</span>
+          </div>
+
+          <div class="card-grid">
+            <button
+              class="menu-card"
+              type="button"
+              data-open-page="profile"
+            >
+              <span class="menu-card-icon">👤</span>
+              <span class="menu-card-title">프로필</span>
+              <span class="menu-card-desc">멤버 정보 확인</span>
+            </button>
+
+            <button
+              class="menu-card"
+              type="button"
+              data-open-page="tierboard"
+            >
+              <span class="menu-card-icon">🏆</span>
+              <span class="menu-card-title">티어표</span>
+              <span class="menu-card-desc">스타 티어표 확인</span>
+            </button>
+
+            <button
+              class="menu-card"
+              type="button"
+              data-open-page="notice"
+            >
+              <span class="menu-card-icon">📢</span>
+              <span class="menu-card-title">공지</span>
+              <span class="menu-card-desc">최근 공지 확인</span>
+            </button>
+
+            <button
+              class="menu-card"
+              type="button"
+              data-open-page="inout"
+            >
+              <span class="menu-card-icon">🔄</span>
+              <span class="menu-card-title">IN&amp;OUT</span>
+              <span class="menu-card-desc">멤버 변동 확인</span>
+            </button>
+
+            <button
+              class="menu-card"
+              type="button"
+              data-open-page="bojachoong"
+            >
+              <span class="menu-card-icon">📊</span>
+              <span class="menu-card-title">보자충</span>
+              <span class="menu-card-desc">보자충 콘텐츠</span>
+            </button>
+
+            <button
+              class="menu-card"
+              type="button"
+              data-open-page="fantube"
+            >
+              <span class="menu-card-icon">🎬</span>
+              <span class="menu-card-title">팬튜브</span>
+              <span class="menu-card-desc">팬 영상 콘텐츠</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title-row">
+            <h3 class="section-title">방송 현황</h3>
+            <span class="section-subtitle">추후 데이터 연결 예정</span>
+          </div>
+
+          <div class="empty-box">
+            현재는 모바일 기본 화면만 구성된 상태입니다.<br />
+            다음 작업에서 기존 방송 데이터를 연결합니다.
+          </div>
+        </div>
+      </section>
+
+      <!-- 프로필 -->
+      <section id="page-profile" class="page">
+        <div class="section-title-row">
+          <h2 class="section-title">프로필</h2>
+          <span class="section-subtitle">멤버 소개</span>
+        </div>
+
+        <div class="empty-box">
+          멤버 프로필 카드가 표시될 영역입니다.<br />
+          기존 프로필 데이터를 모바일 카드 형식으로 연결합니다.
+        </div>
+      </section>
+
+      <!-- 티어표 -->
+      <section id="page-tierboard" class="page">
+        <div class="section-title-row">
+          <h2 class="section-title">티어표</h2>
+          <span class="section-subtitle">스타크래프트 티어표</span>
+        </div>
+
+        <div class="empty-box">
+          모바일 전용 티어표가 표시될 영역입니다.<br />
+          기존 Firebase 데이터를 연결하여 별도로 구성합니다.
+        </div>
+      </section>
+
+      <!-- 공지 -->
+      <section id="page-notice" class="page">
+        <div class="section-title-row">
+          <h2 class="section-title">공지</h2>
+          <span class="section-subtitle">최근 소식</span>
+        </div>
+
+        <div class="list">
+          <div class="list-card">
+            <div class="list-icon">📢</div>
+
+            <div class="list-body">
+              <div class="list-title">공지 목록 연결 예정</div>
+              <div class="list-desc">
+                다음 작업에서 기존 notices.json 데이터를 불러옵니다.
+              </div>
+            </div>
+
+            <div class="list-arrow">›</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- IN&OUT -->
+      <section id="page-inout" class="page">
+        <div class="section-title-row">
+          <h2 class="section-title">IN&amp;OUT</h2>
+          <span class="section-subtitle">멤버 변동 내역</span>
+        </div>
+
+        <div class="empty-box">
+          IN&amp;OUT 콘텐츠가 표시될 영역입니다.
+        </div>
+      </section>
+
+      <!-- 보자충 -->
+      <section id="page-bojachoong" class="page">
+        <div class="section-title-row">
+          <h2 class="section-title">보자충</h2>
+          <span class="section-subtitle">콘텐츠 목록</span>
+        </div>
+
+        <div class="empty-box">
+          보자충 콘텐츠가 표시될 영역입니다.
+        </div>
+      </section>
+
+      <!-- 팬튜브 -->
+      <section id="page-fantube" class="page">
+        <div class="section-title-row">
+          <h2 class="section-title">팬튜브</h2>
+          <span class="section-subtitle">팬 영상 콘텐츠</span>
+        </div>
+
+        <div class="empty-box">
+          팬튜브 콘텐츠가 표시될 영역입니다.
+        </div>
+      </section>
+    </main>
+
+    <!-- 하단 고정 메뉴 -->
+    <nav class="bottom-nav" aria-label="하단 메뉴">
+      <div class="bottom-nav-inner">
+        <button
+          class="nav-button active"
+          type="button"
+          data-nav-page="dashboard"
+        >
+          <span class="nav-icon">🏠</span>
+          <span>현황판</span>
+        </button>
+
+        <button
+          class="nav-button"
+          type="button"
+          data-nav-page="profile"
+        >
+          <span class="nav-icon">👤</span>
+          <span>프로필</span>
+        </button>
+
+        <button
+          class="nav-button"
+          type="button"
+          data-nav-page="tierboard"
+        >
+          <span class="nav-icon">🏆</span>
+          <span>티어표</span>
+        </button>
+
+        <button
+          class="nav-button"
+          type="button"
+          data-nav-page="notice"
+        >
+          <span class="nav-icon">📢</span>
+          <span>공지</span>
+        </button>
+
+        <button
+          id="moreNavButton"
+          class="nav-button"
+          type="button"
+        >
+          <span class="nav-icon">☰</span>
+          <span>더보기</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- 더보기 팝업 -->
+  <div id="moreSheetDim" class="sheet-dim">
+    <section
+      class="bottom-sheet"
+      role="dialog"
+      aria-modal="true"
+      aria-label="더보기 메뉴"
+    >
+      <div class="sheet-handle"></div>
+
+      <h2 class="sheet-title">더보기</h2>
+
+      <div class="sheet-menu">
+        <button
+          class="sheet-menu-button"
+          type="button"
+          data-sheet-page="inout"
+        >
+          <span class="sheet-menu-icon">🔄</span>
+          <span>IN&amp;OUT</span>
+        </button>
+
+        <button
+          class="sheet-menu-button"
+          type="button"
+          data-sheet-page="bojachoong"
+        >
+          <span class="sheet-menu-icon">📊</span>
+          <span>보자충</span>
+        </button>
+
+        <button
+          class="sheet-menu-button"
+          type="button"
+          data-sheet-page="fantube"
+        >
+          <span class="sheet-menu-icon">🎬</span>
+          <span>팬튜브</span>
+        </button>
+
+        <a class="sheet-menu-link" href="/">
+          <span class="sheet-menu-icon">💻</span>
+          <span>PC 버전으로 이동</span>
+        </a>
+      </div>
+
+      <button
+        id="sheetCloseButton"
+        class="sheet-close"
+        type="button"
+      >
+        닫기
+      </button>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const PAGE_TITLES = {
+        dashboard: "현황판",
+        profile: "프로필",
+        tierboard: "티어표",
+        notice: "공지",
+        inout: "IN&OUT",
+        bojachoong: "보자충",
+        fantube: "팬튜브"
+      };
+
+      const pageTitle = document.getElementById("pageTitle");
+      const pages = Array.from(document.querySelectorAll(".page"));
+      const navButtons = Array.from(
+        document.querySelectorAll("[data-nav-page]")
+      );
+
+      const moreSheetDim = document.getElementById("moreSheetDim");
+      const moreNavButton = document.getElementById("moreNavButton");
+      const moreHeaderButton = document.getElementById(
+        "moreHeaderButton"
+      );
+      const sheetCloseButton = document.getElementById(
+        "sheetCloseButton"
+      );
+
+      function isValidPage(pageName) {
+        return Object.prototype.hasOwnProperty.call(
+          PAGE_TITLES,
+          pageName
+        );
+      }
+
+      function setActivePage(pageName) {
+        if (!isValidPage(pageName)) {
+          pageName = "dashboard";
+        }
+
+        pages.forEach((page) => {
+          page.classList.toggle(
+            "active",
+            page.id === `page-${pageName}`
+          );
+        });
+
+        navButtons.forEach((button) => {
+          button.classList.toggle(
+            "active",
+            button.dataset.navPage === pageName
+          );
+        });
+
+        pageTitle.textContent = PAGE_TITLES[pageName];
+
+        try {
+          localStorage.setItem("monstarz-mobile-active-page", pageName);
+        } catch (error) {
+          console.warn("현재 탭 저장 실패:", error);
+        }
+
+        window.scrollTo({
+          top: 0,
+          behavior: "instant"
+        });
+      }
+
+      function openMoreSheet() {
+        moreSheetDim.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeMoreSheet() {
+        moreSheetDim.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+
+      navButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          setActivePage(button.dataset.navPage);
+        });
+      });
+
+      document
+        .querySelectorAll("[data-open-page]")
+        .forEach((button) => {
+          button.addEventListener("click", () => {
+            setActivePage(button.dataset.openPage);
+          });
+        });
+
+      document
+        .querySelectorAll("[data-sheet-page]")
+        .forEach((button) => {
+          button.addEventListener("click", () => {
+            closeMoreSheet();
+            setActivePage(button.dataset.sheetPage);
+          });
+        });
+
+      moreNavButton.addEventListener("click", openMoreSheet);
+      moreHeaderButton.addEventListener("click", openMoreSheet);
+      sheetCloseButton.addEventListener("click", closeMoreSheet);
+
+      moreSheetDim.addEventListener("click", (event) => {
+        if (event.target === moreSheetDim) {
+          closeMoreSheet();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeMoreSheet();
+        }
+      });
+
+      let initialPage = "dashboard";
+
+      try {
+        const savedPage = localStorage.getItem(
+          "monstarz-mobile-active-page"
+        );
+
+        if (savedPage && isValidPage(savedPage)) {
+          initialPage = savedPage;
+        }
+      } catch (error) {
+        console.warn("저장된 탭 불러오기 실패:", error);
+      }
+
+      setActivePage(initialPage);
+    })();
+  </script>
 </body>
 </html>
