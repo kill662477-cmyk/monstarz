@@ -1,0 +1,23 @@
+{
+  "name": "캄몬스타즈",
+  "short_name": "MONSTARZ",
+  "description": "캄몬스타즈 멤버 현황, 티어표, 공지, 일정표를 확인하는 모바일 앱",
+  "start_url": "/mobile/",
+  "scope": "/mobile/",
+  "display": "standalone",
+  "background_color": "#050b16",
+  "theme_color": "#07172d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/mobile/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/mobile/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
