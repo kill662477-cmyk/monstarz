@@ -1,0 +1,12 @@
+{
+  "relation": [
+    "delegate_permission/common.handle_all_urls"
+  ],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.monstarz.mobile",
+    "sha256_cert_fingerprints": [
+      "59:A9:45:D6:50:35:AE:05:A9:91:7B:5E:62:D9:96:4A:F5:E2:2F:E1:91:6B:79:82:3D:A5:5F:86:6C:83:36:EB"
+    ]
+  }
+}
