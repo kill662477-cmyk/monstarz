@@ -583,18 +583,6 @@ img {
   background: var(--sr-section-bg)!important;
 }
 
-.inout-section-head:after {
-  content: "IN & OUT";
-  position: absolute;
-  right: 18px;
-  bottom: -9px;
-  color: rgba(255,255,255,.04);
-  font-size: 42px;
-  font-weight: 950;
-  letter-spacing: -.06em;
-  pointer-events: none;
-}
-
 .inout-title-sub {
   color: var(--muted);
   font-size: 11px;
@@ -944,17 +932,6 @@ body.light-mode .inout-guide {
   color: #334155 !important;
 }
 
-.site-header .brand-copy h1::before,
-.site-header .brand-copy h1::after {
-  content: "★";
-  color: #ffd43b;
-  font-size: .72em;
-  margin: 0 8px;
-  text-shadow: 0 0 14px rgba(255,212,59,.50);
-  content: none !important;
-  display: none !important;
-}
-
 .inout-guide-row {
   display: grid;
   grid-template-columns: minmax(0, 0.62fr) minmax(280px, 0.38fr);
@@ -1147,17 +1124,6 @@ body.light-mode .inout-filter-btn.active {
   overflow: hidden!important;
 }
 
-.site-header:after {
-  content: "MONSTARZ";
-  position: absolute;
-  right: 18px;
-  bottom: -18px;
-  font-size: 58px;
-  font-weight: 950;
-  letter-spacing: -.08em;
-  color: rgba(255,255,255,.035);
-}
-
 .site-header .hero-top {
   justify-content: center;
   text-align: center;
@@ -1209,6 +1175,13 @@ body.light-mode .inout-filter-btn.active {
 
 .site-header .brand-copy h1:before,
 .site-header .brand-copy h1:after {
+  content: "★";
+  color: #ffd43b;
+  font-size: .72em;
+  margin: 0 8px;
+  text-shadow: 0 0 14px rgba(255,212,59,.50);
+  content: none !important;
+  display: none !important;
   display: none!important;
 }
 
@@ -1281,36 +1254,6 @@ body.light-mode .inout-filter-btn.active {
   border-radius: 0!important;
   background: var(--sr-nav-bg)!important;
   box-shadow: 16px 0 40px rgba(0,0,0,.36)!important;
-}
-
-.site-header .tab-row:before {
-  content: "MONSTARZ\A SINCE 2024";
-  white-space: pre;
-  display: block;
-  margin: 10px 8px 28px;
-  color: #fff;
-  font-size: 26px;
-  line-height: .9;
-  font-weight: 950;
-  letter-spacing: -.06em;
-}
-
-.site-header .tab-row:after {
-  content: "외부 사이트";
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 24px;
-  min-height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 9px;
-  color: var(--sr-soft);
-  font-size: 11px;
-  font-weight: 900;
-  background: rgba(255,255,255,.035);
 }
 
 .site-header .tab-btn {
@@ -1889,6 +1832,15 @@ body.light-mode .inout-filter-btn.active {
 }
 
 .inout-section-head:after {
+  content: "IN & OUT";
+  position: absolute;
+  right: 18px;
+  bottom: -9px;
+  color: rgba(255,255,255,.04);
+  font-size: 42px;
+  font-weight: 950;
+  letter-spacing: -.06em;
+  pointer-events: none;
   content: "TRANSFER LOG"!important;
   color: rgba(255,255,255,.045)!important;
 }
@@ -2569,18 +2521,6 @@ body:not(.main-tab-active) .site-header {
   justify-content: center;
 }
 
-#coachGrid .member-card.member-coach .btn-youtube:before,
-.tier-grid .member-card.member-player .btn-youtube:before {
-  content: "▶ ";
-  color: #ff4d4f;
-}
-
-#coachGrid .member-card.member-coach .btn-stream:before,
-.tier-grid .member-card.member-player .btn-stream:before {
-  content: "⌂ ";
-  color: #cfe3ff;
-}
-
 .name-row .name {
   font-size: 14px;
   font-weight: 800;
@@ -3136,11 +3076,15 @@ button.btn-link {
 
 #coachGrid .member-card.member-coach .btn-youtube:before,
 .tier-grid .member-card.member-player .btn-youtube:before {
+  content: "▶ ";
+  color: #ff4d4f;
   margin-right: 2px !important;
 }
 
 #coachGrid .member-card.member-coach .btn-stream:before,
 .tier-grid .member-card.member-player .btn-stream:before {
+  content: "⌂ ";
+  color: #cfe3ff;
   margin-right: 2px !important;
 }
 
@@ -3202,10 +3146,6 @@ button.btn-link {
 .tier-grid .member-card.member-player .meta-item {
   font-size: 10.5px;
   line-height: 1.16;
-}
-
-.site-header .tab-row:after {
-  content: "외부 사이트"!important;
 }
 
 #leaderSection .section-head h2,
@@ -4380,14 +4320,47 @@ body.light-mode .profile-awards {
 }
 
 .site-header:after {
+  content: "MONSTARZ";
+  position: absolute;
+  right: 18px;
+  bottom: -18px;
+  font-size: 58px;
+  font-weight: 950;
+  letter-spacing: -.08em;
+  color: rgba(255,255,255,.035);
   content: "MONSTARZ"!important;
 }
 
 .site-header .tab-row:before {
+  content: "MONSTARZ\A SINCE 2024";
+  white-space: pre;
+  display: block;
+  margin: 10px 8px 28px;
+  color: #fff;
+  font-size: 26px;
+  line-height: .9;
+  font-weight: 950;
+  letter-spacing: -.06em;
   content: "MONSTARZ\A SINCE 2024"!important;
 }
 
 .site-header .tab-row:after {
+  content: "외부 사이트";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 24px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 9px;
+  color: var(--sr-soft);
+  font-size: 11px;
+  font-weight: 900;
+  background: rgba(255,255,255,.035);
+  content: "외부 사이트"!important;
   display: none!important;
   content: none!important;
 }
