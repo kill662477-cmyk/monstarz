@@ -3938,24 +3938,26 @@ button.btn-link {
 }
 
 .boja-body {
-  padding: 6px;
+  padding: 8px;
 }
 
 .boja-meta {
   display: flex;
   justify-content: space-between;
-  gap: 5px;
+  align-items: center;
+  gap: 6px;
   color: var(--muted);
-  font-size: 8px;
-  margin-bottom: 3px;
+  font-size: 10px;
+  line-height: 1.2;
+  margin-bottom: 5px;
 }
 
 .boja-source-name {
   display: inline-flex;
   align-items: center;
-  max-width: 50%;
-  min-height: 15px;
-  padding: 0 5px;
+  max-width: 58%;
+  min-height: 18px;
+  padding: 0 7px;
   border-radius: 999px;
   color: #ffd166;
   background: rgba(245,158,11,.15);
@@ -3972,11 +3974,11 @@ button.btn-link {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 25px;
+  min-height: 38px;
   color: #fff;
-  font-size: 9px;
-  font-weight: 900;
-  line-height: 1.35;
+  font-size: 13px;
+  font-weight: 950;
+  line-height: 1.45;
   word-break: keep-all;
 }
 
@@ -8629,14 +8631,25 @@ function createMemberCard(member) {
 
 
 
+  const SOOP_VOD_THUMBNAILS = {
+    "146974661": "https://iflv14.sooplive.com/save/afreeca/station/2025/0109/19/thumb/1736417904748682_R_7.jpg",
+    "161623223": "https://iflv14.sooplive.com/save/afreeca/station/2025/0530/17/thumb/1748592571272670_R_7.jpg",
+    "144331057": "https://iflv14.sooplive.com/save/afreeca/station/2024/1206/09/thumb/1733446718892060_R_7.jpg",
+    "181299111": "https://iflv14.sooplive.com/save/afreeca/station/2025/1221/06/thumb/1766265383512752_R_7.jpg"
+  };
+
+  function getSoopVodId(url) {
+    const match = String(url || "").match(/vod\.sooplive\.com\/player\/(\d+)/i);
+    return match ? match[1] : "";
+  }
+
   function isSoopVodUrl(url) {
-    return /vod\.sooplive\.com\/player\//i.test(String(url || ""));
+    return !!getSoopVodId(url);
   }
 
   function getSoopVodThumb(url) {
-    // SOOP VOD 썸네일은 oEmbed 호출 뒤에만 안정적으로 알 수 있어,
-    // 리스트에서는 별도 빈 썸네일 박스를 유지하고 플레이어 클릭 시 임베드 HTML을 불러옵니다.
-    return "";
+    const vodId = getSoopVodId(url);
+    return vodId ? (SOOP_VOD_THUMBNAILS[vodId] || "") : "";
   }
 
   async function fetchSoopOembedHtml(vodUrl, title) {
@@ -8690,7 +8703,7 @@ function createMemberCard(member) {
     bojaPlayerOpen.textContent = isSoop ? "SOOP에서 열기" : "영상 열기";
 
     if (videoId) {
-      bojaPlayerMount.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '?rel=0&playsinline=1" title="' + escapeHtml(item.title || '보자충 영상') + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
+      bojaPlayerMount.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '?rel=0&playsinline=1&autoplay=0" title="' + escapeHtml(item.title || '보자충 영상') + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
     } else if (isSoop) {
       bojaPlayerMount.innerHTML = '<div class="empty">SOOP VOD 플레이어를 불러오는 중입니다.</div>';
       try {
@@ -8750,6 +8763,7 @@ function createMemberCard(member) {
         '<div class="boja-body"><div class="boja-meta"><span class="boja-source-name">' + escapeHtml(category.name) + '</span><span>' + escapeHtml(item.note || (item.isSoopVod ? 'SOOP VOD' : '직접 지정')) + '</span></div><span class="boja-title">' + escapeHtml(item.title || '') + '</span></div></button></article>';
     }).join("");
     bojaList.querySelectorAll("[data-boja-index]").forEach(function(button) { button.addEventListener("click", function(){ selectBojaVideo(Number(button.dataset.bojaIndex), true); }); });
+    void selectBojaVideo(selectedBojaIndex, false);
   }
 
   function renderYoutube() {
