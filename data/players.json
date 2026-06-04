@@ -571,8 +571,8 @@
       "stationStatus": 200,
       "academy": {
         "id": 1,
-        "name": "씨나인",
-        "image": "assets/academy/1.jpg",
+        "name": "캄몬스타즈",
+        "image": "assets/academy/22.jpg",
         "position": "교수"
       },
       "monthWinRate": null,
