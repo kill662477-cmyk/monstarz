@@ -105,6 +105,41 @@ html.light .versus .score .win{color:#0f9646} html.light .versus .score .lose{co
 html.light .side small{color:#0f9646}
 html.light .source-link{background:rgba(31,111,214,.08);color:#16518f;border-color:var(--line)}
 </style>
+<style id="tier-improve">
+/* ===== 가독성/UI 개선 (B) — 버튼 기본색·티어필터 유지 ===== */
+:root{ --muted:#a7bcd6; }
+body{ line-height:1.55; }
+/* 타이포 위계: 과한 950/-.06em 완화 */
+.brand-title{ font-size:26px; font-weight:800; letter-spacing:-.02em }
+.name{ font-size:19px; font-weight:700; letter-spacing:-.02em }
+.tier-title{ font-weight:800; letter-spacing:-.025em }
+.stat strong{ font-weight:800; letter-spacing:-.02em }
+.record-title-main,.versus .score{ letter-spacing:-.02em }
+.tier-meta,.sec-meta{ font-weight:700 }
+/* 초록=라이브 전용 → 필터/티어내비 active=블루 */
+.pill:hover,.pill.active{ border-color:rgba(90,167,255,.55)!important; background:rgba(90,167,255,.13)!important; color:#cfe3ff!important; box-shadow:0 0 0 3px rgba(90,167,255,.07)!important }
+.tier-nav button:hover,.tier-nav button.active{ background:rgba(90,167,255,.14)!important; color:#cfe3ff!important; box-shadow:inset 0 0 0 1px rgba(90,167,255,.4)!important }
+/* 방송제목 → 썸네일 하단 풀폭, 한 줄 + 끝에서 … */
+.content-tag{ left:0!important; right:0!important; top:auto!important; bottom:0!important;
+  min-height:0!important; border:0!important; border-radius:0!important; text-align:left!important;
+  padding:16px 12px 8px 12px!important;
+  background:linear-gradient(180deg,transparent,rgba(3,8,15,.82) 42%,rgba(3,8,15,.96))!important;
+  font-size:12.5px!important; font-weight:650!important;
+  white-space:nowrap!important; overflow:hidden!important; text-overflow:ellipsis!important }
+/* 아카데미 로고 -> 썸네일 우상단 */
+.academy{ left:auto!important; right:9px!important; top:9px!important; bottom:auto!important; z-index:4!important; width:32px!important; height:32px!important; box-shadow:0 4px 10px rgba(0,0,0,.45) }
+/* 카드 가로 넓혀 제목 더 보이게 */
+.players{ grid-template-columns:repeat(auto-fill,minmax(224px,1fr))!important }
+/* 썸네일 호버 -> 큰 미리보기 팝업 */
+.thumb{ overflow:hidden; cursor:zoom-in }
+#thumb-preview{ position:fixed; z-index:99999; pointer-events:none; opacity:0; transform:scale(.96); transition:opacity .12s ease, transform .12s ease; width:520px; border-radius:14px; overflow:hidden; border:1px solid rgba(150,180,220,.4); box-shadow:0 34px 90px rgba(0,0,0,.66); background:#0a1626 }
+#thumb-preview.show{ opacity:1; transform:scale(1) }
+#thumb-preview img{ display:block; width:100%; height:auto }
+#thumb-preview .cap{ position:absolute; left:0; right:0; bottom:0; padding:18px 14px 11px; font-weight:700; font-size:14px; color:#f1f7ff; background:linear-gradient(180deg,transparent,rgba(3,8,15,.92)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+/* 여백 약간 ↑ */
+.card-body{ padding:13px 13px 12px }
+</style>
+
 <script>
 /* 부모 페이지(현황판)와 다크/라이트 테마 동기화 — 같은 도메인이라 localStorage 공유 */
 (function(){
@@ -5618,5 +5653,18 @@ html.light .source-link{background:rgba(31,111,214,.08);color:#16518f;border-col
     initFirebaseTierData();
     setTimeout(function(){ if(!booted){ booted=true; render(); } }, 3500); // Firebase 응답이 없을 때만 embedded 데이터로 표시
   </script>
+<script id="thumb-preview-js">
+(function(){
+  var pv=document.createElement('div'); pv.id='thumb-preview';
+  pv.innerHTML='<img alt=""><div class="cap"></div>';
+  document.body.appendChild(pv);
+  var pimg=pv.querySelector('img'), cap=pv.querySelector('.cap'), cur=null;
+  function srcOf(t){ if(t.classList.contains('no-image')) return null; var imgs=t.querySelectorAll('img'); for(var k=0;k<imgs.length;k++){ var i=imgs[k]; if(i.closest('.academy')) continue; if(i.classList.contains('failed')) continue; var s=i.currentSrc||i.src; if(!s||s.indexOf('data:')===0) continue; return s; } return null; }
+  function place(e){ var w=pv.offsetWidth||520, hh=pv.offsetHeight||320, pad=16; var x=e.clientX+24, y=e.clientY-hh/2; if(x+w+pad>innerWidth) x=e.clientX-w-24; if(x<pad) x=pad; if(y<pad) y=pad; if(y+hh+pad>innerHeight) y=innerHeight-hh-pad; pv.style.left=x+'px'; pv.style.top=y+'px'; }
+  document.addEventListener('mouseover',function(e){ var t=e.target.closest&&e.target.closest('.thumb'); if(!t) return; var s=srcOf(t); if(!s) return; cur=t; pimg.src=s; var ct=t.querySelector('.content-tag'); var txt=ct?ct.textContent.trim():''; cap.textContent=txt; cap.style.display=txt?'block':'none'; place(e); pv.classList.add('show'); });
+  document.addEventListener('mousemove',function(e){ if(cur) place(e); },{passive:true});
+  document.addEventListener('mouseout',function(e){ var t=e.target.closest&&e.target.closest('.thumb'); if(!t||t!==cur) return; var to=e.relatedTarget; if(to&&t.contains(to)) return; cur=null; pv.classList.remove('show'); });
+})();
+</script>
 </body>
 </html>
