@@ -7197,6 +7197,84 @@ body.light-mode .notice-feed-sub {
 }
 
 </style>
+<style id="cm-enhance">
+/* ===== CM ENHANCE: nav SVG icons, header border glow, card neon, tier-tab title hide ===== */
+
+/* ---- 1. nav: emoji -> clean SVG (Lucide) via mask, inherits color ---- */
+.site-header .tab-btn::before{
+  content:"" !important;
+  width:18px !important; height:18px !important; margin-right:10px !important;
+  background-color:currentColor !important;
+  -webkit-mask:var(--ic) center/contain no-repeat; mask:var(--ic) center/contain no-repeat;
+  display:inline-flex !important; flex:0 0 auto !important; opacity:.92;
+}
+.site-header .tab-btn.active::before{ opacity:1; }
+#tabMain::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%22m3%209%209-7%209%207v11a2%202%200%200%201-2%202H5a2%202%200%200%201-2-2z%22%2F%3E%3Cpath%20d%3D%22M9%2022V12h6v10%22%2F%3E%3C%2Fsvg%3E"); }
+#tabProfile::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%22M19%2021v-2a4%204%200%200%200-4-4H9a4%204%200%200%200-4%204v2%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%227%22%20r%3D%224%22%2F%3E%3C%2Fsvg%3E"); }
+#tabTier::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%22M6%209H4.5a2.5%202.5%200%200%201%200-5H6%22%2F%3E%3Cpath%20d%3D%22M18%209h1.5a2.5%202.5%200%200%200%200-5H18%22%2F%3E%3Cpath%20d%3D%22M4%2022h16%22%2F%3E%3Cpath%20d%3D%22M10%2014.66V17c0%20.55-.47.98-.97%201.21C7.85%2018.75%207%2020.24%207%2022%22%2F%3E%3Cpath%20d%3D%22M14%2014.66V17c0%20.55.47.98.97%201.21C16.15%2018.75%2017%2020.24%2017%2022%22%2F%3E%3Cpath%20d%3D%22M18%202H6v7a6%206%200%200%200%2012%200V2Z%22%2F%3E%3C%2Fsvg%3E"); }
+#tabNotice::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%22M6%208a6%206%200%200%201%2012%200c0%207%203%209%203%209H3s3-2%203-9%22%2F%3E%3Cpath%20d%3D%22M10.3%2021a1.94%201.94%200%200%200%203.4%200%22%2F%3E%3C%2Fsvg%3E"); }
+#tabInout::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%22M8%203%204%207l4%204%22%2F%3E%3Cpath%20d%3D%22M4%207h16%22%2F%3E%3Cpath%20d%3D%22m16%2021%204-4-4-4%22%2F%3E%3Cpath%20d%3D%22M20%2017H4%22%2F%3E%3C%2Fsvg%3E"); }
+#tabBoja::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%2F%3E%3Cpolygon%20points%3D%2210%208%2016%2012%2010%2016%2010%208%22%2F%3E%3C%2Fsvg%3E"); }
+#tabYoutube::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%22M2.5%2017a24.12%2024.12%200%200%201%200-10%202%202%200%200%201%201.4-1.4%2049.56%2049.56%200%200%201%2016.2%200A2%202%200%200%201%2021.5%207a24.12%2024.12%200%200%201%200%2010%202%202%200%200%201-1.4%201.4%2049.55%2049.55%200%200%201-16.2%200A2%202%200%200%201%202.5%2017%22%2F%3E%3Cpath%20d%3D%22m10%2015%205-3-5-3z%22%2F%3E%3C%2Fsvg%3E"); }
+#tabGame::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cline%20x1%3D%226%22%20x2%3D%2210%22%20y1%3D%2211%22%20y2%3D%2211%22%2F%3E%3Cline%20x1%3D%228%22%20x2%3D%228%22%20y1%3D%229%22%20y2%3D%2213%22%2F%3E%3Cline%20x1%3D%2215%22%20x2%3D%2215.01%22%20y1%3D%2212%22%20y2%3D%2212%22%2F%3E%3Cline%20x1%3D%2218%22%20x2%3D%2218.01%22%20y1%3D%2210%22%20y2%3D%2210%22%2F%3E%3Cpath%20d%3D%22M17.32%205H6.68a4%204%200%200%200-3.978%203.59c-.006.052-.01.101-.017.152C2.604%209.416%202%2014.456%202%2016a3%203%200%200%200%203%203c1%200%201.5-.5%202-1l1.414-1.414A2%202%200%200%201%209.828%2016h4.344a2%202%200%200%201%201.414.586L17%2018c.5.5%201%201%202%201a3%203%200%200%200%203-3c0-1.545-.604-6.585-.685-7.258a3.982%203.982%200%200%200-.017-.152A4%204%200%200%200%2017.32%205z%22%2F%3E%3C%2Fsvg%3E"); }
+#tabDuckCalc::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20width%3D%2216%22%20height%3D%2220%22%20x%3D%224%22%20y%3D%222%22%20rx%3D%222%22%2F%3E%3Cline%20x1%3D%228%22%20x2%3D%2216%22%20y1%3D%226%22%20y2%3D%226%22%2F%3E%3Cline%20x1%3D%2216%22%20x2%3D%2216%22%20y1%3D%2214%22%20y2%3D%2218%22%2F%3E%3Cpath%20d%3D%22M16%2010h.01%22%2F%3E%3Cpath%20d%3D%22M12%2010h.01%22%2F%3E%3Cpath%20d%3D%22M8%2010h.01%22%2F%3E%3Cpath%20d%3D%22M12%2014h.01%22%2F%3E%3Cpath%20d%3D%22M8%2014h.01%22%2F%3E%3Cpath%20d%3D%22M12%2018h.01%22%2F%3E%3Cpath%20d%3D%22M8%2018h.01%22%2F%3E%3C%2Fsvg%3E"); }
+#tabPinballDonation::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%226%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%222%22%2F%3E%3C%2Fsvg%3E"); }
+
+/* ---- 2. header: light travelling around the border ---- */
+@property --cm-ang{ syntax:'<angle>'; inherits:false; initial-value:0deg; }
+.site-header{ position:relative; }
+.site-header::before{
+  content:""; position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:inherit;
+  padding:1.6px;
+  background:conic-gradient(from var(--cm-ang), transparent 0 66%, #38d0ff 80%, #cdf5ff 86%, #38d0ff 90%, transparent 96%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite:exclude;
+  animation:cmBorderSpin 4.6s linear infinite;
+}
+@keyframes cmBorderSpin{ to{ --cm-ang:360deg; } }
+.site-header > *:not(.theme-toggle):not(.tab-row){ position:relative; z-index:1; }
+.theme-toggle{ z-index:5 !important; }
+
+/* ---- 3. member card: top neon glow matched to side color + cursor spotlight ---- */
+.member-card{ --tc:#1d66ff; cursor:pointer; transition:transform .18s ease, box-shadow .22s ease, border-color .22s ease; }
+.member-card:has(.member-banner.leader){ --tc:#f6b93b; }
+.member-card:has(.member-banner.coach){ --tc:#22c55e; }
+.member-card:has(.member-banner.t3){ --tc:#ef4444; }
+.member-card:has(.member-banner.t4){ --tc:#f59e0b; }
+.member-card:has(.member-banner.t5){ --tc:#22c55e; }
+.member-card:has(.member-banner.t6){ --tc:#3b82f6; }
+.member-card:has(.member-banner.t7){ --tc:#8b5cf6; }
+.member-card:has(.member-banner.t8){ --tc:#ec4899; }
+.member-card:has(.member-banner.t9){ --tc:#f43f5e; }
+.member-card::after{
+  content:""; position:absolute; inset:0; z-index:3; pointer-events:none; opacity:0; transition:opacity .22s ease;
+  background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%), color-mix(in srgb, var(--tc) 24%, transparent), transparent 60%);
+}
+.member-card:hover{ transform:translateY(-4px); border-color:var(--tc) !important;
+  box-shadow:0 20px 42px -16px rgba(0,0,0,.6), 0 0 24px -4px var(--tc) !important; }
+.member-card:hover::after{ opacity:1; }
+
+/* ---- 4. tier table tab: hide top title (keep nav) ---- */
+body.tier-tab-active .site-header{ height:0 !important; min-height:0 !important; padding:0 !important; margin:0 !important; border:0 !important; background:none !important; box-shadow:none !important; overflow:visible !important; }
+body.tier-tab-active .site-header .hero-top,
+body.tier-tab-active .site-header .summary-grid,
+body.tier-tab-active .site-header .theme-toggle{ display:none !important; }
+body.tier-tab-active .site-header::after,
+body.tier-tab-active .site-header::before{ display:none !important; content:none !important; }
+body.tier-tab-active .wrap{ padding-top:0 !important; }
+</style>
+<script id="cm-js">
+document.addEventListener('mousemove',function(e){
+  var t=e.target; if(!t||!t.closest) return;
+  var c=t.closest('.member-card'); if(!c) return;
+  var r=c.getBoundingClientRect();
+  c.style.setProperty('--mx',((e.clientX-r.left)/r.width*100).toFixed(1)+'%');
+  c.style.setProperty('--my',((e.clientY-r.top)/r.height*100).toFixed(1)+'%');
+},{passive:true});
+</script>
+
 
 </head>
 <body>
@@ -7792,7 +7870,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   const MEMBERS = [
     { name: "김윤환", userId: "brainzerg7", type: "leader", role: "감독", tier: "Jack", race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/br/brainzerg7/m/brainzerg7.webp", stream: "https://www.sooplive.com/station/brainzerg7", live: "https://play.sooplive.com/brainzerg7", youtube: "http://www.youtube.com/@calmtube2", profile: "#" },
-    { name: "김윤중", userId: "jk890202", type: "coach_hidden", role: "코치", tier: "King", race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/jk/jk890202/m/jk890202.webp", stream: "https://www.sooplive.com/station/jk890202", live: "https://play.sooplive.com/jk890202", youtube: "#", profile: "#" },
     { name: "사테", userId: "hoonykkk", type: "coach", role: "코치", tier: "King", race: "Terran", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ho/hoonykkk/m/hoonykkk.webp", stream: "https://www.sooplive.com/station/hoonykkk", live: "https://play.sooplive.com/hoonykkk", youtube: "#", profile: "#" },
     { name: "박준오", userId: "h78ert", type: "coach", role: "코치", tier: "King", race: "Zerg", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/h7/h78ert/m/h78ert.webp", stream: "https://www.sooplive.com/station/h78ert", live: "https://play.sooplive.com/h78ert", youtube: "#", profile: "#" },
     { name: "박수범", userId: "jihoon002", type: "coach", role: "코치", tier: "Jack", race: "Protoss", status: "offline", profileImage: "https://stimg.sooplive.com/LOGO/ji/jihoon002/m/jihoon002.webp", stream: "https://www.sooplive.com/station/jihoon002", live: "https://play.sooplive.com/jihoon002", youtube: "#", profile: "#" },
@@ -7827,7 +7904,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   const JOIN_DATES = {
     "김윤환": "2024-07-08",
-    "김윤중": "2026-06-06",
     "토마토": "2024-07-17",
     "임조이": "2024-07-17",
     "치리": "2024-08-19",
