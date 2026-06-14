@@ -47,7 +47,7 @@
       "name": "씨나인",
       "image": "https://dn.cnine.kr/file/20260312/31dff9e0aec947998652a9f247999e89.png",
       "sourceImage": "https://dn.cnine.kr/file/20260312/31dff9e0aec947998652a9f247999e89.png",
-      "position": ""
+      "position": "학생회장"
     },
     "monthWinRate": null,
     "yearWinRate": null,
@@ -1026,13 +1026,7 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/ll/llqqqq/llqqqq.jpg",
     "station": "https://www.sooplive.com/station/llqqqq",
     "stationStatus": 200,
-    "academy": {
-      "id": 41,
-      "name": "DM",
-      "image": "https://dn.cnine.kr/file/20260427/b67ca255b00740cca1df58d0a87ce610.png",
-      "sourceImage": "https://dn.cnine.kr/file/20260427/b67ca255b00740cca1df58d0a87ce610.png",
-      "position": ""
-    },
+    "academy": null,
     "monthWinRate": null,
     "yearWinRate": null,
     "winRate": ""
@@ -1188,7 +1182,13 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/jk/jk890202/jk890202.jpg",
     "station": "https://www.sooplive.com/station/jk890202",
     "stationStatus": 200,
-    "academy": null,
+    "academy": {
+      "id": 1,
+      "name": "씨나인",
+      "image": "https://dn.cnine.kr/file/20260312/31dff9e0aec947998652a9f247999e89.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260312/31dff9e0aec947998652a9f247999e89.png",
+      "position": "교수"
+    },
     "monthWinRate": null,
     "yearWinRate": null,
     "winRate": ""
@@ -1305,7 +1305,13 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/si/simcheong23/simcheong23.jpg",
     "station": "https://www.sooplive.com/station/simcheong23",
     "stationStatus": 200,
-    "academy": null,
+    "academy": {
+      "id": 42,
+      "name": "신세계",
+      "image": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "position": ""
+    },
     "monthWinRate": 63.6,
     "yearWinRate": 59.8,
     "winRate": "64%"
@@ -1977,7 +1983,13 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/rn/rnfma14/rnfma14.jpg",
     "station": "https://www.sooplive.com/station/rnfma14",
     "stationStatus": 200,
-    "academy": null,
+    "academy": {
+      "id": 42,
+      "name": "신세계",
+      "image": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "position": ""
+    },
     "monthWinRate": null,
     "yearWinRate": null,
     "winRate": ""
@@ -2823,7 +2835,13 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/ck/cksgmldbs/cksgmldbs.jpg",
     "station": "https://www.sooplive.com/station/cksgmldbs",
     "stationStatus": 200,
-    "academy": null,
+    "academy": {
+      "id": 42,
+      "name": "신세계",
+      "image": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "position": "총장"
+    },
     "monthWinRate": null,
     "yearWinRate": null,
     "winRate": ""
@@ -3138,13 +3156,7 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/de/della2440/della2440.jpg",
     "station": "https://www.sooplive.com/station/della2440",
     "stationStatus": 200,
-    "academy": {
-      "id": 35,
-      "name": "BGM",
-      "image": "https://dn.cnine.kr/file/20251218/bcc0dd67f1724e4ab4738fdc328e01aa.png",
-      "sourceImage": "https://dn.cnine.kr/file/20251218/bcc0dd67f1724e4ab4738fdc328e01aa.png",
-      "position": ""
-    },
+    "academy": null,
     "monthWinRate": null,
     "yearWinRate": null,
     "winRate": ""
@@ -3186,7 +3198,13 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/sn/snfjdro369/snfjdro369.jpg",
     "station": "https://www.sooplive.com/station/snfjdro369",
     "stationStatus": 200,
-    "academy": null,
+    "academy": {
+      "id": 42,
+      "name": "신세계",
+      "image": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "position": "교수"
+    },
     "monthWinRate": 50.9,
     "yearWinRate": 47,
     "winRate": "51%"
@@ -3732,13 +3750,7 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/on/onlysibar/onlysibar.jpg",
     "station": "https://www.sooplive.com/station/onlysibar",
     "stationStatus": 200,
-    "academy": {
-      "id": 20,
-      "name": "뉴캣슬",
-      "image": "https://dn.cnine.kr/file/20250815/69f42ee69b974894b04b16ab007523c2.jpg",
-      "sourceImage": "https://dn.cnine.kr/file/20250815/69f42ee69b974894b04b16ab007523c2.jpg",
-      "position": "교수"
-    },
+    "academy": null,
     "monthWinRate": 62.5,
     "yearWinRate": 52.4,
     "winRate": "63%"
@@ -4134,7 +4146,13 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/ze/zealotmaru/zealotmaru.jpg",
     "station": "https://www.sooplive.com/station/zealotmaru",
     "stationStatus": 200,
-    "academy": null,
+    "academy": {
+      "id": 42,
+      "name": "신세계",
+      "image": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "position": "교수"
+    },
     "monthWinRate": 20,
     "yearWinRate": 40.6,
     "winRate": "20%"
@@ -4505,7 +4523,7 @@
       "name": "캄몬스타즈",
       "image": "https://dn.cnine.kr/file/20240717/b46949204d2d4a299b0631742dbceece.jpg",
       "sourceImage": "https://dn.cnine.kr/file/20240717/b46949204d2d4a299b0631742dbceece.jpg",
-      "position": "코치"
+      "position": "교수"
     },
     "monthWinRate": 67.1,
     "yearWinRate": 53.3,
@@ -4608,7 +4626,13 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/dj/djathekd/djathekd.jpg",
     "station": "https://www.sooplive.com/station/djathekd",
     "stationStatus": 200,
-    "academy": null,
+    "academy": {
+      "id": 42,
+      "name": "신세계",
+      "image": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "position": ""
+    },
     "monthWinRate": 41.3,
     "yearWinRate": 43.4,
     "winRate": "41%"
@@ -4827,7 +4851,13 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/li/lily0104/lily0104.jpg",
     "station": "https://www.sooplive.com/station/lily0104",
     "stationStatus": 200,
-    "academy": null,
+    "academy": {
+      "id": 41,
+      "name": "DM",
+      "image": "https://dn.cnine.kr/file/20260427/b67ca255b00740cca1df58d0a87ce610.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260427/b67ca255b00740cca1df58d0a87ce610.png",
+      "position": ""
+    },
     "monthWinRate": null,
     "yearWinRate": null,
     "winRate": ""
@@ -5052,7 +5082,13 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/rn/rnjsgurwls15/rnjsgurwls15.jpg",
     "station": "https://www.sooplive.com/station/rnjsgurwls15",
     "stationStatus": 200,
-    "academy": null,
+    "academy": {
+      "id": 42,
+      "name": "신세계",
+      "image": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "position": "교수"
+    },
     "monthWinRate": 33.3,
     "yearWinRate": 25,
     "winRate": "33%"
@@ -6264,7 +6300,13 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/by/byspire/byspire.jpg",
     "station": "https://www.sooplive.com/station/byspire",
     "stationStatus": 200,
-    "academy": null,
+    "academy": {
+      "id": 42,
+      "name": "신세계",
+      "image": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "position": "교수"
+    },
     "monthWinRate": null,
     "yearWinRate": null,
     "winRate": ""
@@ -7434,13 +7476,7 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/go/goyo030/goyo030.jpg",
     "station": "https://www.sooplive.com/station/goyo030",
     "stationStatus": 200,
-    "academy": {
-      "id": 38,
-      "name": "HM",
-      "image": "https://dn.cnine.kr/file/20251218/49020e43fc0547339e49b6bca022a816.png",
-      "sourceImage": "https://dn.cnine.kr/file/20251218/49020e43fc0547339e49b6bca022a816.png",
-      "position": ""
-    },
+    "academy": null,
     "monthWinRate": 50,
     "yearWinRate": 66.2,
     "winRate": "50%"
@@ -8127,13 +8163,7 @@
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/ye/yeonvelyo3o/yeonvelyo3o.jpg",
     "station": "https://www.sooplive.com/station/yeonvelyo3o",
     "stationStatus": 200,
-    "academy": {
-      "id": 35,
-      "name": "BGM",
-      "image": "https://dn.cnine.kr/file/20251218/bcc0dd67f1724e4ab4738fdc328e01aa.png",
-      "sourceImage": "https://dn.cnine.kr/file/20251218/bcc0dd67f1724e4ab4738fdc328e01aa.png",
-      "position": ""
-    },
+    "academy": null,
     "monthWinRate": null,
     "yearWinRate": null,
     "winRate": ""
@@ -8453,7 +8483,7 @@
     "stationStatus": 200,
     "academy": null,
     "monthWinRate": null,
-    "yearWinRate": 66.7,
+    "yearWinRate": null,
     "winRate": ""
   },
   {
@@ -8495,24 +8525,24 @@
     "stationStatus": 200,
     "academy": null,
     "monthWinRate": null,
-    "yearWinRate": 0.0,
+    "yearWinRate": null,
     "winRate": ""
   },
   {
     "id": 710,
-    "userId": "wjddlf4695",
-    "name": "짭호",
+    "userId": "limtaemook",
+    "name": "성유준",
     "description": "",
-    "race": "T",
-    "tierCode": "O",
-    "tier": "조커티어",
-    "tierId": "tier-O",
+    "race": "P",
+    "tierCode": "N",
+    "tier": "티어없음",
+    "tierId": "tier-N",
     "sortOrder": 65,
-    "eloboardKey": "P_97_T",
-    "elo": "https://eloboard.com/men/bbs/board.php?bo_table=bj_list&wr_id=97",
-    "image": "https://profile.img.sooplive.co.kr/LOGO/wj/wjddlf4695/wjddlf4695.jpg",
-    "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/wj/wjddlf4695/wjddlf4695.jpg",
-    "station": "https://www.sooplive.com/station/wjddlf4695",
+    "eloboardKey": "",
+    "elo": "",
+    "image": "https://profile.img.sooplive.co.kr/LOGO/li/limtaemook/limtaemook.jpg",
+    "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/li/limtaemook/limtaemook.jpg",
+    "station": "https://www.sooplive.com/station/limtaemook",
     "stationStatus": 200,
     "academy": null,
     "monthWinRate": null,
@@ -8521,6 +8551,33 @@
   },
   {
     "id": 711,
+    "userId": "wjddlf4695",
+    "name": "짭호",
+    "description": "",
+    "race": "T",
+    "tierCode": "O",
+    "tier": "조커티어",
+    "tierId": "tier-O",
+    "sortOrder": 66,
+    "eloboardKey": "P_97_T",
+    "elo": "https://eloboard.com/men/bbs/board.php?bo_table=bj_list&wr_id=97",
+    "image": "https://profile.img.sooplive.co.kr/LOGO/wj/wjddlf4695/wjddlf4695.jpg",
+    "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/wj/wjddlf4695/wjddlf4695.jpg",
+    "station": "https://www.sooplive.com/station/wjddlf4695",
+    "stationStatus": 200,
+    "academy": {
+      "id": 1,
+      "name": "씨나인",
+      "image": "https://dn.cnine.kr/file/20260312/31dff9e0aec947998652a9f247999e89.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260312/31dff9e0aec947998652a9f247999e89.png",
+      "position": "교수"
+    },
+    "monthWinRate": null,
+    "yearWinRate": null,
+    "winRate": ""
+  },
+  {
+    "id": 712,
     "userId": "jipsh2",
     "name": "내가스틱",
     "description": "",
@@ -8528,7 +8585,7 @@
     "tierCode": "0",
     "tier": "0티어",
     "tierId": "tier-0",
-    "sortOrder": 66,
+    "sortOrder": 67,
     "eloboardKey": "M_30_P,M_30_Z",
     "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=30",
     "image": "https://profile.img.sooplive.co.kr/LOGO/ji/jipsh2/jipsh2.jpg",
@@ -8541,7 +8598,7 @@
     "winRate": ""
   },
   {
-    "id": 712,
+    "id": 713,
     "userId": "umji1218",
     "name": "엄키키",
     "description": "",
@@ -8549,7 +8606,7 @@
     "tierCode": "7",
     "tier": "7티어",
     "tierId": "tier-7",
-    "sortOrder": 67,
+    "sortOrder": 68,
     "eloboardKey": "W_930_P",
     "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=930",
     "image": "https://profile.img.sooplive.co.kr/LOGO/um/umji1218/umji1218.jpg",
@@ -8558,11 +8615,11 @@
     "stationStatus": 200,
     "academy": null,
     "monthWinRate": null,
-    "yearWinRate": null,
+    "yearWinRate": 56.3,
     "winRate": ""
   },
   {
-    "id": 713,
+    "id": 714,
     "userId": "jjyjeh5454",
     "name": "하리",
     "description": "",
@@ -8570,7 +8627,7 @@
     "tierCode": "3",
     "tier": "3티어",
     "tierId": "tier-3",
-    "sortOrder": 68,
+    "sortOrder": 69,
     "eloboardKey": "M_703_T,W_294_P",
     "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=294",
     "image": "https://profile.img.sooplive.co.kr/LOGO/jj/jjyjeh5454/jjyjeh5454.jpg",
@@ -8579,11 +8636,11 @@
     "stationStatus": 200,
     "academy": null,
     "monthWinRate": null,
-    "yearWinRate": null,
+    "yearWinRate": 51.7,
     "winRate": ""
   },
   {
-    "id": 714,
+    "id": 715,
     "userId": "k1s2s3",
     "name": "김상수",
     "description": "",
@@ -8591,7 +8648,7 @@
     "tierCode": "S",
     "tier": "스페이드티어",
     "tierId": "tier-S",
-    "sortOrder": 69,
+    "sortOrder": 70,
     "eloboardKey": "M_147_T,P_116_T",
     "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=147",
     "image": "https://profile.img.sooplive.co.kr/LOGO/k1/k1s2s3/k1s2s3.jpg",
@@ -8604,7 +8661,7 @@
     "winRate": ""
   },
   {
-    "id": 715,
+    "id": 716,
     "userId": "finepearls",
     "name": "혜냥",
     "description": "",
@@ -8612,12 +8669,39 @@
     "tierCode": "8",
     "tier": "8티어",
     "tierId": "tier-8",
-    "sortOrder": 70,
+    "sortOrder": 71,
     "eloboardKey": "W_1020_P,W_982_T",
     "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=1020",
     "image": "https://profile.img.sooplive.co.kr/LOGO/fi/finepearls/finepearls.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/fi/finepearls/finepearls.jpg",
     "station": "https://www.sooplive.com/station/finepearls",
+    "stationStatus": 200,
+    "academy": {
+      "id": 42,
+      "name": "신세계",
+      "image": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "position": ""
+    },
+    "monthWinRate": 66.7,
+    "yearWinRate": 33.7,
+    "winRate": "67%"
+  },
+  {
+    "id": 717,
+    "userId": "bjcherrybs",
+    "name": "김하선",
+    "description": "",
+    "race": "T",
+    "tierCode": "5",
+    "tier": "5티어",
+    "tierId": "tier-5",
+    "sortOrder": 72,
+    "eloboardKey": "W_352_T",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=352",
+    "image": "https://profile.img.sooplive.co.kr/LOGO/bj/bjcherrybs/bjcherrybs.jpg",
+    "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/bj/bjcherrybs/bjcherrybs.jpg",
+    "station": "https://www.sooplive.com/station/bjcherrybs",
     "stationStatus": 200,
     "academy": null,
     "monthWinRate": null,
@@ -8625,7 +8709,7 @@
     "winRate": ""
   },
   {
-    "id": 716,
+    "id": 718,
     "userId": "dau5888",
     "name": "제쥬순",
     "description": "",
@@ -8633,7 +8717,7 @@
     "tierCode": "B",
     "tier": "베이비티어",
     "tierId": "tier-B",
-    "sortOrder": 71,
+    "sortOrder": 73,
     "eloboardKey": "W_952_P",
     "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=952",
     "image": "https://profile.img.sooplive.co.kr/LOGO/da/dau5888/dau5888.jpg",
@@ -8646,28 +8730,7 @@
     "winRate": ""
   },
   {
-    "id": 717,
-    "userId": "mochiya",
-    "name": "이백조",
-    "description": "",
-    "race": "T",
-    "tierCode": "7",
-    "tier": "7티어",
-    "tierId": "tier-7",
-    "sortOrder": 72,
-    "eloboardKey": "M_505_T,W_537_P,W_582_T",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=537",
-    "image": "https://profile.img.sooplive.co.kr/LOGO/mo/mochiya/mochiya.jpg",
-    "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/mo/mochiya/mochiya.jpg",
-    "station": "https://www.sooplive.com/station/mochiya",
-    "stationStatus": 200,
-    "academy": null,
-    "monthWinRate": null,
-    "yearWinRate": null,
-    "winRate": ""
-  },
-  {
-    "id": 718,
+    "id": 719,
     "userId": "yunhee1222",
     "name": "깅예솔",
     "description": "",
@@ -8675,7 +8738,7 @@
     "tierCode": "6",
     "tier": "6티어",
     "tierId": "tier-6",
-    "sortOrder": 73,
+    "sortOrder": 74,
     "eloboardKey": "M_569_T,W_569_T",
     "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=569",
     "image": "https://profile.img.sooplive.co.kr/LOGO/yu/yunhee1222/yunhee1222.jpg",
@@ -8694,7 +8757,7 @@
     "winRate": ""
   },
   {
-    "id": 719,
+    "id": 720,
     "userId": "imhappygood",
     "name": "김해피2",
     "description": "",
@@ -8702,7 +8765,7 @@
     "tierCode": "3",
     "tier": "3티어",
     "tierId": "tier-3",
-    "sortOrder": 74,
+    "sortOrder": 75,
     "eloboardKey": "M_535_P,M_535_T,M_535_Z",
     "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=535",
     "image": "https://profile.img.sooplive.co.kr/LOGO/im/imhappygood/imhappygood.jpg",
@@ -8715,7 +8778,7 @@
     "winRate": ""
   },
   {
-    "id": 720,
+    "id": 721,
     "userId": "ododk729",
     "name": "수붕e",
     "description": "",
@@ -8723,7 +8786,7 @@
     "tierCode": "8",
     "tier": "8티어",
     "tierId": "tier-8",
-    "sortOrder": 75,
+    "sortOrder": 76,
     "eloboardKey": "W_941_Z",
     "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=941",
     "image": "https://profile.img.sooplive.co.kr/LOGO/od/ododk729/ododk729.jpg",
@@ -8736,7 +8799,34 @@
     "winRate": ""
   },
   {
-    "id": 721,
+    "id": 722,
+    "userId": "sulstyle00",
+    "name": "설영욱",
+    "description": "",
+    "race": "A",
+    "tierCode": "N",
+    "tier": "티어없음",
+    "tierId": "tier-N",
+    "sortOrder": 77,
+    "eloboardKey": "",
+    "elo": "",
+    "image": "https://profile.img.sooplive.com/LOGO/su/sulstyle00/sulstyle00.jpg",
+    "sourceImage": "https://profile.img.sooplive.com/LOGO/su/sulstyle00/sulstyle00.jpg",
+    "station": "https://www.sooplive.com/station/sulstyle00",
+    "stationStatus": 200,
+    "academy": {
+      "id": 42,
+      "name": "신세계",
+      "image": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "sourceImage": "https://dn.cnine.kr/file/20260613/d5d811c5b390484c93102ed06c96ba55.png",
+      "position": "이사장"
+    },
+    "monthWinRate": null,
+    "yearWinRate": null,
+    "winRate": ""
+  },
+  {
+    "id": 723,
     "userId": "aghhi",
     "name": "안기효",
     "description": "",
@@ -8744,7 +8834,7 @@
     "tierCode": "O",
     "tier": "조커티어",
     "tierId": "tier-O",
-    "sortOrder": 76,
+    "sortOrder": 78,
     "eloboardKey": "P_87_P",
     "elo": "https://eloboard.com/men/bbs/board.php?bo_table=bj_list&wr_id=87",
     "image": "https://profile.img.sooplive.co.kr/LOGO/ag/aghhi/aghhi.jpg",
@@ -8757,7 +8847,28 @@
     "winRate": ""
   },
   {
-    "id": 722,
+    "id": 724,
+    "userId": "yyh3397",
+    "name": "렘레미",
+    "description": "",
+    "race": "Z",
+    "tierCode": "4",
+    "tier": "4티어",
+    "tierId": "tier-4",
+    "sortOrder": 79,
+    "eloboardKey": "W_25_Z",
+    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=25",
+    "image": "https://profile.img.sooplive.co.kr/LOGO/yy/yyh3397/yyh3397.jpg",
+    "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/yy/yyh3397/yyh3397.jpg",
+    "station": "https://www.sooplive.com/station/yyh3397",
+    "stationStatus": 200,
+    "academy": null,
+    "monthWinRate": null,
+    "yearWinRate": null,
+    "winRate": ""
+  },
+  {
+    "id": 725,
     "userId": "mangd11",
     "name": "아망뚜",
     "description": "",
@@ -8765,7 +8876,7 @@
     "tierCode": "8",
     "tier": "8티어",
     "tierId": "tier-8",
-    "sortOrder": 77,
+    "sortOrder": 80,
     "eloboardKey": "W_919_Z",
     "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=919",
     "image": "https://profile.img.sooplive.co.kr/LOGO/ma/mangd11/mangd11.jpg",
@@ -8778,28 +8889,7 @@
     "winRate": ""
   },
   {
-    "id": 723,
-    "userId": "fidfidfid",
-    "name": "박쭈이",
-    "description": "",
-    "race": "Z",
-    "tierCode": "8",
-    "tier": "8티어",
-    "tierId": "tier-8",
-    "sortOrder": 78,
-    "eloboardKey": "W_998_Z",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=998",
-    "image": "https://profile.img.sooplive.co.kr/LOGO/fi/fidfidfid/fidfidfid.jpg",
-    "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/fi/fidfidfid/fidfidfid.jpg",
-    "station": "https://www.sooplive.com/station/fidfidfid",
-    "stationStatus": 200,
-    "academy": null,
-    "monthWinRate": null,
-    "yearWinRate": 55.3,
-    "winRate": ""
-  },
-  {
-    "id": 724,
+    "id": 726,
     "userId": "dlghfjs",
     "name": "깨박이",
     "description": "",
@@ -8807,54 +8897,12 @@
     "tierCode": "6",
     "tier": "6티어",
     "tierId": "tier-6",
-    "sortOrder": 79,
+    "sortOrder": 81,
     "eloboardKey": "M_336_Z",
     "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_m_list&wr_id=336",
     "image": "https://profile.img.sooplive.co.kr/LOGO/dl/dlghfjs/dlghfjs.jpg",
     "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/dl/dlghfjs/dlghfjs.jpg",
     "station": "https://www.sooplive.com/station/dlghfjs",
-    "stationStatus": 200,
-    "academy": null,
-    "monthWinRate": null,
-    "yearWinRate": null,
-    "winRate": ""
-  },
-  {
-    "id": 725,
-    "userId": "clzhf123",
-    "name": "우질",
-    "description": "",
-    "race": "P",
-    "tierCode": "8",
-    "tier": "8티어",
-    "tierId": "tier-8",
-    "sortOrder": 80,
-    "eloboardKey": "W_1003_P,W_967_T",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=1003",
-    "image": "https://profile.img.sooplive.co.kr/LOGO/cl/clzhf123/clzhf123.jpg",
-    "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/cl/clzhf123/clzhf123.jpg",
-    "station": "https://www.sooplive.com/station/clzhf123",
-    "stationStatus": 200,
-    "academy": null,
-    "monthWinRate": null,
-    "yearWinRate": null,
-    "winRate": ""
-  },
-  {
-    "id": 726,
-    "userId": "dlwjddls30",
-    "name": "야생땃쥐",
-    "description": "",
-    "race": "Z",
-    "tierCode": "8",
-    "tier": "8티어",
-    "tierId": "tier-8",
-    "sortOrder": 81,
-    "eloboardKey": "W_1015_Z",
-    "elo": "https://eloboard.com/women/bbs/board.php?bo_table=bj_list&wr_id=1015",
-    "image": "https://profile.img.sooplive.co.kr/LOGO/dl/dlwjddls30/dlwjddls30.jpg",
-    "sourceImage": "https://profile.img.sooplive.co.kr/LOGO/dl/dlwjddls30/dlwjddls30.jpg",
-    "station": "https://www.sooplive.com/station/dlwjddls30",
     "stationStatus": 200,
     "academy": null,
     "monthWinRate": null,
