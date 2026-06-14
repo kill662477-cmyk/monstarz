@@ -427,6 +427,10 @@
   const raceName=v=>({P:"Protoss",T:"Terran",Z:"Zerg"})[raceCode(v)]||String(v||"-");
   const raceClass=v=>"race-"+raceCode(v).toLowerCase();
   const memberTier=m=>m.name==="낭니"?"유스":(typeof m.tier==="number"?m.tier+"티어":String(m.tier||m.role||"-"));
+  const coachTierOrder={God:0,King:1,Jack:2,Joker:3,"조커티어":3,Spade:4};
+  const coachTierRank=m=>coachTierOrder[String(m?.tier||"").trim()]??99;
+  const dashboardTypeRank=m=>m.type==="leader"?0:(m.type==="coach"?1:2);
+  function sortDashboardMembers(list){return list.slice().sort((a,b)=>dashboardTypeRank(a)-dashboardTypeRank(b)||(a.type==="coach"&&b.type==="coach"?coachTierRank(a)-coachTierRank(b):0))}
   function mergeLiveInfo(target,item){if(!item||typeof item!=="object")return;const id=String(item.userId||item.user_id||item.bjId||item.bj_id||item.id||"");if(id)target[id]=item}
   function rebuildDashboardLiveInfo(data){const next={};const lives=data?.lives;if(Array.isArray(lives))lives.forEach(item=>mergeLiveInfo(next,item));else if(lives&&typeof lives==="object")Object.entries(lives).forEach(([key,item])=>{if(item&&typeof item==="object")next[key]=item});if(data?.statuses&&typeof data.statuses==="object")Object.entries(data.statuses).forEach(([key,item])=>{if(item&&typeof item==="object")next[key]={...(next[key]||{}),...item}});liveInfoMap=next}
   function liveInfoForMember(m){const id=uid(m);return liveInfoMap[id]||((liveStatusMap[id]&&typeof liveStatusMap[id]==="object")?liveStatusMap[id]:{})}
@@ -437,7 +441,7 @@
   function latestJoinDate(name){let found="";INOUT_HISTORY.forEach(row=>{if(row.events.some(event=>event.name===name&&event.status==="IN"))found=row.date});return found}
   function joinDateLabel(name){const value=latestJoinDate(name),joined=parseJoinDate(value);if(!value||!joined)return"";const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());const days=Math.max(0,Math.floor((today-joined)/86400000));return`${value}(D+${days})`}
   function memberCard(m){const on=m.status==="live",joined=joinDateLabel(m.name),watch=watchUrl(uid(m),m.liveInfo,m.live);return `<article class="member ${on?"live-on":""}"><div class="member-cover"><span class="live-pill">${on?"LIVE":"OFFLINE"}</span></div><div class="member-body"><img class="avatar" src="${safe(m.profileImage)}" alt="${esc(m.name)}"><div class="member-name-row"><div class="name">${esc(m.name)}</div><span class="race ${raceClass(m.race)}">${esc(raceCode(m.race))}</span></div><div class="meta">${esc(m.role)} · ${esc(memberTier(m))}</div>${joined?`<div class="join-date">${esc(joined)}</div>`:""}<div class="actions"><a href="${safe(watch)}" target="_blank" rel="noopener">방송 보기</a><a href="${safe(m.stream)}" target="_blank" rel="noopener">방송국</a></div></div></article>`}
-  function renderDashboard(){const all=liveMembers();$("statAll").textContent=all.length;$("statLive").textContent=all.filter(m=>m.status==="live").length;$("dashboardList").innerHTML=all.map(memberCard).join("")}
+  function renderDashboard(){const all=sortDashboardMembers(liveMembers());$("statAll").textContent=all.length;$("statLive").textContent=all.filter(m=>m.status==="live").length;$("dashboardList").innerHTML=all.map(memberCard).join("")}
   async function fetchLive(){try{const r=await fetch(LIVE_STATUS_URL,{cache:"no-store"});const d=await r.json();if(d?.statuses)liveStatusMap=d.statuses;rebuildDashboardLiveInfo(d);lastCheckedAt=d?.checkedAt||lastCheckedAt}catch(e){console.warn(e)}renderDashboard();$("liveChecked").textContent=lastCheckedAt?new Date(lastCheckedAt).toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"})+" 갱신":"갱신 정보 없음"}
   function profileConfig(name){return PROFILE_IMAGE_MAP[name]||{}}
   function profileImage(name){const cfg=profileConfig(name),member=MEMBERS.find(m=>m.name===name);return cfg.image||cfg.fallbackImage||member?.profileImage||TEAM.logo}

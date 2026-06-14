@@ -7926,7 +7926,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     "아리송이": "2026-03-19",
     "사테": "2026-03-26",
     "찌킹": "2026-03-26",
-    "낭니": "2026-04-28"
+    "낭니": "2026-04-28",
+    "변현제": "2026-06-13"
   };
 
   let liveStatusMap = {};
@@ -8137,10 +8138,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
 
   function getLeaderCoachCategory(member) {
+    const tierLabel = formatTierLabel(member?.tier);
+    if (["God", "King", "Jack", "Joker", "Spade"].includes(tierLabel)) return tierLabel;
+    if (tierLabel === "조커티어") return "Joker";
     if (["김윤환", "지동원", "배성흠"].includes(member.name)) return "Jack";
     if (["박준오", "박수범", "사테"].includes(member.name)) return "King";
     if (member.name === "파도튜브") return "Spade";
     return "";
+  }
+
+  const COACH_TIER_ORDER = {
+    God: 0,
+    King: 1,
+    Jack: 2,
+    Joker: 3,
+    "조커티어": 3,
+    Spade: 4
+  };
+
+  function getCoachTierRank(member) {
+    const tierLabel = formatTierLabel(member?.tier);
+    return COACH_TIER_ORDER[tierLabel] ?? 99;
+  }
+
+  function sortCoachesByTier(list) {
+    return list.slice().sort((a, b) => getCoachTierRank(a) - getCoachTierRank(b));
   }
 
   function formatJoinDateText(name) {
@@ -8219,7 +8241,7 @@ function createMemberCard(member) {
 
   function renderStaff(list) {
     const leaders = list.filter((m) => m.type === "leader");
-    const coaches = list.filter((m) => m.type === "coach");
+    const coaches = sortCoachesByTier(list.filter((m) => m.type === "coach"));
 
     leaderCount.textContent = `${leaders.length}명`;
     coachCount.textContent = `${coaches.length}명`;
