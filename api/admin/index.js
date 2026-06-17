@@ -30,6 +30,7 @@ const MAX_BODY_BYTES = 64 * 1024;
 
 const RESOURCES = {
   members: { table: "members_admin" },
+  profiles: { table: "member_profiles" },
   schedules: { table: "schedules" },
   videos: { table: "videos" },
   notices: { table: "notices_meta" },
@@ -41,6 +42,7 @@ const RESOURCES = {
 // 입력으로 받을 수 있는 컬럼 화이트리스트 (그 외 키는 무시)
 const FIELD_WHITELIST = {
   members_admin: ["member_code", "name", "race", "tier", "role", "soop_id", "youtube_url", "profile_image", "sort_order", "is_visible"],
+  member_profiles: ["member_code", "name", "role", "image", "fallback_image", "image_pos", "birth", "blood", "mbti", "height", "debut", "awards", "sort_order", "is_visible"],
   schedules: ["title", "start_at", "end_at", "event_date", "description", "members", "status", "sort_order", "is_visible"],
   videos: ["title", "platform", "member_code", "url", "published_at", "thumbnail", "is_pinned", "sort_order", "is_visible"],
   notices_meta: ["source_key", "title", "station_name", "link", "notice_date", "is_pinned", "sort_order", "is_visible"],

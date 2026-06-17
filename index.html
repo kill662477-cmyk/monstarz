@@ -10574,7 +10574,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   // 관리자 섹션 키 -> Supabase 리소스/컬럼 매핑 (연결됐을 때 실데이터 + 작동 버튼)
   const ADMIN_MANAGED = {
     members: { resource: "members", label: "멤버 관리", cols: [["name", "이름"], ["race", "종족"], ["tier", "티어"], ["soop_id", "SOOP ID"]], pin: false },
-    profiles: { resource: "members", label: "프로필 관리", cols: [["name", "이름"], ["role", "직책"], ["tier", "티어"], ["profile_image", "프로필 이미지"]], pin: false },
+    profiles: { resource: "profiles", label: "프로필 관리", cols: [["name", "이름"], ["role", "직책"], ["birth", "생년월일"], ["mbti", "MBTI"]], pin: false },
     schedules: { resource: "schedules", cols: [["title", "제목"], ["event_date", "날짜"], ["status", "상태"]], pin: false },
     videos: { resource: "videos", cols: [["title", "제목"], ["platform", "플랫폼"], ["member_code", "멤버"]], pin: true },
     notices: { resource: "notices", cols: [["title", "제목"], ["station_name", "출처"], ["notice_date", "날짜"]], pin: true },
@@ -10595,14 +10595,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       { name: "is_visible", label: "공개", type: "checkbox", defaultValue: true }
     ],
     profiles: [
-      { name: "member_code", label: "멤버 코드", placeholder: "SOOP ID 또는 고유 코드" },
+      { name: "member_code", label: "멤버 코드", placeholder: "SOOP ID 또는 고유 코드(선택)" },
       { name: "name", label: "이름", required: true },
-      { name: "role", label: "직책", placeholder: "Head Coach, Coach, Player" },
-      { name: "tier", label: "티어", placeholder: "God, King, Jack, Joker, Spade, 0~8, Youth" },
-      { name: "race", label: "종족", type: "select", options: [["", "선택"], ["T", "T"], ["P", "P"], ["Z", "Z"]] },
-      { name: "profile_image", label: "프로필 이미지 URL", wide: true },
-      { name: "soop_id", label: "SOOP ID" },
-      { name: "youtube_url", label: "YouTube URL" },
+      { name: "role", label: "직책/타이틀", placeholder: "예: Head Coach · Jack, Coach · King" },
+      { name: "image", label: "프로필 이미지 URL", wide: true },
+      { name: "fallback_image", label: "대체 이미지 URL", wide: true, hint: "이미지 로드 실패 시 보여줄 주소" },
+      { name: "image_pos", label: "이미지 위치", placeholder: "예: 50% 30%" },
+      { name: "birth", label: "생년월일", placeholder: "예: 1990.07.04" },
+      { name: "blood", label: "혈액형", placeholder: "예: B형" },
+      { name: "mbti", label: "MBTI", placeholder: "예: ISFP" },
+      { name: "height", label: "신장", placeholder: "예: 175cm" },
+      { name: "debut", label: "방송 데뷔" },
+      { name: "awards", label: "수상경력", type: "textarea", wide: true, hint: "한 줄에 하나씩 입력" },
       { name: "sort_order", label: "정렬", type: "number" },
       { name: "is_visible", label: "공개", type: "checkbox", defaultValue: true }
     ],
@@ -10774,7 +10778,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     let html = "";
     switch (currentAdminSection) {
       case "members": html = renderAdminMembers(); break;
-      case "profiles": html = renderAdminMembers(); break;
+      case "profiles": html = renderAdminProfiles(); break;
       case "schedules": html = renderAdminSchedules(); break;
       case "videos": html = renderAdminVideos(); break;
       case "notices": html = renderAdminNotices(); break;
@@ -10923,10 +10927,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
 
   // 로그인했지만 Supabase 테이블이 비어 있을 때 보여줄 기존(로컬) 읽기 전용 목록
+  function renderAdminProfiles() {
+    const list = Array.isArray(window.PROFILE_MEMBERS) ? window.PROFILE_MEMBERS : [];
+    const rows = list.map(p => [
+      escapeHtml(p.name || "-"),
+      escapeHtml(p.role || "-"),
+      escapeHtml(p.birth || "-"),
+      escapeHtml(p.mbti || "-"),
+      adminStatusBadge("표시", "on"),
+      adminActionButton("수정", "profiles:edit")
+    ]);
+    return adminToolbar("프로필 관리", list.length + "명")
+      + adminTable(["이름", "직책", "생년월일", "MBTI", "표시", "관리"], rows);
+  }
+
   function renderAdminLocalSection(section) {
     switch (section) {
-      case "members":
-      case "profiles": return renderAdminMembers();
+      case "members": return renderAdminMembers();
+      case "profiles": return renderAdminProfiles();
       case "schedules": return renderAdminSchedules();
       case "videos": return renderAdminVideos();
       case "notices": return renderAdminNotices();
@@ -15553,7 +15571,31 @@ window.__DUCK_ROULETTE_CONFIG__=${configJson};
   PROFILE_MEMBERS.sort(function(a,b){
     return profileTierRank(a) - profileTierRank(b) || String(a.name || "").localeCompare(String(b.name || ""), "ko");
   });
+  // 관리자 화면(다른 스크립트 스코프)에서 프로필 목록 fallback 으로 사용
+  try { window.PROFILE_MEMBERS = PROFILE_MEMBERS; } catch (e) {}
   var activeProfileIndex = 0;
+
+  // Supabase member_profiles 가 있으면 공개 프로필 탭을 그 데이터로 교체 (없으면 하드코딩 유지)
+  var profileSupabaseLoaded = false;
+  function loadProfilesFromSupabase(){
+    if (profileSupabaseLoaded || !window.MonstarzSupabase || typeof window.MonstarzSupabase.select !== 'function') return;
+    profileSupabaseLoaded = true;
+    window.MonstarzSupabase.select('member_profiles', { order: 'sort_order.asc' }).then(function(res){
+      if (!res || !res.available || !Array.isArray(res.data) || !res.data.length) return;
+      PROFILE_MEMBERS = res.data.map(function(r){
+        return {
+          name: r.name, role: r.role || '',
+          image: r.image || '', fallbackImage: r.fallback_image || '',
+          imagePos: r.image_pos || '', birth: r.birth || '', blood: r.blood || '',
+          mbti: r.mbti || '', height: r.height || '', debut: r.debut || '',
+          awards: r.awards ? String(r.awards).split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean) : []
+        };
+      });
+      try { window.PROFILE_MEMBERS = PROFILE_MEMBERS; } catch (e) {}
+      activeProfileIndex = 0;
+      renderProfile(0);
+    }).catch(function(){});
+  }
   function esc(v){return String(v == null ? "" : v).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
   function jsEsc(v){return String(v == null ? "" : v).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\n/g," ");}
   function hasValue(v){return !!(v && String(v).trim() && String(v).trim() !== "-");}
@@ -15598,6 +15640,7 @@ window.__DUCK_ROULETTE_CONFIG__=${configJson};
       });
     }
     renderProfile(activeProfileIndex);
+    loadProfilesFromSupabase();
   }
   window.renderProfileTab = bindProfile;
   document.addEventListener('DOMContentLoaded', function(){ bindProfile(); });
