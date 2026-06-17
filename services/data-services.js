@@ -10,6 +10,7 @@
     tier: 5 * 60 * 1000,
     records: 5 * 60 * 1000,
     videos: 15 * 60 * 1000,
+    overrides: 2 * 60 * 1000,
     members: 30 * 60 * 1000,
     profile: 30 * 60 * 1000,
     history: 45 * 60 * 1000,
@@ -179,6 +180,144 @@
     return fromStatic("videos:static", sortLatest(list, ["publishedAt", "published", "updatedAt", "createdAt"]), ttl.videos);
   }
 
+  function stableUrl(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    try {
+      return new URL(raw, window.location.href).href.replace(/#.*$/, "");
+    } catch (error) {
+      return raw;
+    }
+  }
+
+  function compactKey(value) {
+    return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
+  }
+
+  function noticeKeys(item) {
+    const keys = [
+      item && item.source_key,
+      item && item.sourceKey,
+      item && item.link,
+      item && item.url,
+      [item && (item.stationName || item.station_name || item.writer), item && item.title, item && (item.time || item.notice_date || item.date)].filter(Boolean).join("|")
+    ];
+    return keys.map(stableUrl).concat(keys.map(compactKey)).filter(Boolean);
+  }
+
+  async function getPublicOverrides(options) {
+    return fetchJsonCached(
+      "supabase:public-overrides",
+      "/api/public-overrides",
+      ttl.overrides,
+      { cache: "no-store", ...(options || {}) }
+    );
+  }
+
+  async function mergeNoticeMeta(items, options) {
+    const base = normalizeList(items);
+    const result = await getPublicOverrides(options);
+    const rows = normalizeList(result && result.data && result.data.noticesMeta);
+    if (!rows.length) return base;
+
+    const metaByKey = new Map();
+    rows.forEach(row => {
+      noticeKeys(row).forEach(key => metaByKey.set(key, row));
+    });
+
+    return base
+      .map((item, index) => {
+        const meta = noticeKeys(item).map(key => metaByKey.get(key)).find(Boolean);
+        if (meta && meta.is_visible === false) return null;
+        return {
+          ...item,
+          _order: item._order == null ? index : item._order,
+          title: meta && meta.title ? meta.title : item.title,
+          stationName: meta && meta.station_name ? meta.station_name : item.stationName,
+          link: meta && meta.link ? meta.link : item.link,
+          time: meta && meta.notice_date ? meta.notice_date : item.time,
+          isPinned: Boolean(meta && meta.is_pinned),
+          sortOrder: meta ? Number(meta.sort_order || 0) : Number(item.sortOrder || 0)
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => {
+        const pinDiff = Number(Boolean(b.isPinned)) - Number(Boolean(a.isPinned));
+        if (pinDiff) return pinDiff;
+        const sortDiff = Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+        if (sortDiff) return sortDiff;
+        return Number(a._order || 0) - Number(b._order || 0);
+      });
+  }
+
+  async function mergeVideoMeta(items, options) {
+    const base = normalizeList(items);
+    const result = await getPublicOverrides(options);
+    const rows = normalizeList(result && result.data && result.data.videos);
+    if (!rows.length) return base;
+
+    const hiddenUrls = new Set(rows.filter(row => row && row.is_visible === false).map(row => stableUrl(row.url)).filter(Boolean));
+    const metaByUrl = new Map();
+    rows.filter(row => row && row.is_visible !== false && row.url).forEach(row => {
+      metaByUrl.set(stableUrl(row.url), row);
+    });
+
+    const merged = base
+      .map((item, index) => {
+        const url = stableUrl(item.url || item.link);
+        if (url && hiddenUrls.has(url)) return null;
+        const meta = url ? metaByUrl.get(url) : null;
+        return {
+          ...item,
+          _order: item._order == null ? index : item._order,
+          title: meta && meta.title ? meta.title : item.title,
+          url: meta && meta.url ? meta.url : item.url,
+          link: meta && meta.url ? meta.url : (item.link || item.url),
+          thumbnail: meta && meta.thumbnail ? meta.thumbnail : item.thumbnail,
+          thumb: meta && meta.thumbnail ? meta.thumbnail : (item.thumb || item.thumbnail),
+          sourceName: meta && meta.platform ? meta.platform : item.sourceName,
+          platform: meta && meta.platform ? meta.platform : item.platform,
+          memberCode: meta && meta.member_code ? meta.member_code : item.memberCode,
+          publishedAt: meta && meta.published_at ? meta.published_at : item.publishedAt,
+          isPinned: Boolean(meta && meta.is_pinned),
+          sortOrder: meta ? Number(meta.sort_order || 0) : Number(item.sortOrder || 0)
+        };
+      })
+      .filter(Boolean);
+
+    const seenUrls = new Set(merged.map(item => stableUrl(item.url || item.link)).filter(Boolean));
+    rows
+      .filter(row => row && row.is_visible !== false && row.url && !seenUrls.has(stableUrl(row.url)))
+      .forEach((row, index) => {
+        const url = stableUrl(row.url);
+        seenUrls.add(url);
+        merged.push({
+          _order: 100000 + index,
+          title: row.title || "영상",
+          url: row.url,
+          link: row.url,
+          thumbnail: row.thumbnail || "",
+          thumb: row.thumbnail || "",
+          sourceName: row.platform || "수동 등록",
+          platform: row.platform || "수동 등록",
+          memberCode: row.member_code || "",
+          publishedAt: row.published_at || row.updated_at || "",
+          isPinned: row.is_pinned === true,
+          sortOrder: Number(row.sort_order || 0)
+        });
+      });
+
+    return merged.sort((a, b) => {
+      const pinDiff = Number(Boolean(b.isPinned)) - Number(Boolean(a.isPinned));
+      if (pinDiff) return pinDiff;
+      const sortDiff = Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+      if (sortDiff) return sortDiff;
+      const timeDiff = toDateValue(b.publishedAt || b.published || b.updatedAt) - toDateValue(a.publishedAt || a.published || a.updatedAt);
+      if (timeDiff) return timeDiff;
+      return Number(a._order || 0) - Number(b._order || 0);
+    });
+  }
+
   async function getRecords(rootUrl, userId, race, options) {
     const safeKey = String((userId || "") + "_" + (race || "")).replace(/[.#$/[\]]/g, "_");
     return fetchJsonCached(
@@ -239,6 +378,10 @@
     getVideos,
     videos: (key, url, options) => fetchJsonCached("videos:" + key, url, ttl.videos, options),
     notices: (url, options) => fetchJsonCached("notices", url, ttl.notices, options),
+    publicOverrides: getPublicOverrides,
+    getPublicOverrides,
+    mergeNoticeMeta,
+    mergeVideoMeta,
     live: (url, options) => fetchJsonCached("live", url, ttl.live, { cache: "no-store", ...(options || {}) }),
     tier: (key, url, options) => fetchJsonCached("tier:" + key, url, ttl.tier, options),
     records: getRecords,

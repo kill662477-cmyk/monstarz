@@ -1,6 +1,7 @@
 const fs = require("fs/promises");
 const path = require("path");
 const admin = require("firebase-admin");
+const { withAutomationLog } = require("./lib/automationLogger");
 
 const root = path.resolve(__dirname, "..");
 const dataDir = path.join(root, "data");
@@ -1975,7 +1976,7 @@ async function uploadToFirebase(payload) {
   return metaWithPreservedLive;
 }
 
-async function main() {
+async function main(run = {}) {
   await Promise.all(
     [dataDir, recordDir, assetDir, profileDir, academyDir].map((dir) =>
       fs.mkdir(dir, { recursive: true })
@@ -2402,6 +2403,23 @@ async function main() {
 
   const uploadedMeta = await uploadToFirebase(payload);
 
+  run.status = recordFailCount > 0 ? "partial" : "success";
+  run.itemsFound = players.length;
+  run.itemsWritten = visiblePlayers.length + recordUploadRowCount;
+  run.itemsSkipped = recordSkipCount + recordFailCount + hiddenInactivePlayers.length;
+  run.meta = {
+    firebaseRoot: FIREBASE_ROOT,
+    recordSyncMode: RECORD_SYNC_MODE,
+    effectiveRecordSyncMode,
+    playerCount: visiblePlayers.length,
+    sourcePlayerCount: players.length,
+    recordRowCount,
+    recordUploadRowCount,
+    recordFailCount,
+    recordSkipCount,
+    hiddenInactivePlayerCount: hiddenInactivePlayers.length
+  };
+
   console.log(
     JSON.stringify(
       {
@@ -2415,7 +2433,16 @@ async function main() {
   );
 }
 
-main()
+withAutomationLog({
+  jobName: "collect-tier-data",
+  jobType: process.env.GITHUB_EVENT_NAME || "scheduled",
+  source: "manual-players+eloboard",
+  target: "firebase",
+  meta: {
+    firebaseRoot: FIREBASE_ROOT,
+    recordSyncMode: RECORD_SYNC_MODE
+  }
+}, main)
   .then(async () => {
     await Promise.race([closeFirebase(), sleep(3000)]);
     process.exit(0);

@@ -5,6 +5,13 @@ on:
   schedule:
     - cron: "*/3 * * * *"
 
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-soop-live
+  cancel-in-progress: true
+
 jobs:
   sync-live:
     runs-on: ubuntu-latest
@@ -28,3 +35,5 @@ jobs:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
           FIREBASE_TIER_ROOT: starcraftTier/current
           SOOP_CLIENT_ID: ${{ secrets.SOOP_CLIENT_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

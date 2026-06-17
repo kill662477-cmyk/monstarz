@@ -53,6 +53,7 @@ async function insertRun(row) {
 // fn(run) 안에서 run.itemsFound / itemsWritten / itemsSkipped / status / meta 를 채우면 됩니다.
 async function withAutomationLog(opts, fn) {
   const startedAt = new Date();
+  let caughtError = null;
   const run = {
     jobName: opts.jobName,
     jobType: opts.jobType || null,
@@ -70,6 +71,7 @@ async function withAutomationLog(opts, fn) {
   try {
     await fn(run);
   } catch (err) {
+    caughtError = err;
     run.status = "failed";
     run.errorMessage = String((err && err.message) || err).slice(0, 1000);
     console.error("[automation] FAILED:", run.jobName, "-", run.errorMessage);
@@ -101,6 +103,10 @@ async function withAutomationLog(opts, fn) {
     error_message: run.errorMessage,
     meta: run.meta
   });
+
+  if (caughtError && opts.rethrow !== false) {
+    throw caughtError;
+  }
 
   return run;
 }

@@ -1,6 +1,7 @@
 const fs = require("fs/promises");
 const path = require("path");
 const admin = require("firebase-admin");
+const { withAutomationLog } = require("./lib/automationLogger");
 
 const root = path.resolve(__dirname, "..");
 const manualDir = path.join(root, "data", "manual");
@@ -98,7 +99,7 @@ function normalizeManualPlayer(player, index) {
   };
 }
 
-async function main() {
+async function main(run = {}) {
   console.log(`[firebase] read ${FIREBASE_TIER_ROOT}/players`);
 
   const db = initFirebase();
@@ -123,6 +124,10 @@ async function main() {
       return String(a.name).localeCompare(String(b.name), "ko");
     });
 
+  if (!manualPlayers.length) {
+    throw new Error("manual player export produced 0 rows; keep previous data/manual/players.json");
+  }
+
   await fs.mkdir(manualDir, { recursive: true });
 
   await fs.writeFile(
@@ -142,9 +147,24 @@ async function main() {
       2
     )
   );
+
+  run.status = "success";
+  run.itemsFound = players.length;
+  run.itemsWritten = manualPlayers.length;
+  run.itemsSkipped = Math.max(0, players.length - manualPlayers.length);
+  run.meta = {
+    firebaseRoot: FIREBASE_TIER_ROOT,
+    outputPath: "data/manual/players.json"
+  };
 }
 
-main()
+withAutomationLog({
+  jobName: "export-manual-players",
+  jobType: process.env.GITHUB_EVENT_NAME || "manual",
+  source: "firebase",
+  target: "json",
+  meta: { firebaseRoot: FIREBASE_TIER_ROOT }
+}, main)
   .then(async () => {
     await closeFirebase();
     process.exit(0);

@@ -2,42 +2,47 @@
 
 자동 수집/저장이 이상할 때 확인하는 순서입니다.
 
-## 1. GitHub Actions 실패 시
-- GitHub → Actions 탭에서 실패한 워크플로우의 로그 확인.
-- 빨간 단계(step)의 에러 메시지 확인 (네트워크/타임아웃/파싱/인증).
-- secret 누락 여부 확인 (`docs/github-actions-secrets.md`).
-- 일시적 실패면 **수동 재실행**: 해당 워크플로우 → `Run workflow` (workflow_dispatch).
+## 1. GitHub Actions 실패
 
-## 2. Firebase 저장 실패 시
-- `FIREBASE_SERVICE_ACCOUNT` / `FIREBASE_DATABASE_URL` 유효성 확인.
-- RTDB 규칙/권한 확인.
-- 쓰기 경로(`starcraftTier/current` 등)가 다른 작업과 충돌하는지 확인.
-- 중요: 실패해도 **기존 데이터는 덮어쓰지 않음**이 원칙. 0건/오류 시 저장 스킵.
+- GitHub Actions 탭에서 실패한 workflow와 step 로그를 확인합니다.
+- `workflow_dispatch`가 있는 작업은 `Run workflow`로 수동 재실행할 수 있습니다.
+- secret 누락 여부는 `docs/github-actions-secrets.md`를 기준으로 확인합니다.
+- `collect-tier-data`, `sync-soop-live`, `export-manual-players`는 Supabase가 연결되어 있으면 `automation_runs`에 실패 로그도 남깁니다.
 
-## 3. Supabase 저장 실패 시
-- `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` 확인.
-- 테이블/마이그레이션 적용 여부 확인 (`supabase/migrations/`).
-- RLS 로 인해 anon 키로는 쓰기 불가 — 반드시 service 키 사용.
-- `automation_runs` 기록 실패는 **본 수집 작업을 실패시키지 않음** (로거가 예외를 흡수).
+## 2. Firebase 저장 실패
 
-## 4. 빈 데이터가 들어왔을 때 (가장 중요)
-- 수집 결과가 0건이거나 필수 필드가 비면 **저장하지 말 것**.
-- 기존 성공 데이터를 유지하고 `automation_runs.status = "skipped"` 로 기록.
-- 원인: 원천 사이트 점검/차단/HTML 구조 변경/레이트리밋.
+- `FIREBASE_SERVICE_ACCOUNT_JSON`과 `FIREBASE_DATABASE_URL` 유효성을 확인합니다.
+- 쓰기 경로가 `starcraftTier/current` 계열인지 확인합니다.
+- Firebase 실패 또는 ELO 파싱 실패가 발생하면 기존 성공 데이터를 덮어쓰지 않는 것이 원칙입니다.
 
-## 5. API key 만료/제한 의심 시
-- YouTube/외부 API 쿼터 초과 여부 확인 (콘솔의 quota).
-- SOOP 토큰 만료 시 `api/soop-refresh.js` 흐름 확인.
-- 401/403/429 응답이면 키/쿼터/레이트리밋 문제.
+## 3. Supabase 로그/저장 실패
 
-## 6. 수동 실행 (workflow_dispatch)
-- GitHub → Actions → 해당 워크플로우 → `Run workflow` 버튼.
-- 워크플로우에 `on: workflow_dispatch:` 가 있어야 수동 버튼이 보입니다.
+- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`가 Actions/Vercel에 설정되어 있는지 확인합니다.
+- `supabase/migrations/0002_automation_runs.sql` 적용 여부를 확인합니다.
+- `automation_runs` 기록 실패는 본 수집 작업을 실패시키지 않습니다.
+- 단, 본 수집 작업 자체가 실패하면 Actions는 실패로 종료되어야 합니다.
 
-## 7. 실패 후 데이터 보존 원칙 (요약)
-- 성공 시에만 저장 / 0건이면 보존 / 오류 시 기존 유지 / 저장 전 검증 / 갱신 시각 기록 / 실패 로그 남김.
-- 자세한 역할 분리는 `docs/automation-map.md` 참고.
+## 4. 빈 데이터 방지
 
-## 8. 관리자 화면에서 상태 보기
-- `/admin` → **데이터 상태** 섹션. Supabase 연결 시 `automation_runs` 최근 실행이 표시됩니다.
-- 미연결 시에는 프론트가 가진 최신 갱신 시각(LIVE/공지/영상) 기준으로 표시됩니다.
+- 수집 결과가 0건이면 원천 사이트 장애, 차단, HTML 구조 변경, 쿼터 제한을 의심합니다.
+- ELO/전적은 선수별 실패를 보존 처리하고, 전체 실패는 Actions 실패로 남깁니다.
+- LIVE 동기화는 SOOP API 정상 페이지를 하나도 읽지 못하면 Firebase를 덮어쓰지 않습니다.
+- 수동 players export는 결과가 0명이면 JSON을 쓰지 않습니다.
+
+## 5. 공개 화면 확인
+
+- Supabase 미연결이어도 기존 JSON/Firebase fallback으로 공개 화면이 동작해야 합니다.
+- 공지/영상 숨김/고정은 `/api/public-overrides`가 Supabase service key로 public-safe 메타만 내려주는 구조입니다.
+- 이 API가 실패하면 기존 공지/영상 원본 목록을 그대로 사용합니다.
+
+## 6. 관리자 데이터 상태
+
+- PC `/admin`의 `데이터 상태` 섹션에서 `automation_runs` 요약과 최근 로그를 확인합니다.
+- 모바일 관리자 화면도 인증/연결 상태에서 최근 automation 로그를 간단히 표시합니다.
+
+## 7. 실패 후 데이터 보존 원칙
+
+- 성공 시에만 저장합니다.
+- 비정상 0건이면 저장하지 않습니다.
+- 네트워크/API/파싱 오류 시 기존 성공 데이터를 유지합니다.
+- 실패 원인은 `automation_runs.error_message` 또는 Actions 로그에 남깁니다.

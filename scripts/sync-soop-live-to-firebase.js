@@ -1,4 +1,5 @@
 const admin = require("firebase-admin");
+const { withAutomationLog } = require("./lib/automationLogger");
 
 const FIREBASE_DATABASE_URL =
   process.env.FIREBASE_DATABASE_URL ||
@@ -11,6 +12,7 @@ const SOOP_CLIENT_ID = process.env.SOOP_CLIENT_ID || "";
 const FETCH_TIMEOUT_MS = Math.max(3000, Number(process.env.FETCH_TIMEOUT_MS || 8000));
 const SOOP_LIVE_MAX_PAGES = Math.max(1, Number(process.env.SOOP_LIVE_MAX_PAGES || 300));
 const SOOP_LIVE_PAGE_BATCH = Math.max(1, Number(process.env.SOOP_LIVE_PAGE_BATCH || 3));
+let lastSoopFetchStats = { pagesChecked: 0, failedPages: 0 };
 
 function safeKey(value) {
   return String(value || "").replace(/[.#$/[\]]/g, "_");
@@ -144,6 +146,7 @@ async function loadPlayersFromFirebase(db) {
 }
 
 async function fetchSoopLiveMap(players) {
+  lastSoopFetchStats = { pagesChecked: 0, failedPages: 0 };
   const targets = players
     .filter((player) => player && player.userId)
     .map((player) => String(player.userId));
@@ -179,6 +182,8 @@ async function fetchSoopLiveMap(players) {
         })
       )
     );
+
+    lastSoopFetchStats.failedPages += results.filter((data) => !data).length;
 
     for (const data of results) {
       if (!data) continue;
@@ -228,6 +233,11 @@ async function fetchSoopLiveMap(players) {
   console.log(
     `[soop] live check done pages=${pagesChecked}, live=${liveMap.size}/${targets.length}`
   );
+  lastSoopFetchStats.pagesChecked = pagesChecked;
+
+  if (pagesChecked === 0) {
+    throw new Error("SOOP broad/list returned no usable pages; keep previous Firebase live state");
+  }
 
   return liveMap;
 }
@@ -299,7 +309,7 @@ function buildPlayerLiveUpdates(players, liveMap) {
   return updates;
 }
 
-async function main() {
+async function main(run = {}) {
   console.log("[config]", {
     FIREBASE_TIER_ROOT,
     FETCH_TIMEOUT_MS,
@@ -341,6 +351,19 @@ async function main() {
     source: "soop-openapi-broad-list",
   });
 
+  run.status = "success";
+  run.itemsFound = players.length;
+  run.itemsWritten = Object.keys(playerLiveUpdates).length + Object.keys(liveStatus).length + 3;
+  run.itemsSkipped = Math.max(0, players.length - liveMap.size);
+  run.meta = {
+    firebaseRoot: FIREBASE_TIER_ROOT,
+    playerCount: players.length,
+    liveCount: liveMap.size,
+    checkedAt,
+    pagesChecked: lastSoopFetchStats.pagesChecked,
+    failedPages: lastSoopFetchStats.failedPages
+  };
+
   console.log(
     JSON.stringify(
       {
@@ -355,7 +378,13 @@ async function main() {
   );
 }
 
-main()
+withAutomationLog({
+  jobName: "sync-soop-live",
+  jobType: process.env.GITHUB_EVENT_NAME || "scheduled",
+  source: "soop-openapi-broad-list",
+  target: "firebase",
+  meta: { firebaseRoot: FIREBASE_TIER_ROOT }
+}, main)
   .then(async () => {
     await Promise.race([closeFirebase(), sleep(3000)]);
     process.exit(0);

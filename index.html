@@ -10083,6 +10083,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     try {
       const rows = await adminApi("automation");
       const list = Array.isArray(rows) ? rows : [];
+      const summaryDefs = [
+        { job: "collect-tier-data", label: "최근 ELO/전적 수집", target: "Firebase" },
+        { job: "sync-soop-live", label: "최근 SOOP Live 동기화", target: "Firebase" },
+        { job: "export-manual-players", label: "최근 멤버 JSON export", target: "JSON" },
+        { job: "collect-notices", label: "최근 공지 수집", target: "JSON/Firebase + Supabase meta" },
+        { job: "collect-videos", label: "최근 팬튜브 수집", target: "JSON + Supabase videos" },
+        { job: "weekly-best", label: "최근 위클리 베스트", target: "Supabase 확정값" },
+        { job: "monthly-report", label: "최근 월간결산", target: "Supabase 확정값" }
+      ];
+      const summaryCards = summaryDefs.map(def => {
+        const latest = list.find(row => row.job_name === def.job);
+        if (!latest) return adminDataStatusEntry(def.label, 0, false, "", `${def.target} · 기록 없음`);
+        const failed = latest.status === "failed";
+        const note = `${def.target} · ${latest.status || "-"} · ${latest.items_found || 0}/${latest.items_written || 0}`;
+        return adminDataStatusEntry(def.label, Number(latest.items_written || 0), failed, latest.finished_at || latest.created_at, note);
+      }).join("");
       const cols = ["작업", "상태", "원천→저장", "found/written", "시각", "오류"];
       const body = list.map(r => [
         escapeHtml(r.job_name || "-"),
@@ -10092,7 +10108,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         escapeHtml(adminFormatTime(r.finished_at || r.created_at)),
         escapeHtml(r.error_message ? String(r.error_message).slice(0, 40) : "-")
       ]);
-      const section = `<div class="admin-section">${adminToolbar("자동 수집 로그 (automation_runs)", list.length + "건")}${adminTable(cols, body)}</div>`;
+      const section =
+        `<div class="admin-section">${adminToolbar("자동 수집 상태", list.length ? "automation_runs 기준" : "기록 없음")}` +
+        `<div class="admin-datastatus-grid">${summaryCards}</div></div>` +
+        `<div class="admin-section">${adminToolbar("자동 수집 로그 (automation_runs)", list.length + "건")}${adminTable(cols, body)}</div>`;
       adminContent.insertAdjacentHTML("beforeend", section);
     } catch (error) {
       const note = (error && error.payload && error.payload.error === "supabase_not_configured")
@@ -10606,6 +10625,9 @@ function createMemberCard(member) {
       noticeItems = (Array.isArray(data?.items) ? data.items : [])
         .map(normalizeNoticeItem)
         .filter(item => item.link || item.content || item.title);
+      if (window.MonstarzDataServices?.mergeNoticeMeta) {
+        noticeItems = await MonstarzDataServices.mergeNoticeMeta(noticeItems);
+      }
       noticeLoadError = false;
       lastNoticeCheckedAt = data?.checkedAt || result.updatedAt || "";
       renderNotices();
@@ -11052,6 +11074,10 @@ function createMemberCard(member) {
     youtubeItems = youtubeItems
       .slice()
       .sort((a, b) => {
+        const pinDiff = Number(Boolean(b.isPinned || b.is_pinned)) - Number(Boolean(a.isPinned || a.is_pinned));
+        if (pinDiff) return pinDiff;
+        const manualSortDiff = Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+        if (manualSortDiff) return manualSortDiff;
         const timeDiff = getYoutubeSortTime(b) - getYoutubeSortTime(a);
         if (timeDiff) return timeDiff;
         return (a._order || 0) - (b._order || 0);
@@ -11159,10 +11185,15 @@ function createMemberCard(member) {
         ...kamriniItems.map((item, index) => normalizeYoutubeItem(item, "캄린이", 10000 + index))
       ].filter(item => item.videoId && item.url);
 
+      if (svc?.mergeVideoMeta) {
+        youtubeItems = await svc.mergeVideoMeta(youtubeItems);
+      }
+
       const seen = new Set();
       youtubeItems = youtubeItems.filter((item) => {
-        if (seen.has(item.videoId)) return false;
-        seen.add(item.videoId);
+        const key = item.videoId || item.url;
+        if (seen.has(key)) return false;
+        seen.add(key);
         return true;
       });
 
