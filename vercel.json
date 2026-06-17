@@ -5,6 +5,15 @@
     },
     "api/soop-refresh.js": {
       "maxDuration": 10
+    },
+    "api/supabase-config.js": {
+      "maxDuration": 10
+    },
+    "api/schedule-today.js": {
+      "maxDuration": 10
+    },
+    "api/admin/[...path].js": {
+      "maxDuration": 10
     }
   }
 }

@@ -2,6 +2,40 @@
 <html lang="ko">
 <head>
 <script>
+/* MutationObserver null-target guard.
+   Some third-party embeds (e.g. the YouTube IFrame API, analytics tags)
+   call observe() before their target node exists, which throws an
+   uncaught "parameter 1 is not of type 'Node'" TypeError. Skipping the
+   call when the target is not a Node is a harmless no-op and keeps the
+   console clean. */
+(function () {
+  window.__MONSTARZ_DISABLE_ANALYTICS__ = /^(localhost|127\.0\.0\.1|\[::1\]|::1)$/.test(window.location.hostname || "");
+  if (typeof MutationObserver !== "function" || !MutationObserver.prototype) return;
+  var isNullTargetObserveError = function (message) {
+    message = String(message || "");
+    return message.indexOf("Failed to execute 'observe' on 'MutationObserver'") !== -1 && message.indexOf("not of type 'Node'") !== -1;
+  };
+  var previousOnError = window.onerror;
+  window.onerror = function (message, source, lineno, colno, error) {
+    if (isNullTargetObserveError(message)) return true;
+    if (typeof previousOnError === "function") return previousOnError.apply(this, arguments);
+    return false;
+  };
+  var observe = MutationObserver.prototype.observe;
+  MutationObserver.prototype.observe = function (target, options) {
+    if (!target || typeof target.nodeType !== "number") return;
+    return observe.call(this, target, options);
+  };
+  window.addEventListener("error", function (event) {
+    if (isNullTargetObserveError(event && event.message)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return false;
+    }
+  }, true);
+})();
+</script>
+<script>
 (function () {
   const MOBILE_PATH = "/mobile/";
   const params = new URLSearchParams(window.location.search);
@@ -39,11 +73,11 @@
 })();
 </script>
 <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+<script>if (!window.__MONSTARZ_DISABLE_ANALYTICS__) {(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-5L8593NK');</script>
+})(window,document,'script','dataLayer','GTM-5L8593NK');}</script>
 <!-- End Google Tag Manager -->
 
   <meta charset="UTF-8" />
@@ -88,15 +122,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   </script>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://www.youtube.com/iframe_api"></script>
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-HQZNE3KZCS"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-3ES1972SGY');
+  if (!window.__MONSTARZ_DISABLE_ANALYTICS__) {
+    const gtagScript = document.createElement("script");
+    gtagScript.async = true;
+    gtagScript.src = "https://www.googletagmanager.com/gtag/js?id=G-HQZNE3KZCS";
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'G-3ES1972SGY');
+  }
 </script>
   
   <style id="monstars-final-style">
@@ -316,6 +353,26 @@ img {
   color: var(--muted);
   background: rgba(255,255,255,.03);
   font-size: 13px;
+}
+
+.empty.loading,
+.hub-empty.loading {
+  color: #b7cdf0;
+  background: linear-gradient(90deg, rgba(255,255,255,.025), rgba(88,154,255,.08), rgba(255,255,255,.025));
+  background-size: 220% 100%;
+  animation: hubLoadingPulse 1.5s ease-in-out infinite;
+}
+
+.empty.error,
+.hub-empty.error {
+  color: #fecaca;
+  border-color: rgba(239,68,68,.32);
+  background: rgba(239,68,68,.07);
+}
+
+@keyframes hubLoadingPulse {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 220% 50%; }
 }
 
 .screen {
@@ -6888,6 +6945,926 @@ body.funding-overlay-host .funding-temp-frame {
   pointer-events: none;
 }
 
+/* PC fanhub IA: grouped sidebar + summary dashboards */
+.site-header .tab-row.pc-hub-nav {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(88,154,255,.52) transparent;
+}
+
+.site-header .tab-row.pc-hub-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.site-header .tab-row.pc-hub-nav::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(88,154,255,.45);
+}
+
+.nav-cluster {
+  display: grid;
+  gap: 6px;
+  padding: 8px 0 10px;
+  border-top: 1px solid rgba(112,164,238,.12);
+}
+
+.nav-cluster:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.nav-cluster-label {
+  display: block;
+  margin: 0 4px 2px;
+  color: var(--sr-muted);
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: .12em;
+}
+
+.nav-external {
+  margin-top: 4px !important;
+}
+
+#tabMembers::before,
+#tabSchedule::before,
+#tabVideos::before,
+#tabTools::before,
+#tabCctv::before,
+#tabLinks::before,
+#tabAdmin::before {
+  -webkit-mask: none !important;
+  mask: none !important;
+  background: transparent !important;
+  width: 22px !important;
+  height: auto !important;
+  line-height: 1 !important;
+}
+
+#tabMembers::before { content: "◫" !important; }
+#tabSchedule::before { content: "◷" !important; }
+#tabVideos::before { content: "▻" !important; }
+#tabTools::before { content: "⚙" !important; }
+#tabCctv::before { content: "▤" !important; }
+#tabLinks::before { content: "↗" !important; }
+#tabAdmin::before { content: "※" !important; }
+
+#tabInfo::before {
+  content: "ⓘ" !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+  background: transparent !important;
+  width: 22px !important;
+  height: auto !important;
+  line-height: 1 !important;
+  font-weight: 950;
+}
+
+.pc-hub-nav .nav-external,
+.pc-hub-nav .nav-legacy-hidden {
+  display: none !important;
+}
+
+.nav-tree {
+  gap: 4px;
+}
+
+.nav-parent {
+  margin-bottom: 2px;
+}
+
+.nav-submenu {
+  display: grid;
+  gap: 2px;
+  padding-left: 20px;
+}
+
+.nav-tree:not(.is-open) .nav-submenu {
+  display: none;
+}
+
+.pc-hub-nav .nav-submenu .tab-btn {
+  min-height: 28px;
+  padding: 0 8px 0 2px;
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--sr-muted);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.pc-hub-nav .nav-submenu .tab-btn:hover,
+.pc-hub-nav .nav-submenu .tab-btn.active {
+  color: var(--sr-title);
+  background: rgba(255,255,255,.045) !important;
+  border-color: rgba(112,164,238,.14) !important;
+}
+
+.pc-hub-nav .nav-submenu .tab-btn::before {
+  content: "›" !important;
+  width: 14px !important;
+  height: auto !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+  background: transparent !important;
+  color: currentColor;
+  opacity: .72;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.pc-hub-nav .nav-submenu #tabSchedule::before,
+.pc-hub-nav .nav-submenu #tabProfile::before,
+.pc-hub-nav .nav-submenu #tabNotice::before,
+.pc-hub-nav .nav-submenu #tabInout::before,
+.pc-hub-nav .nav-submenu #tabBoja::before,
+.pc-hub-nav .nav-submenu #tabYoutube::before,
+.pc-hub-nav .nav-submenu #tabCctv::before,
+.pc-hub-nav .nav-submenu #tabPinballDonation::before,
+.pc-hub-nav .nav-submenu #tabFunding::before,
+.pc-hub-nav .nav-submenu #tabDuckCalc::before,
+.pc-hub-nav .nav-submenu #tabGame::before {
+  content: "›" !important;
+  width: 14px !important;
+  height: auto !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+  background: transparent !important;
+  font-size: 15px;
+  line-height: 1;
+}
+
+#scheduleScreen .hub-action {
+  display: none !important;
+}
+
+.home-dashboard,
+.hub-page-section,
+.cctv-shell {
+  display: grid;
+  gap: 14px;
+}
+
+.home-lead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: end;
+  padding: 22px;
+  border: 1px solid rgba(137,192,255,.22);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(16,75,144,.82), rgba(5,17,34,.92)),
+    radial-gradient(circle at 92% 0%, rgba(246,185,59,.20), transparent 32%);
+  box-shadow: var(--sr-shadow);
+}
+
+.home-lead h2 {
+  margin: 0;
+  color: var(--sr-title);
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: -.055em;
+}
+
+.home-lead p {
+  margin: 8px 0 0;
+  color: var(--sr-soft);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.home-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(92px, 1fr));
+  gap: 8px;
+}
+
+.home-stat {
+  min-height: 62px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  background: rgba(255,255,255,.07);
+}
+
+.home-stat b {
+  display: block;
+  color: #fff;
+  font-size: 21px;
+  font-weight: 950;
+}
+
+.home-stat span {
+  display: block;
+  margin-top: 3px;
+  color: var(--sr-muted);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-areas:
+    "live live live"
+    "notice notice notice"
+    "schedule video video"
+    "inout tier tools";
+  gap: 14px;
+  align-items: start;
+}
+
+.hub-panel {
+  --panel-accent: #56a1ff;
+  --panel-glow: rgba(86,161,255,.14);
+  position: relative;
+  min-height: 236px;
+  border: 1px solid rgba(137,192,255,.18);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 96% 0%, var(--panel-glow), transparent 34%),
+    linear-gradient(180deg, rgba(10,31,60,.95), rgba(5,14,28,.98));
+  box-shadow: var(--sr-shadow);
+  overflow: hidden;
+}
+
+.hub-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--panel-accent), transparent 82%);
+  opacity: .92;
+}
+
+.hub-panel.wide {
+  grid-column: auto;
+}
+
+.hub-panel.live-panel {
+  grid-area: live;
+  --panel-accent: #39d98a;
+  --panel-glow: rgba(57,217,138,.16);
+}
+
+.hub-panel.notice-panel {
+  grid-area: notice;
+  --panel-accent: #f7c948;
+  --panel-glow: rgba(247,201,72,.13);
+}
+
+.hub-panel.schedule-panel {
+  grid-area: schedule;
+  --panel-accent: #60a5fa;
+  --panel-glow: rgba(96,165,250,.14);
+}
+
+.hub-panel.video-panel {
+  grid-area: video;
+  --panel-accent: #fb7185;
+  --panel-glow: rgba(251,113,133,.13);
+}
+
+.hub-panel.inout-panel {
+  grid-area: inout;
+  --panel-accent: #22d3ee;
+  --panel-glow: rgba(34,211,238,.13);
+}
+
+.hub-panel.tier-panel {
+  grid-area: tier;
+  --panel-accent: #a78bfa;
+  --panel-glow: rgba(167,139,250,.12);
+}
+
+.hub-panel.tools-panel {
+  grid-area: tools;
+  --panel-accent: #f97316;
+  --panel-glow: rgba(249,115,22,.12);
+}
+
+.hub-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 54px;
+  padding: 13px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.hub-panel-head h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 950;
+  letter-spacing: -.04em;
+}
+
+.panel-link,
+.hub-action,
+.cctv-open,
+.cctv-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(88,154,255,.28);
+  border-radius: 9px;
+  background: rgba(29,102,255,.14);
+  color: #dbeafe;
+  font-size: 11px;
+  font-weight: 950;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hub-list {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+
+.live-panel .hub-list {
+  grid-template-columns: repeat(auto-fill, minmax(238px, 1fr));
+  gap: 12px;
+  max-height: min(620px, 70vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.hub-item {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 58px;
+  padding: 9px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  background: rgba(255,255,255,.045);
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+
+.hub-item.no-thumb {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.hub-item:hover {
+  border-color: rgba(88,154,255,.34);
+  background: rgba(255,255,255,.07);
+  transform: translateY(-1px);
+}
+
+.hub-item.video-summary {
+  grid-template-columns: 86px minmax(0, 1fr) auto;
+}
+
+.live-broadcast-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(74,222,128,.22);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(12,39,47,.94), rgba(6,18,32,.98));
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 12px 26px rgba(0,0,0,.22);
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.live-broadcast-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(74,222,128,.52);
+  box-shadow: 0 16px 34px rgba(0,0,0,.28), 0 0 0 1px rgba(74,222,128,.10);
+}
+
+.live-broadcast-thumb-wrap {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: rgba(255,255,255,.06);
+}
+
+.live-broadcast-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.live-broadcast-shade {
+  position: absolute;
+  inset: auto 0 0;
+  height: 52%;
+  background: linear-gradient(180deg, transparent, rgba(3,10,19,.88));
+}
+
+.live-broadcast-pill {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 23px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(74,222,128,.42);
+  background: rgba(7,39,28,.72);
+  color: #dcfce7;
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.live-broadcast-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 12px rgba(74,222,128,.95);
+}
+
+.live-broadcast-info {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+}
+
+.live-broadcast-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #f4fbff;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.live-broadcast-race {
+  flex: 0 0 auto;
+  color: #a7f3d0;
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.live-broadcast-title {
+  color: #dbeafe;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.35;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.live-broadcast-meta {
+  color: var(--sr-muted);
+  font-size: 10px;
+  font-weight: 850;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hub-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: rgba(255,255,255,.08);
+}
+
+.hub-item.video-summary .hub-thumb {
+  width: 86px;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 9px;
+}
+
+.hub-title {
+  min-width: 0;
+  color: #eef6ff;
+  font-size: 13px;
+  font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hub-meta {
+  margin-top: 3px;
+  color: var(--sr-muted);
+  font-size: 10px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.notice-summary-card {
+  align-items: start;
+  min-height: 86px;
+  padding: 12px 13px;
+}
+
+.notice-summary-card .hub-title {
+  font-size: 14px;
+}
+
+.hub-notice-body {
+  margin-top: 6px;
+  color: #c6d7ec;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.hub-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  color: #b9c9dd;
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.hub-badge.live,
+.hub-badge.in {
+  color: #bbf7d0;
+  background: rgba(34,197,94,.13);
+  border-color: rgba(34,197,94,.32);
+}
+
+.hub-badge.out {
+  color: #fecaca;
+  background: rgba(239,68,68,.13);
+  border-color: rgba(239,68,68,.32);
+}
+
+.hub-empty {
+  min-height: 74px;
+  display: grid;
+  place-items: center;
+  padding: 14px;
+  border: 1px dashed rgba(255,255,255,.14);
+  border-radius: 12px;
+  color: var(--sr-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.hub-card-grid,
+.tool-card-grid,
+.admin-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.schedule-embed-card {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  min-height: min(820px, calc(100vh - 190px));
+  border: 1px solid rgba(137,192,255,.18);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(10,31,60,.95), rgba(5,14,28,.98));
+  box-shadow: var(--sr-shadow);
+}
+
+.schedule-embed-frame {
+  display: block;
+  width: 100%;
+  min-height: min(820px, calc(100vh - 190px));
+  border: 0;
+  background: #fff;
+}
+
+.schedule-today-card .hub-meta {
+  white-space: pre-line;
+}
+
+.tool-card,
+.admin-card,
+.link-card {
+  display: grid;
+  gap: 6px;
+  min-height: 112px;
+  padding: 15px;
+  border: 1px solid rgba(137,192,255,.18);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(10,31,60,.95), rgba(5,14,28,.98));
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tool-card b,
+.admin-card b,
+.link-card b {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.tool-card span,
+.admin-card span,
+.link-card span {
+  color: var(--sr-muted);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.tool-card small,
+.admin-card small {
+  width: max-content;
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #dbeafe;
+  background: rgba(29,102,255,.16);
+  border: 1px solid rgba(88,154,255,.22);
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.cctv-picker {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 0 10px;
+}
+
+.cctv-picker button {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(137,192,255,.18);
+  border-radius: 999px;
+  background: rgba(255,255,255,.045);
+  color: var(--sr-button-text);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.cctv-picker button.active {
+  color: #dcfce7;
+  background: rgba(34,197,94,.15);
+  border-color: rgba(74,222,128,.38);
+}
+
+.cctv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 12px;
+}
+
+.cctv-player {
+  overflow: hidden;
+  border: 1px solid rgba(137,192,255,.18);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(10,31,60,.95), rgba(5,14,28,.98));
+  box-shadow: var(--sr-shadow);
+}
+
+.cctv-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.cctv-name {
+  min-width: 0;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cctv-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  background: #020817;
+}
+
+body.light-mode .hub-panel,
+body.light-mode .tool-card,
+body.light-mode .admin-card,
+body.light-mode .link-card,
+body.light-mode .cctv-player {
+  background: linear-gradient(180deg, #ffffff, #edf6ff);
+  border-color: rgba(37,99,235,.18);
+}
+
+body.light-mode .hub-title,
+body.light-mode .hub-panel-head h3,
+body.light-mode .tool-card b,
+body.light-mode .admin-card b,
+body.light-mode .link-card b,
+body.light-mode .cctv-name {
+  color: #13233a;
+}
+
+@media (max-width: 1100px) {
+  .home-lead,
+  .hub-grid,
+  .hub-card-grid,
+  .tool-card-grid,
+  .admin-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hub-grid {
+    grid-template-areas: none;
+  }
+
+  .hub-panel.live-panel,
+  .hub-panel.notice-panel,
+  .hub-panel.schedule-panel,
+  .hub-panel.video-panel,
+  .hub-panel.inout-panel,
+  .hub-panel.tier-panel,
+  .hub-panel.tools-panel {
+    grid-area: auto;
+  }
+
+  .hub-panel.wide {
+    grid-column: auto;
+  }
+}
+
+/* ===== Phase 4: Admin (read-only skeleton) ===== */
+.admin-layout { display: grid; gap: 14px; }
+.admin-access-note {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(247,201,72,.35);
+  border-radius: 12px;
+  background: rgba(247,201,72,.10);
+  color: #ffe6a3; font-size: 13px; font-weight: 700;
+}
+.admin-access-note::before { content: "\1F512"; }
+.admin-topbar {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+}
+.admin-title { margin: 0; color: #fff; font-size: 22px; font-weight: 950; }
+.admin-subtitle { color: rgba(180,205,240,.85); font-size: 13px; margin-top: 4px; }
+.admin-topbar-meta { color: rgba(180,205,240,.75); font-size: 12px; font-weight: 700; }
+.admin-nav {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px;
+  border-bottom: 1px solid rgba(137,192,255,.14);
+}
+.admin-nav::-webkit-scrollbar { height: 6px; }
+.admin-nav::-webkit-scrollbar-thumb { background: rgba(137,192,255,.25); border-radius: 6px; }
+.admin-nav button {
+  flex: 0 0 auto; padding: 8px 14px;
+  border: 1px solid rgba(137,192,255,.18); border-radius: 999px;
+  background: rgba(10,31,60,.6); color: rgba(210,228,255,.9);
+  font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap;
+}
+.admin-nav button.active {
+  background: linear-gradient(180deg, #287dff, #1f63d6);
+  border-color: rgba(120,180,255,.5); color: #fff;
+}
+.admin-content { display: grid; gap: 16px; }
+.admin-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
+.admin-stat-card {
+  padding: 14px 16px; border: 1px solid rgba(137,192,255,.18); border-radius: 14px;
+  background: linear-gradient(180deg, rgba(10,31,60,.95), rgba(5,14,28,.98));
+}
+.admin-stat-card b { display: block; color: #fff; font-size: 26px; font-weight: 950; line-height: 1.1; }
+.admin-stat-card span { display: block; margin-top: 4px; color: rgba(180,205,240,.85); font-size: 13px; font-weight: 700; }
+.admin-stat-card small { display: block; margin-top: 6px; color: rgba(150,180,220,.7); font-size: 11px; }
+.admin-section { display: grid; gap: 10px; }
+.admin-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.admin-toolbar h3 { margin: 0; color: #fff; font-size: 17px; font-weight: 900; }
+.admin-toolbar .admin-count { color: rgba(180,205,240,.8); font-size: 12px; font-weight: 800; }
+.admin-table-wrap {
+  overflow-x: auto; border: 1px solid rgba(137,192,255,.14);
+  border-radius: 14px; background: rgba(8,20,38,.7);
+}
+table.admin-table { width: 100%; border-collapse: collapse; min-width: 720px; font-size: 13px; }
+table.admin-table th, table.admin-table td {
+  padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(137,192,255,.10);
+  white-space: nowrap; color: rgba(220,234,255,.92); vertical-align: middle;
+}
+table.admin-table th { position: sticky; top: 0; background: rgba(13,32,56,.96); color: #cfe0ff; font-weight: 900; font-size: 12px; }
+table.admin-table tbody tr:hover { background: rgba(40,125,255,.08); }
+table.admin-table a { color: #7db4ff; font-weight: 800; text-decoration: none; }
+table.admin-table a:hover { text-decoration: underline; }
+.admin-cell-num { color: rgba(160,190,230,.8); }
+.admin-status-badge {
+  display: inline-block; padding: 3px 9px; border-radius: 999px;
+  font-size: 11px; font-weight: 900; border: 1px solid rgba(137,192,255,.25); color: rgba(210,228,255,.9);
+}
+.admin-status-badge.live, .admin-status-badge.on { background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.45); color: #9af5bf; }
+.admin-status-badge.off { background: rgba(120,140,170,.14); }
+.admin-status-badge.in { background: rgba(40,125,255,.18); border-color: rgba(40,125,255,.45); color: #bcd6ff; }
+.admin-status-badge.out { background: rgba(251,75,100,.16); border-color: rgba(251,75,100,.45); color: #ffc1cc; }
+.admin-status-badge.warn { background: rgba(247,201,72,.16); border-color: rgba(247,201,72,.4); color: #ffe6a3; }
+.admin-action-btn {
+  padding: 5px 10px; border-radius: 8px; border: 1px solid rgba(137,192,255,.28);
+  background: rgba(10,31,60,.55); color: rgba(210,228,255,.9); font-size: 12px; font-weight: 800; cursor: pointer;
+}
+.admin-action-btn + .admin-action-btn { margin-left: 6px; }
+.admin-action-btn.danger { border-color: rgba(251,75,100,.4); color: #ffc1cc; }
+.admin-action-btn:hover { background: rgba(40,125,255,.18); }
+.admin-empty {
+  padding: 22px; text-align: center; border: 1px dashed rgba(137,192,255,.25);
+  border-radius: 14px; color: rgba(180,205,240,.8); font-size: 13px; font-weight: 700;
+}
+.admin-empty.error { border-color: rgba(251,75,100,.4); color: #ffc1cc; }
+.admin-empty.todo { border-color: rgba(247,201,72,.35); color: #ffe6a3; }
+.admin-datastatus-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.admin-datastatus-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 14px; border: 1px solid rgba(137,192,255,.16); border-radius: 12px; background: rgba(8,20,38,.6);
+}
+.admin-datastatus-card .ds-name { color: #fff; font-weight: 900; font-size: 14px; }
+.admin-datastatus-card .ds-meta { color: rgba(170,200,240,.8); font-size: 12px; margin-top: 3px; }
+.admin-settings-list { display: grid; gap: 8px; }
+.admin-settings-row {
+  display: flex; justify-content: space-between; gap: 12px; padding: 11px 14px;
+  border: 1px solid rgba(137,192,255,.14); border-radius: 12px; background: rgba(8,20,38,.55); font-size: 13px;
+}
+.admin-settings-row b { color: #fff; font-weight: 800; }
+.admin-settings-row span { color: rgba(180,205,240,.85); }
+.admin-toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
+  background: rgba(13,32,56,.97); border: 1px solid rgba(137,192,255,.35); color: #eaf2ff;
+  padding: 11px 18px; border-radius: 12px; font-size: 13px; font-weight: 800;
+  box-shadow: 0 18px 40px rgba(0,0,0,.4); opacity: 0; pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease; z-index: 9999;
+}
+.admin-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.admin-conn-bar { display: grid; gap: 8px; }
+.admin-conn-bar:empty { display: none; }
+.admin-conn-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  padding: 11px 14px; border-radius: 12px; border: 1px solid rgba(137,192,255,.2); background: rgba(8,20,38,.6);
+}
+.admin-conn-card.warn { border-color: rgba(247,201,72,.35); background: rgba(247,201,72,.08); }
+.admin-conn-card.ok { border-color: rgba(34,197,94,.4); background: rgba(34,197,94,.08); }
+.admin-conn-msg { color: rgba(210,228,255,.9); font-size: 13px; font-weight: 700; }
+.admin-conn-msg small { display: block; margin-top: 3px; color: rgba(170,200,240,.75); font-size: 11px; font-weight: 600; }
+.admin-conn-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.admin-conn-actions input {
+  height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(137,192,255,.3);
+  background: rgba(4,14,30,.7); color: #eaf2ff; font-size: 13px; min-width: 180px;
+}
+.admin-conn-actions button {
+  height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid rgba(120,180,255,.5);
+  background: linear-gradient(180deg, #287dff, #1f63d6); color: #fff; font-size: 13px; font-weight: 800; cursor: pointer;
+}
+.admin-conn-actions button.ghost { background: rgba(10,31,60,.55); border-color: rgba(137,192,255,.28); color: rgba(210,228,255,.9); }
+body.light-mode .admin-conn-card { background: #ffffff; }
+body.light-mode .admin-conn-msg { color: #13233a; }
+body.light-mode .admin-stat-card,
+body.light-mode .admin-table-wrap,
+body.light-mode .admin-datastatus-card,
+body.light-mode .admin-settings-row { background: #ffffff; border-color: rgba(37,99,235,.16); }
+body.light-mode .admin-stat-card b,
+body.light-mode .admin-title,
+body.light-mode .admin-toolbar h3,
+body.light-mode .admin-datastatus-card .ds-name,
+body.light-mode .admin-settings-row b { color: #13233a; }
+body.light-mode table.admin-table td { color: #1c2c44; }
+body.light-mode table.admin-table th { background: #eef5ff; color: #13233a; }
+body.light-mode .admin-nav button { background: #eef5ff; color: #2a4b7c; }
+@media (max-width: 1100px) {
+  .admin-stat-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .admin-datastatus-grid { grid-template-columns: 1fr; }
+}
+
 /* 티어표 탭: iframe으로 격리하되, 외부 페이지 스크롤은 만들지 않고 iframe 내부만 스크롤 */
 
 #tabTier:before {
@@ -7299,32 +8276,92 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
       </div>
-      <nav class="tab-row" aria-label="상단 메뉴">
-        <button id="tabMain" class="tab-btn active" type="button">현황판</button>
-        <button id="tabProfile" class="tab-btn" type="button">프로필</button>
-        <button id="tabTier" class="tab-btn" type="button">티어표</button>
-        <button id="tabNotice" class="tab-btn" type="button">공지</button>
-        <button id="tabInout" class="tab-btn" type="button">IN&OUT</button>
-        <button id="tabBoja" class="tab-btn" type="button">보자충</button>
-        <button id="tabYoutube" class="tab-btn" type="button">팬튜브</button>
-        <button id="tabGame" class="tab-btn" type="button">오락실</button>
-        <button id="tabDuckCalc" class="tab-btn" type="button">덕몽어스계산기</button>
-        <button id="tabPinballDonation" class="tab-btn" type="button">핀볼연동</button>
-        <!-- 복구용: hidden/aria-hidden/tabindex 제거 + 스크립트의 FUNDING_TEMP_TAB_HIDDEN=false 변경 시 펀딩(임시) 탭 복구 -->
-        <button id="tabFunding" class="tab-btn" type="button" hidden aria-hidden="true" tabindex="-1">펀딩(임시)</button>
-        <div class="nav-external" aria-label="외부 사이트">
-          <a href="https://calm-hoxy.vercel.app/" target="_blank" rel="noopener noreferrer">💰 CALM HOXY</a>
-          <a href="https://eloboard.com/" target="_blank" rel="noopener noreferrer">📊 ELOBOARD</a>
-          <a href="https://machugi.io/quiz/GJQTMpLt4usVzZyeGMJO" target="_blank" rel="noopener noreferrer">🧠 모의고사</a>
-          <a href="https://monumental-dolphin-3ac88f.netlify.app/" target="_blank" rel="noopener noreferrer">📅 일정표</a>
-          <a class="external-link-with-image" href="https://fmcalm.vercel.app/" target="_blank" rel="noopener noreferrer"><img src="https://stimg.sooplive.com/COMMENT/0/12635700/94781779671461797.png" alt="그것이알고싶캄몬 이미지" loading="lazy" /><span>그것이알고싶캄몬</span></a>
-          <a href="https://www.sooplive.com/station/silver0love" target="_blank" rel="noopener noreferrer">made by 손실바 방송국</a>
+      <nav class="tab-row pc-hub-nav" aria-label="상단 메뉴">
+        <div class="nav-cluster">
+          <span class="nav-cluster-label">팬허브</span>
+          <button id="tabMain" class="tab-btn active" type="button">홈</button>
+          <button id="tabMembers" class="tab-btn" type="button">현황판</button>
+          <button id="tabTier" class="tab-btn" type="button">티어표</button>
+        </div>
+        <div class="nav-cluster nav-tree is-open" data-nav-tree="info">
+          <button id="tabInfo" class="tab-btn nav-parent" type="button" aria-expanded="true">정보</button>
+          <div class="nav-submenu">
+          <button id="tabSchedule" class="tab-btn" type="button">일정</button>
+          <button id="tabProfile" class="tab-btn" type="button">프로필</button>
+          <button id="tabNotice" class="tab-btn" type="button">공지</button>
+          <button id="tabInout" class="tab-btn" type="button">IN&OUT</button>
+          </div>
+        </div>
+        <div class="nav-cluster nav-tree is-open" data-nav-tree="videos">
+          <button id="tabVideos" class="tab-btn nav-parent" type="button" aria-expanded="true">영상</button>
+          <div class="nav-submenu">
+          <button id="tabBoja" class="tab-btn" type="button">보자충</button>
+          <button id="tabYoutube" class="tab-btn" type="button">팬튜브</button>
+          </div>
+        </div>
+        <div class="nav-cluster nav-tree is-open" data-nav-tree="tools">
+          <button id="tabTools" class="tab-btn nav-parent" type="button" aria-expanded="true">방송도구</button>
+          <div class="nav-submenu">
+          <button id="tabCctv" class="tab-btn" type="button">CCTV</button>
+          <button id="tabPinballDonation" class="tab-btn" type="button">핀볼연동</button>
+          <button id="tabFunding" class="tab-btn" type="button">펀딩</button>
+          <button id="tabDuckCalc" class="tab-btn" type="button">덕몽어스</button>
+          <button id="tabGame" class="tab-btn" type="button">오락실</button>
+          </div>
+        </div>
+        <div class="nav-cluster">
+          <span class="nav-cluster-label">관리</span>
+          <button id="tabAdmin" class="tab-btn" type="button">관리자</button>
+          <button id="tabLinks" class="tab-btn nav-legacy-hidden" type="button">외부링크</button>
         </div>
       </nav>
       <div class="summary-grid" id="summaryGrid"></div>
     </header>
 
-    <div id="mainScreen" class="screen">
+    <div id="homeScreen" class="screen">
+      <section class="home-dashboard" aria-label="오늘의 MONSTARZ">
+        <div class="home-lead">
+          <div>
+            <h2>오늘의 MONSTARZ</h2>
+            <p>팬들이 지금 바로 확인할 방송, 일정, 공지, 영상, IN&OUT을 한 화면에 모았습니다.</p>
+          </div>
+          <div id="homeHeroStats" class="home-stat-strip"></div>
+        </div>
+
+        <div class="hub-grid">
+          <article class="hub-panel live-panel">
+            <div class="hub-panel-head"><h3>지금 방송중</h3><button class="panel-link" type="button" data-nav-tab="members">전체보기</button></div>
+            <div id="homeLiveList" class="hub-list"><div class="hub-empty loading">데이터를 불러오는 중입니다.</div></div>
+          </article>
+          <article class="hub-panel schedule-panel">
+            <div class="hub-panel-head"><h3>오늘/다가오는 일정</h3><button class="panel-link" type="button" data-nav-tab="schedule">일정</button></div>
+            <div id="homeScheduleList" class="hub-list"></div>
+          </article>
+          <article class="hub-panel notice-panel">
+            <div class="hub-panel-head"><h3>최근 공지</h3><button class="panel-link" type="button" data-nav-tab="notice">공지</button></div>
+            <div id="homeNoticeList" class="hub-list"><div class="hub-empty loading">데이터를 불러오는 중입니다.</div></div>
+          </article>
+          <article class="hub-panel wide video-panel">
+            <div class="hub-panel-head"><h3>최신 팬튜브</h3><button class="panel-link" type="button" data-nav-tab="youtube">팬튜브</button></div>
+            <div id="homeVideoList" class="hub-list"></div>
+          </article>
+          <article class="hub-panel inout-panel">
+            <div class="hub-panel-head"><h3>최근 IN&OUT</h3><button class="panel-link" type="button" data-nav-tab="inout">히스토리</button></div>
+            <div id="homeInoutList" class="hub-list"></div>
+          </article>
+          <article class="hub-panel tier-panel">
+            <div class="hub-panel-head"><h3>티어/전적 포인트</h3><button class="panel-link" type="button" data-nav-tab="tier">티어표</button></div>
+            <div id="homeTierList" class="hub-list"></div>
+          </article>
+          <article class="hub-panel tools-panel">
+            <div class="hub-panel-head"><h3>방송용 도구</h3><button class="panel-link" type="button" data-nav-tab="tools">도구 홈</button></div>
+            <div id="homeToolList" class="hub-list"></div>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <div id="mainScreen" class="screen hidden">
       <section class="toolbar" id="toolbarSection">
         <div class="search-box">
           <input id="searchInput" type="text" placeholder="이름, 종족, 역할, 티어로 검색" />
@@ -7395,7 +8432,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
         <div id="noticeList" class="notice-feed-list">
-          <div class="empty">스트리머 공지를 불러오는 중입니다.</div>
+          <div class="empty loading">데이터를 불러오는 중입니다.</div>
         </div>
       </section>
     </div>
@@ -7441,8 +8478,90 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
         <div id="youtubeList" class="youtube-grid">
-          <div class="empty">팬튜브 영상을 불러오는 중입니다.</div>
+          <div class="empty loading">데이터를 불러오는 중입니다.</div>
         </div>
+      </section>
+    </div>
+
+    <div id="scheduleScreen" class="screen hidden">
+      <section class="hub-page-section">
+        <div class="section-head">
+          <div>
+            <h2>일정</h2>
+            <div class="inout-title-sub">공개 일정표 연동 및 추후 관리자 입력 영역</div>
+          </div>
+          <a class="hub-action" href="https://monumental-dolphin-3ac88f.netlify.app/" target="_blank" rel="noopener noreferrer">외부 일정표 열기</a>
+        </div>
+        <div id="scheduleHubList" class="hub-card-grid"></div>
+      </section>
+    </div>
+
+    <div id="videosScreen" class="screen hidden">
+      <section class="hub-page-section">
+        <div class="section-head">
+          <div>
+            <h2>영상 허브</h2>
+            <div class="inout-title-sub">최신 영상, 팬튜브, 보자충 큐레이션</div>
+          </div>
+          <div class="count" id="videosHubCount">0개</div>
+        </div>
+        <div id="videosHubList" class="hub-card-grid"></div>
+      </section>
+    </div>
+
+    <div id="toolsScreen" class="screen hidden">
+      <section class="hub-page-section">
+        <div class="section-head">
+          <div>
+            <h2>방송도구</h2>
+            <div class="inout-title-sub">핀볼, 펀딩, 덕몽어스, 오락실, CCTV</div>
+          </div>
+          <div class="count">5 TOOLS</div>
+        </div>
+        <div id="toolsHubList" class="tool-card-grid"></div>
+      </section>
+    </div>
+
+    <div id="cctvScreen" class="screen hidden">
+      <section class="cctv-shell">
+        <div class="section-head">
+          <div>
+            <h2>CCTV</h2>
+            <div class="inout-title-sub">SOOP 라이브 여러 명 동시 재생</div>
+          </div>
+          <button id="cctvClear" class="cctv-clear" type="button">선택 초기화</button>
+        </div>
+        <div id="cctvPicker" class="cctv-picker"></div>
+        <div id="cctvGrid" class="cctv-grid"><div class="hub-empty">CCTV 페이지에 들어가면 선택한 방송 플레이어가 열립니다.</div></div>
+      </section>
+    </div>
+
+    <div id="linksScreen" class="screen hidden">
+      <section class="hub-page-section">
+        <div class="section-head">
+          <div>
+            <h2>외부 링크</h2>
+            <div class="inout-title-sub">캄몬스타즈 관련 공개 자료와 바로가기</div>
+          </div>
+          <div class="count" id="linksHubCount">0개</div>
+        </div>
+        <div id="linksHubList" class="hub-card-grid"></div>
+      </section>
+    </div>
+
+    <div id="adminScreen" class="screen hidden">
+      <section class="hub-page-section admin-layout">
+        <div class="admin-access-note" id="adminAccessNote">읽기 전용 관리자 미리보기입니다. 저장/수정/삭제는 다음 패치에서 권한 분리 후 연결됩니다.</div>
+        <header class="admin-topbar">
+          <div>
+            <h2 class="admin-title">관리자</h2>
+            <div class="admin-subtitle">MONSTARZ 데이터 관리 (읽기 전용 준비 단계)</div>
+          </div>
+          <div class="admin-topbar-meta" id="adminUpdatedAt">마지막 갱신: -</div>
+        </header>
+        <div class="admin-conn-bar" id="adminConnBar"></div>
+        <nav class="admin-nav" id="adminNav" aria-label="관리자 메뉴"></nav>
+        <div class="admin-content" id="adminContent"></div>
       </section>
     </div>
 
@@ -7778,6 +8897,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 
+<script src="./services/data-services.js"></script>
+<script src="./lib/supabase/client.js"></script>
 <script>
   const TEAM = {
     name: "캄몬스타즈 (since : 24.07.08)",
@@ -7930,17 +9051,70 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     "변현제": "2026-06-13"
   };
 
+  const SCHEDULE_APP_URL = "https://monumental-dolphin-3ac88f.netlify.app/";
+  const SCHEDULE_TODAY_API_URL = "/api/schedule-today";
+
+  const EXTERNAL_LINKS = [
+    { title: "CALM HOXY", note: "캄몬 관련 외부 페이지", url: "https://calm-hoxy.vercel.app/" },
+    { title: "ELOBOARD", note: "전적/랭킹 확인", url: "https://eloboard.com/" },
+    { title: "모의고사", note: "캄몬스타즈 퀴즈", url: "https://machugi.io/quiz/GJQTMpLt4usVzZyeGMJO" },
+    { title: "일정표", note: "외부 일정표", url: "https://monumental-dolphin-3ac88f.netlify.app/" },
+    { title: "그것이알고싶캄몬", note: "팬 제작 자료", url: "https://fmcalm.vercel.app/" },
+    { title: "손실바 방송국", note: "made by 손실바", url: "https://www.sooplive.com/station/silver0love" }
+  ];
+
+  const BROADCAST_TOOLS = [
+    { key: "cctv", title: "CCTV", note: "SOOP 라이브 여러 명 동시 보기", status: "실험 기능" },
+    { key: "pinballDonation", title: "핀볼연동", note: "후원 메시지/닉네임을 핀볼 후보로 연결", status: "운영 도구" },
+    { key: "funding", title: "펀딩", note: "별풍선 펀딩 집계와 정산 화면", status: "운영 도구" },
+    { key: "duckCalc", title: "덕몽어스 계산기", note: "참가자 점수 입력, 팀 배정, 정산 계산", status: "계산기" },
+    { key: "game", title: "오락실", note: "캄몬키우기, Survivors, 캄몬런", status: "게임" }
+  ];
+
+  const ADMIN_SECTIONS = [
+    { key: "dashboard", label: "대시보드" },
+    { key: "members", label: "멤버 관리" },
+    { key: "schedules", label: "일정 관리" },
+    { key: "videos", label: "영상 관리" },
+    { key: "notices", label: "공지 관리" },
+    { key: "inout", label: "IN&OUT 관리" },
+    { key: "links", label: "링크 관리" },
+    { key: "data-status", label: "데이터 상태" },
+    { key: "settings", label: "설정" }
+  ];
+  let currentAdminSection = "dashboard";
+
+  const UI_EMPTY_TEXT = "표시할 데이터가 없습니다";
+  const UI_LOADING_TEXT = "데이터를 불러오는 중입니다.";
+  const UI_ERROR_TEXT = "데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요";
+
   let liveStatusMap = {};
+  let liveInfoMap = {};
   let lastCheckedAt = TEAM.updatedAt;
   let youtubeItems = [];
+  let youtubeLoadError = false;
   let lastYoutubeCheckedAt = "";
   let noticeItems = [];
+  let noticeLoadError = false;
   let lastNoticeCheckedAt = "";
+  let cctvSelectedIds = [];
+  let scheduleTodayItems = [];
+  let scheduleTodayLoadError = false;
 
   const teamName = document.getElementById("teamName");
   const teamDesc = document.getElementById("teamDesc");
   const teamLogo = document.getElementById("teamLogo");
   const summaryGrid = document.getElementById("summaryGrid");
+  const homeScreen = document.getElementById("homeScreen");
+  const homeHeroStats = document.getElementById("homeHeroStats");
+  const homeLiveList = document.getElementById("homeLiveList");
+  const homeScheduleList = document.getElementById("homeScheduleList");
+  const homeNoticeList = document.getElementById("homeNoticeList");
+  const homeVideoList = document.getElementById("homeVideoList");
+  const homeInoutList = document.getElementById("homeInoutList");
+  const homeTierList = document.getElementById("homeTierList");
+  const homeToolList = document.getElementById("homeToolList");
+  const homeLinkList = document.getElementById("homeLinkList");
   const leaderGrid = document.getElementById("leaderGrid");
   const coachGrid = document.getElementById("coachGrid");
   const tierBoard = document.getElementById("tierBoard");
@@ -7950,8 +9124,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const coachCount = document.getElementById("coachCount");
   const playerCount = document.getElementById("playerCount");
   const tabMain = document.getElementById("tabMain");
+  const tabMembers = document.getElementById("tabMembers");
   const tabProfile = document.getElementById("tabProfile");
   const tabTier = document.getElementById("tabTier");
+  const tabInfo = document.getElementById("tabInfo");
+  const tabSchedule = document.getElementById("tabSchedule");
+  const tabVideos = document.getElementById("tabVideos");
   const tabNotice = document.getElementById("tabNotice");
   const tabBoja = document.getElementById("tabBoja");
   const mainScreen = document.getElementById("mainScreen");
@@ -7973,14 +9151,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const bojaPlayerOpen = document.getElementById("bojaPlayerOpen");
   const tabYoutube = document.getElementById("tabYoutube");
   const tabGame = document.getElementById("tabGame");
+  const tabTools = document.getElementById("tabTools");
+  const tabCctv = document.getElementById("tabCctv");
+  const tabLinks = document.getElementById("tabLinks");
+  const tabAdmin = document.getElementById("tabAdmin");
   const tabDuckCalc = document.getElementById("tabDuckCalc");
   const tabPinballDonation = document.getElementById("tabPinballDonation");
   const tabFunding = document.getElementById("tabFunding");
-  const FUNDING_TEMP_TAB_HIDDEN = true; // 복구 시 false로 변경하고 #tabFunding의 hidden/aria-hidden/tabindex를 제거
+  const FUNDING_TEMP_TAB_HIDDEN = false;
   const tabInout = document.getElementById("tabInout");
   const themeToggle = document.getElementById("themeToggle");
   const themeIcon = document.getElementById("themeIcon");
   const youtubeScreen = document.getElementById("youtubeScreen");
+  const infoScreen = document.getElementById("infoScreen");
+  const scheduleScreen = document.getElementById("scheduleScreen");
+  const scheduleHubList = document.getElementById("scheduleHubList");
+  const videosScreen = document.getElementById("videosScreen");
+  const videosHubList = document.getElementById("videosHubList");
+  const videosHubCount = document.getElementById("videosHubCount");
+  const toolsScreen = document.getElementById("toolsScreen");
+  const toolsHubList = document.getElementById("toolsHubList");
+  const cctvScreen = document.getElementById("cctvScreen");
+  const cctvPicker = document.getElementById("cctvPicker");
+  const cctvGrid = document.getElementById("cctvGrid");
+  const cctvClear = document.getElementById("cctvClear");
+  const linksScreen = document.getElementById("linksScreen");
+  const linksHubList = document.getElementById("linksHubList");
+  const linksHubCount = document.getElementById("linksHubCount");
+  const adminScreen = document.getElementById("adminScreen");
+  const adminNav = document.getElementById("adminNav");
+  const adminContent = document.getElementById("adminContent");
+  const adminUpdatedAt = document.getElementById("adminUpdatedAt");
   const gameScreen = document.getElementById("gameScreen");
   const duckCalcScreen = document.getElementById("duckCalcScreen");
   const pinballDonationScreen = document.getElementById("pinballDonationScreen");
@@ -8011,6 +9212,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   let selectedYoutubeIndex = 0;
   let youtubeAutoplayEnabled = false;
   let youtubeApiReady = false;
+  let youtubeApiLoading = false;
   let youtubeApiPlayer = null;
   let currentYoutubeVideoId = "";
   let youtubePlayerActive = false;
@@ -8081,13 +9283,60 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     return null;
   }
 
+  function isLiveValue(value) {
+    return value === true || Boolean(value && (
+      value.live === true ||
+      value.status === "live" ||
+      value.broadNo ||
+      value.broad_no ||
+      value.broadcastUrl ||
+      value.playUrl ||
+      value.play_url
+    ));
+  }
+
+  function mergeLiveInfo(target, item) {
+    if (!item || typeof item !== "object") return;
+    const id = String(item.userId || item.user_id || item.bjId || item.bj_id || item.id || "").trim();
+    if (id) target[id] = { ...(target[id] || {}), ...item };
+  }
+
+  function rebuildLiveInfo(data) {
+    const next = {};
+    const lives = data?.lives;
+    if (Array.isArray(lives)) {
+      lives.forEach(item => mergeLiveInfo(next, item));
+    } else if (lives && typeof lives === "object") {
+      Object.entries(lives).forEach(([key, item]) => {
+        if (item && typeof item === "object") next[key] = { ...(next[key] || {}), ...item };
+      });
+    }
+    if (data?.statuses && typeof data.statuses === "object") {
+      Object.entries(data.statuses).forEach(([key, item]) => {
+        if (item && typeof item === "object") next[key] = { ...(next[key] || {}), ...item };
+      });
+    }
+    liveInfoMap = next;
+  }
+
+  function liveInfoForMember(member) {
+    const userId = member?.userId || extractSoopUserId(member?.stream || member?.live || "");
+    return liveInfoMap[userId] || ((liveStatusMap[userId] && typeof liveStatusMap[userId] === "object") ? liveStatusMap[userId] : {});
+  }
+
+  function broadNoOf(info) {
+    return String(info?.broadNo || info?.broad_no || info?.broadNoStr || info?.broad_no_str || "").trim();
+  }
+
   function mergeStatuses(list) {
     return list.map((member) => {
-      const userId = extractSoopUserId(member.stream || member.live);
+      const userId = member.userId || extractSoopUserId(member.stream || member.live);
       if (!userId) return member;
+      const liveInfo = liveInfoForMember(member);
       return {
         ...member,
-        status: liveStatusMap[userId] === true ? "live" : "offline"
+        liveInfo,
+        status: isLiveValue(liveInfo) || isLiveValue(liveStatusMap[userId]) ? "live" : "offline"
       };
     });
   }
@@ -8135,6 +9384,788 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   function safeLink(url) {
     return url && url !== "#" ? url : "javascript:void(0)";
+  }
+
+  function getAllMembersWithStatus() {
+    return mergeStatuses(MEMBERS);
+  }
+
+  function getMemberWatchUrl(member) {
+    const info = member?.liveInfo || liveInfoForMember(member);
+    const userId = member?.userId || extractSoopUserId(member?.live || member?.stream || "");
+    const broadNo = broadNoOf(info);
+    if (info?.broadcastUrl || info?.playUrl || info?.play_url) return info.broadcastUrl || info.playUrl || info.play_url;
+    if (userId && broadNo) return `https://play.sooplive.com/${userId}/${broadNo}`;
+    if (member?.live && member.live !== "#") return member.live;
+    if (userId) return `https://play.sooplive.com/${userId}`;
+    return safeLink(member?.stream || "");
+  }
+
+  function getMemberLiveThumbnail(member) {
+    const info = member?.liveInfo || liveInfoForMember(member);
+    return info?.thumbnailUrl ||
+      info?.thumbnail ||
+      info?.thumb ||
+      info?.image ||
+      info?.broadImg ||
+      info?.broad_image ||
+      info?.preview ||
+      member?.thumbnail ||
+      member?.profileImage ||
+      TEAM.logo ||
+      "";
+  }
+
+  function renderHubEmpty(message = UI_EMPTY_TEXT, state = "empty") {
+    return `<div class="hub-empty ${escapeHtml(state)}">${escapeHtml(message)}</div>`;
+  }
+
+  function renderPageEmpty(message = UI_EMPTY_TEXT, state = "empty") {
+    return `<div class="empty ${escapeHtml(state)}">${escapeHtml(message)}</div>`;
+  }
+
+  function renderMemberHubItem(member) {
+    const watchUrl = getMemberWatchUrl(member);
+    return `
+      <a class="hub-item" href="${safeLink(watchUrl)}" target="_blank" rel="noopener noreferrer">
+        <img class="hub-thumb" src="${safeLink(member.profileImage || "")}" alt="${escapeHtml(member.name)} 프로필" loading="lazy">
+        <div>
+          <div class="hub-title">${escapeHtml(member.name)}</div>
+          <div class="hub-meta">${escapeHtml([member.role, formatTierLabel(member.tier), member.race].filter(Boolean).join(" · "))}</div>
+        </div>
+        <span class="hub-badge ${member.status === "live" ? "live" : ""}">${member.status === "live" ? "LIVE" : "OFF"}</span>
+      </a>
+    `;
+  }
+
+  function renderInternalHubItem(title, meta, tabKey, badge = "") {
+    return `
+      <button class="hub-item no-thumb" type="button" data-nav-tab="${escapeHtml(tabKey)}">
+        <div>
+          <div class="hub-title">${escapeHtml(title)}</div>
+          <div class="hub-meta">${escapeHtml(meta)}</div>
+        </div>
+        ${badge ? `<span class="hub-badge">${escapeHtml(badge)}</span>` : ""}
+      </button>
+    `;
+  }
+
+  function renderLiveBroadcastHubItem(member) {
+    const info = member.liveInfo || liveInfoForMember(member);
+    const watchUrl = getMemberWatchUrl(member);
+    const title = info?.title || info?.broadTitle || info?.broadcastTitle || "방송중";
+    const viewer = info?.totalViewCnt || info?.viewerCount || info?.viewCount || "";
+    const meta = [
+      member.role,
+      formatTierLabel(member.tier),
+      member.race,
+      viewer ? `${viewer}명 시청` : ""
+    ].filter(Boolean).join(" · ");
+    const thumb = getMemberLiveThumbnail(member);
+    return `
+      <a class="live-broadcast-card" href="${safeLink(watchUrl)}" target="_blank" rel="noopener noreferrer">
+        <div class="live-broadcast-thumb-wrap">
+          <img class="live-broadcast-thumb" src="${safeLink(thumb)}" alt="${escapeHtml(member.name)} 방송 썸네일" loading="lazy">
+          <div class="live-broadcast-shade"></div>
+          <span class="live-broadcast-pill">LIVE</span>
+        </div>
+        <div class="live-broadcast-info">
+          <div class="live-broadcast-name">
+            <span>${escapeHtml(member.name)}</span>
+            <span class="live-broadcast-race">${escapeHtml(member.race || "")}</span>
+          </div>
+          <div class="live-broadcast-title">${escapeHtml(title)}</div>
+          <div class="live-broadcast-meta">${escapeHtml(meta)}</div>
+        </div>
+      </a>
+    `;
+  }
+
+  function formatScheduleDateLabel(dateValue) {
+    const text = String(dateValue || "").trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return text || "일정";
+    const date = new Date(`${text}T00:00:00+09:00`);
+    if (Number.isNaN(date.getTime())) return text;
+    return date.toLocaleDateString("ko-KR", { month: "numeric", day: "numeric", weekday: "short" });
+  }
+
+  function renderScheduleTodayItem(item) {
+    const body = String(item?.body || item?.content || item?.description || "").trim();
+    const title = item?.title || "일정";
+    const date = formatScheduleDateLabel(item?.date || "");
+    return `
+      <button class="hub-item no-thumb schedule-today-card" type="button" data-nav-tab="schedule">
+        <div>
+          <div class="hub-title">${escapeHtml(title)}</div>
+          <div class="hub-meta">${escapeHtml([date, body].filter(Boolean).join("\n"))}</div>
+        </div>
+        <span class="hub-badge">${escapeHtml(item?.type === "mention" ? "휴방" : "일정")}</span>
+      </button>
+    `;
+  }
+
+  function renderHomeScheduleSummary() {
+    if (!homeScheduleList) return;
+    if (scheduleTodayLoadError) {
+      homeScheduleList.innerHTML = renderHubEmpty(UI_ERROR_TEXT, "error");
+      return;
+    }
+    homeScheduleList.innerHTML = scheduleTodayItems.length
+      ? scheduleTodayItems.slice(0, 5).map(renderScheduleTodayItem).join("")
+      : renderHubEmpty(UI_EMPTY_TEXT, "empty");
+  }
+
+  async function fetchScheduleToday(refresh = false) {
+    if (!homeScheduleList) return;
+    if (!scheduleTodayItems.length) homeScheduleList.innerHTML = renderHubEmpty(UI_LOADING_TEXT, "loading");
+    try {
+      const result = window.MonstarzDataServices
+        ? await MonstarzDataServices.scheduleToday(SCHEDULE_TODAY_API_URL, { refresh, timeoutMs: 12000 })
+        : { data: await fetch(SCHEDULE_TODAY_API_URL, { cache: "no-store" }).then(response => response.json()) };
+      if (result.error && !result.data) throw result.error;
+      const payload = result.data || {};
+      scheduleTodayItems = (Array.isArray(payload.items) ? payload.items : []).filter(Boolean);
+      scheduleTodayLoadError = Boolean(result.error);
+    } catch (error) {
+      console.warn("schedule today load failed", error);
+      scheduleTodayItems = [];
+      scheduleTodayLoadError = true;
+    }
+    renderHomeScheduleSummary();
+  }
+
+  function renderExternalHubItem(item) {
+    return `
+      <a class="hub-item no-thumb" href="${safeLink(item.url)}" target="_blank" rel="noopener noreferrer">
+        <div>
+          <div class="hub-title">${escapeHtml(item.title)}</div>
+          <div class="hub-meta">${escapeHtml(item.note || "")}</div>
+        </div>
+        <span class="hub-badge">OPEN</span>
+      </a>
+    `;
+  }
+
+  function renderNoticeHubItem(item) {
+    const link = safeExternalUrl(item.link) || "javascript:void(0)";
+    const body = String(item.content || item.summary || item.body || "").trim();
+    return `
+      <a class="hub-item no-thumb notice-summary-card" href="${escapeHtml(link)}" ${link !== "javascript:void(0)" ? 'target="_blank" rel="noopener noreferrer"' : ""}>
+        <div>
+          <div class="hub-title">${escapeHtml(item.title || item.stationName || "공지")}</div>
+          <div class="hub-meta">${escapeHtml([item.stationName, item.time || ""].filter(Boolean).join(" · "))}</div>
+          ${body ? `<div class="hub-notice-body">${escapeHtml(body)}</div>` : ""}
+        </div>
+        <span class="hub-badge">공지</span>
+      </a>
+    `;
+  }
+
+  function renderVideoHubItem(item) {
+    const url = item.url || item.link || "";
+    const badge = item.sourceName || item.viewCountText || item.name || "영상";
+    return `
+      <a class="hub-item video-summary" href="${safeLink(url)}" target="_blank" rel="noopener noreferrer">
+        ${item.thumbnail ? `<img class="hub-thumb" src="${safeLink(item.thumbnail)}" alt="${escapeHtml(item.title || "영상")} 썸네일" loading="lazy">` : `<div class="hub-thumb"></div>`}
+        <div>
+          <div class="hub-title">${escapeHtml(item.title || "영상")}</div>
+          <div class="hub-meta">${escapeHtml(getYoutubeMetaText(item))}</div>
+        </div>
+        <span class="hub-badge">${escapeHtml(String(badge).slice(0, 8))}</span>
+      </a>
+    `;
+  }
+
+  function getBojaSummaryItems(limit = 2) {
+    return BOJA_CATEGORIES.flatMap(category => (category.items || []).map(item => {
+      const videoId = getYoutubeVideoId(item.url);
+      return {
+        ...item,
+        sourceName: "보자충",
+        name: category.name,
+        thumbnail: item.thumbnail || (videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : getSoopVodThumb(item.url)),
+        viewCountText: item.note || category.name
+      };
+    })).filter(item => item.url).slice(0, limit);
+  }
+
+  function getHomeVideoItems() {
+    return youtubeItems.slice(0, 5);
+  }
+
+  function renderHomeDashboard() {
+    const allMembers = getAllMembersWithStatus();
+    const liveMembers = allMembers.filter(member => member.status === "live");
+    const playerCountValue = allMembers.filter(member => member.type === "player").length;
+
+    if (homeHeroStats) {
+      homeHeroStats.innerHTML = [
+        { label: "방송중", value: liveMembers.length },
+        { label: "멤버", value: allMembers.length },
+        { label: "학생", value: playerCountValue }
+      ].map(item => `<div class="home-stat"><b>${escapeHtml(item.value)}</b><span>${escapeHtml(item.label)}</span></div>`).join("");
+    }
+
+    if (homeLiveList) {
+      homeLiveList.innerHTML = liveMembers.length
+        ? liveMembers.map(renderLiveBroadcastHubItem).join("")
+        : renderHubEmpty();
+    }
+
+    if (homeScheduleList) {
+      renderHomeScheduleSummary();
+    }
+
+    if (homeNoticeList) {
+      homeNoticeList.innerHTML = noticeItems.length
+        ? noticeItems.slice(0, 4).map(renderNoticeHubItem).join("")
+        : renderHubEmpty(noticeLoadError ? UI_ERROR_TEXT : UI_EMPTY_TEXT, noticeLoadError ? "error" : "empty");
+    }
+
+    if (homeVideoList) {
+      const homeVideoItems = getHomeVideoItems();
+      homeVideoList.innerHTML = homeVideoItems.length
+        ? homeVideoItems.map(renderVideoHubItem).join("")
+        : renderHubEmpty(youtubeLoadError ? UI_ERROR_TEXT : UI_EMPTY_TEXT, youtubeLoadError ? "error" : "empty");
+    }
+
+    if (homeInoutList) {
+      const recent = INOUT_HISTORY.slice(-4).reverse();
+      homeInoutList.innerHTML = recent.length
+        ? recent.map(item => {
+            const names = item.events.map(event => `${event.name} ${event.status}`).join(", ");
+            const hasOut = item.events.some(event => event.status === "OUT");
+            return renderInternalHubItem(item.date, names, "inout", hasOut ? "OUT" : "IN");
+          }).join("")
+        : renderHubEmpty();
+    }
+
+    if (homeTierList) {
+      const tiers = ["3", "4", "5", "6", "7", "8", "9"].map(tier => {
+        const count = allMembers.filter(member => String(member.tier) === tier).length;
+        return `${tier === "9" ? "유스" : tier + "티어"} ${count}명`;
+      });
+      const latestJoin = Object.entries(JOIN_DATES)
+        .sort((a, b) => String(b[1]).localeCompare(String(a[1])))[0];
+      homeTierList.innerHTML = [
+        renderInternalHubItem("티어 분포", tiers.join(" · "), "tier", "표"),
+        latestJoin ? renderInternalHubItem("최근 합류", `${latestJoin[1]} · ${latestJoin[0]}`, "inout", "IN") : "",
+        renderInternalHubItem("전적/랭킹", "ELOBOARD에서 상세 전적 확인", "links", "외부")
+      ].filter(Boolean).join("");
+    }
+
+    if (homeToolList) {
+      homeToolList.innerHTML = BROADCAST_TOOLS.slice(0, 3)
+        .map(tool => renderInternalHubItem(tool.title, tool.note, tool.key, tool.status))
+        .join("");
+    }
+
+    if (homeLinkList) homeLinkList.closest(".hub-panel")?.remove();
+  }
+
+  function renderScheduleHub() {
+    if (!scheduleHubList) return;
+    scheduleHubList.innerHTML = `
+      <div class="schedule-embed-card">
+        <iframe class="schedule-embed-frame" src="${safeLink(SCHEDULE_APP_URL)}" title="캄몬스타즈 일정표" loading="lazy"></iframe>
+      </div>
+    `;
+  }
+
+  function renderVideosHub() {
+    if (!videosHubList) return;
+    if (videosHubCount) videosHubCount.textContent = "2 MENU";
+    videosHubList.innerHTML = `
+      <button class="tool-card" type="button" data-nav-tab="boja"><b>보자충</b><span>보자충 큐레이션 영상을 확인합니다.</span><small>영상</small></button>
+      <button class="tool-card" type="button" data-nav-tab="youtube"><b>팬튜브</b><span>유튜브와 팬튜브 최신 영상을 확인합니다.</span><small>영상</small></button>
+    `;
+  }
+
+  function renderToolsHub() {
+    if (!toolsHubList) return;
+    toolsHubList.innerHTML = BROADCAST_TOOLS.map(tool => `
+      <button class="tool-card" type="button" data-nav-tab="${escapeHtml(tool.key)}">
+        <b>${escapeHtml(tool.title)}</b>
+        <span>${escapeHtml(tool.note)}</span>
+        <small>${escapeHtml(tool.status)}</small>
+      </button>
+    `).join("");
+  }
+
+  function renderLinksHub() {
+    if (!linksHubList) return;
+    if (linksHubCount) linksHubCount.textContent = `${EXTERNAL_LINKS.length}개`;
+    linksHubList.innerHTML = EXTERNAL_LINKS.map(item => `
+      <a class="link-card" href="${safeLink(item.url)}" target="_blank" rel="noopener noreferrer">
+        <b>${escapeHtml(item.title)}</b>
+        <span>${escapeHtml(item.note || "")}</span>
+      </a>
+    `).join("");
+  }
+
+  // ===== Phase 4: Admin (read-only skeleton) =====
+  // 공통 컴포넌트 (AdminStatCard / AdminStatusBadge / AdminActionButton /
+  // AdminEmptyState / AdminToolbar / AdminTable). 이번 패치는 읽기 전용이며
+  // 모든 수정/삭제 버튼은 placeholder로, 실제 쓰기는 다음 패치에서 연결한다.
+  function adminFormatTime(value) {
+    if (!value) return "-";
+    try {
+      const d = new Date(value);
+      if (!isNaN(d.getTime())) return d.toLocaleString("ko-KR", { hour12: false });
+    } catch (error) {}
+    return String(value);
+  }
+
+  function adminLatestUpdate() {
+    const times = [lastCheckedAt, lastNoticeCheckedAt, lastYoutubeCheckedAt]
+      .filter(Boolean)
+      .map(t => new Date(t).getTime())
+      .filter(n => !isNaN(n));
+    if (!times.length) return "-";
+    return adminFormatTime(new Date(Math.max.apply(null, times)).toISOString());
+  }
+
+  function adminStatCard(label, value, hint) {
+    const display = (value === null || value === undefined || value === "") ? "준비 중" : value;
+    return `<div class="admin-stat-card"><b>${escapeHtml(String(display))}</b><span>${escapeHtml(label)}</span>${hint ? `<small>${escapeHtml(hint)}</small>` : ""}</div>`;
+  }
+
+  function adminStatusBadge(text, kind) {
+    return `<span class="admin-status-badge ${escapeHtml(kind || "")}">${escapeHtml(text)}</span>`;
+  }
+
+  function adminActionButton(label, action, danger) {
+    return `<button type="button" class="admin-action-btn${danger ? " danger" : ""}" data-admin-action="${escapeHtml(action)}">${escapeHtml(label)}</button>`;
+  }
+
+  function adminEmptyState(message, state) {
+    return `<div class="admin-empty ${escapeHtml(state || "empty")}">${escapeHtml(message)}</div>`;
+  }
+
+  function adminToolbar(title, count) {
+    return `<div class="admin-toolbar"><h3>${escapeHtml(title)}</h3><span class="admin-count">${escapeHtml(String(count))}</span></div>`;
+  }
+
+  // cells 는 이미 escape/HTML 처리된 문자열 배열이어야 한다.
+  function adminTable(columns, rows) {
+    if (!rows.length) return adminEmptyState(UI_EMPTY_TEXT, "empty");
+    const head = columns.map(c => `<th>${escapeHtml(c)}</th>`).join("");
+    const body = rows.map(cells => `<tr>${cells.map(cell => `<td>${cell}</td>`).join("")}</tr>`).join("");
+    return `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+  }
+
+  function getAdminVideoRows() {
+    const yt = (youtubeItems || []).map(v => ({
+      title: v.title || "영상",
+      platform: v.sourceName || "YouTube",
+      member: v.name || v.channelTitle || "-",
+      date: v.publishedAt || v.published || "",
+      url: v.url || v.link || ""
+    }));
+    const boja = BOJA_CATEGORIES.flatMap(cat => (cat.items || []).map(it => ({
+      title: it.title || "영상",
+      platform: it.note || "보자충",
+      member: cat.name,
+      date: "",
+      url: it.url || ""
+    })));
+    return [...yt, ...boja];
+  }
+
+  function renderAdminDashboard() {
+    const members = getAllMembersWithStatus();
+    const live = members.filter(m => m.status === "live").length;
+    const recentInout = INOUT_HISTORY.slice(-10).reduce((sum, day) => sum + (day.events ? day.events.length : 0), 0);
+    const videoCount = getAdminVideoRows().length;
+    const cards = [
+      adminStatCard("멤버 수", members.length),
+      adminStatCard("방송중 멤버", live),
+      adminStatCard("등록 일정", "외부 연동", "외부 일정표"),
+      adminStatCard("등록 영상", videoCount),
+      adminStatCard("최근 IN&OUT", recentInout, "최근 10일"),
+      adminStatCard("최근 공지", noticeItems.length),
+      adminStatCard("외부 링크", EXTERNAL_LINKS.length),
+      adminStatCard("마지막 갱신", adminLatestUpdate())
+    ];
+    return `<div class="admin-stat-grid">${cards.join("")}</div>` +
+      `<div class="admin-section">${adminToolbar("빠른 안내", "읽기 전용")}${adminEmptyState("이 화면은 읽기 전용 관리자 미리보기입니다. 저장/수정/삭제는 다음 패치에서 권한 분리 후 연결됩니다.", "todo")}</div>`;
+  }
+
+  function renderAdminMembers() {
+    const members = getAllMembersWithStatus();
+    const rows = members.map(m => {
+      const yt = (m.youtube && m.youtube !== "#")
+        ? `<a href="${safeLink(m.youtube)}" target="_blank" rel="noopener noreferrer">YouTube</a>`
+        : adminStatusBadge("없음", "off");
+      return [
+        escapeHtml(m.name),
+        escapeHtml(m.race || "-"),
+        escapeHtml(formatTierLabel(m.tier) || "-"),
+        adminStatusBadge(m.status === "live" ? "LIVE" : "OFF", m.status === "live" ? "live" : "off"),
+        escapeHtml(m.userId || "-"),
+        yt,
+        adminStatusBadge("표시", "on"),
+        adminActionButton("수정", "member:edit") + adminActionButton("숨김", "member:hide", true)
+      ];
+    });
+    return adminToolbar("멤버 관리", `${members.length}명`) +
+      adminTable(["이름", "종족", "티어", "방송", "SOOP ID", "YouTube", "표시", "관리"], rows);
+  }
+
+  function renderAdminSchedules() {
+    return adminToolbar("일정 관리", "외부 연동") +
+      adminEmptyState("일정은 현재 외부 일정표 임베드로 운영됩니다. 수동 일정 입력/고정 기능은 다음 패치에서 연결됩니다.", "todo");
+  }
+
+  function renderAdminVideos() {
+    const data = getAdminVideoRows();
+    if (!data.length && youtubeLoadError) {
+      return adminToolbar("영상 관리", "오류") + adminEmptyState(UI_ERROR_TEXT, "error");
+    }
+    const rows = data.map(v => [
+      escapeHtml(v.title),
+      escapeHtml(v.platform),
+      escapeHtml(v.member),
+      escapeHtml(v.date ? adminFormatTime(v.date) : "-"),
+      v.url ? `<a href="${safeLink(v.url)}" target="_blank" rel="noopener noreferrer">열기</a>` : "-",
+      adminStatusBadge("노출", "on"),
+      adminActionButton("수정", "video:edit") + adminActionButton("숨김", "video:hide", true)
+    ]);
+    return adminToolbar("영상 관리", `${data.length}개`) +
+      adminTable(["제목", "플랫폼", "멤버", "등록일", "URL", "노출", "관리"], rows);
+  }
+
+  function renderAdminNotices() {
+    if (!noticeItems.length && noticeLoadError) {
+      return adminToolbar("공지 관리", "오류") + adminEmptyState(UI_ERROR_TEXT, "error");
+    }
+    const rows = noticeItems.map(n => [
+      escapeHtml(n.title || n.stationName || "공지"),
+      escapeHtml(n.stationName || "-"),
+      escapeHtml(n.time || n.date || "-"),
+      (n.link || n.url) ? `<a href="${safeLink(n.link || n.url)}" target="_blank" rel="noopener noreferrer">열기</a>` : "-",
+      adminStatusBadge("노출", "on"),
+      adminStatusBadge(n.pinned ? "고정" : "일반", n.pinned ? "warn" : "off"),
+      adminActionButton("숨김", "notice:hide", true)
+    ]);
+    return adminToolbar("공지 관리", `${noticeItems.length}개`) +
+      adminTable(["제목", "출처", "날짜", "URL", "노출", "고정", "관리"], rows);
+  }
+
+  function renderAdminInout() {
+    const flat = [];
+    INOUT_HISTORY.forEach(day => (day.events || []).forEach(ev => flat.push({ date: day.date, name: ev.name, race: ev.race, status: ev.status })));
+    flat.reverse();
+    const rows = flat.map(ev => [
+      escapeHtml(ev.name || "-"),
+      adminStatusBadge(ev.status || "-", ev.status === "OUT" ? "out" : "in"),
+      escapeHtml(ev.date || "-"),
+      escapeHtml(ev.race || "-"),
+      adminStatusBadge("표시", "on"),
+      adminActionButton("수정", "inout:edit")
+    ]);
+    return adminToolbar("IN&OUT 관리", `${flat.length}건`) +
+      adminTable(["이름", "타입", "날짜", "설명", "표시", "관리"], rows);
+  }
+
+  function renderAdminLinks() {
+    const rows = EXTERNAL_LINKS.map((l, i) => [
+      escapeHtml(l.title || "-"),
+      l.url ? `<a href="${safeLink(l.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(l.url.slice(0, 42))}</a>` : "-",
+      escapeHtml(l.note || "-"),
+      `<span class="admin-cell-num">${i + 1}</span>`,
+      adminStatusBadge("노출", "on"),
+      adminActionButton("수정", "link:edit")
+    ]);
+    return adminToolbar("링크 관리", `${EXTERNAL_LINKS.length}개`) +
+      adminTable(["제목", "URL", "카테고리", "순서", "노출", "관리"], rows);
+  }
+
+  function adminDataStatusEntry(name, count, error, updatedAt, note) {
+    const badge = error
+      ? adminStatusBadge("오류", "out")
+      : (count > 0 ? adminStatusBadge("정상", "on") : adminStatusBadge("대기", "warn"));
+    const meta = `${escapeHtml(note || (count + "건"))} · 갱신 ${escapeHtml(adminFormatTime(updatedAt))}`;
+    return `<div class="admin-datastatus-card"><div><div class="ds-name">${escapeHtml(name)}</div><div class="ds-meta">${meta}</div></div>${badge}</div>`;
+  }
+
+  function renderAdminDataStatus() {
+    const members = getAllMembersWithStatus();
+    const videoCount = getAdminVideoRows().length;
+    const inoutCount = INOUT_HISTORY.reduce((s, d) => s + (d.events ? d.events.length : 0), 0);
+    const entries = [
+      adminDataStatusEntry("멤버", members.length, false, lastCheckedAt, members.length + "명"),
+      adminDataStatusEntry("방송 상태(LIVE)", members.filter(m => m.status === "live").length, false, lastCheckedAt),
+      adminDataStatusEntry("일정", 0, false, "", "외부 일정표 연동"),
+      adminDataStatusEntry("티어/전적", members.length, false, lastCheckedAt, "ELOBOARD 연동"),
+      adminDataStatusEntry("영상", videoCount, youtubeLoadError, lastYoutubeCheckedAt),
+      adminDataStatusEntry("공지", noticeItems.length, noticeLoadError, lastNoticeCheckedAt),
+      adminDataStatusEntry("IN&OUT", inoutCount, false, "", inoutCount + "건"),
+      adminDataStatusEntry("외부 링크", EXTERNAL_LINKS.length, false, "", EXTERNAL_LINKS.length + "개")
+    ];
+    return adminToolbar("데이터 상태", "캐시/로딩 점검") +
+      `<div class="admin-datastatus-grid">${entries.join("")}</div>`;
+  }
+
+  function renderAdminSettings() {
+    const svcReady = !!window.MonstarzDataServices;
+    const rows = [
+      ["관리자 모드", "읽기 전용 (쓰기 비활성화)"],
+      ["인증", "미적용 (다음 패치에서 권한 분리 예정)"],
+      ["데이터 서비스 레이어", svcReady ? "로드됨 (MonstarzDataServices)" : "미로드"],
+      ["쓰기 기능", "다음 패치에서 연결 예정"],
+      ["대상 화면", "PC / 모바일 공통"]
+    ];
+    return adminToolbar("설정", "정보") +
+      `<div class="admin-settings-list">${rows.map(([k, v]) => `<div class="admin-settings-row"><b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span></div>`).join("")}</div>` +
+      adminEmptyState("설정 변경 기능은 다음 패치에서 권한 분리 후 제공됩니다.", "todo");
+  }
+
+  // 관리자 섹션 키 -> Supabase 리소스/컬럼 매핑 (연결됐을 때 실데이터 + 작동 버튼)
+  const ADMIN_MANAGED = {
+    members: { resource: "members", cols: [["name", "이름"], ["race", "종족"], ["tier", "티어"], ["soop_id", "SOOP ID"]], pin: false },
+    schedules: { resource: "schedules", cols: [["title", "제목"], ["event_date", "날짜"], ["status", "상태"]], pin: false },
+    videos: { resource: "videos", cols: [["title", "제목"], ["platform", "플랫폼"], ["member_code", "멤버"]], pin: true },
+    notices: { resource: "notices", cols: [["title", "제목"], ["station_name", "출처"], ["notice_date", "날짜"]], pin: true },
+    inout: { resource: "inout", cols: [["member_name", "이름"], ["event_type", "타입"], ["event_date", "날짜"]], pin: false },
+    links: { resource: "links", cols: [["title", "제목"], ["category", "카테고리"], ["sort_order", "순서"]], pin: false }
+  };
+
+  function renderAdmin() {
+    if (!adminNav || !adminContent) return;
+    adminNav.innerHTML = ADMIN_SECTIONS.map(s =>
+      `<button type="button" data-admin-section="${escapeHtml(s.key)}" class="${s.key === currentAdminSection ? "active" : ""}">${escapeHtml(s.label)}</button>`
+    ).join("");
+    if (adminUpdatedAt) adminUpdatedAt.textContent = "마지막 갱신: " + adminLatestUpdate();
+    renderAdminConnBar();
+
+    // Supabase 연결 + 관리자 인증 상태이고 관리 대상 섹션이면 실데이터(작동 버튼) 로드
+    if (adminConn.authed && adminConn.supabaseReady && ADMIN_MANAGED[currentAdminSection]) {
+      adminContent.innerHTML = adminEmptyState(UI_LOADING_TEXT, "empty");
+      loadAdminSupabaseSection(currentAdminSection);
+      return;
+    }
+
+    let html = "";
+    switch (currentAdminSection) {
+      case "members": html = renderAdminMembers(); break;
+      case "schedules": html = renderAdminSchedules(); break;
+      case "videos": html = renderAdminVideos(); break;
+      case "notices": html = renderAdminNotices(); break;
+      case "inout": html = renderAdminInout(); break;
+      case "links": html = renderAdminLinks(); break;
+      case "data-status": html = renderAdminDataStatus(); break;
+      case "settings": html = renderAdminSettings(); break;
+      case "dashboard":
+      default: html = renderAdminDashboard(); break;
+    }
+    adminContent.innerHTML = html;
+    // 데이터 상태 화면 + Supabase 연결 시 자동화 실행 로그(automation_runs) 덧붙이기
+    if (currentAdminSection === "data-status" && adminConn.authed && adminConn.supabaseReady) {
+      loadAutomationRuns();
+    }
+  }
+
+  async function loadAutomationRuns() {
+    try {
+      const rows = await adminApi("automation");
+      const list = Array.isArray(rows) ? rows : [];
+      const cols = ["작업", "상태", "원천→저장", "found/written", "시각", "오류"];
+      const body = list.map(r => [
+        escapeHtml(r.job_name || "-"),
+        adminStatusBadge(r.status || "-", r.status === "success" ? "on" : (r.status === "failed" ? "out" : "warn")),
+        escapeHtml((r.source || "-") + " → " + (r.target || "-")),
+        escapeHtml((r.items_found || 0) + " / " + (r.items_written || 0)),
+        escapeHtml(adminFormatTime(r.finished_at || r.created_at)),
+        escapeHtml(r.error_message ? String(r.error_message).slice(0, 40) : "-")
+      ]);
+      const section = `<div class="admin-section">${adminToolbar("자동 수집 로그 (automation_runs)", list.length + "건")}${adminTable(cols, body)}</div>`;
+      adminContent.insertAdjacentHTML("beforeend", section);
+    } catch (error) {
+      const note = (error && error.payload && error.payload.error === "supabase_not_configured")
+        ? "automation_runs 테이블이 아직 없거나 Supabase 미연결입니다."
+        : "자동 수집 로그를 불러오지 못했습니다.";
+      adminContent.insertAdjacentHTML("beforeend", `<div class="admin-section">${adminEmptyState(note, "todo")}</div>`);
+    }
+  }
+
+  // ---- Supabase 연결 / 관리자 인증 ----
+  const adminConn = { checked: false, authed: false, adminConfigured: false, supabaseReady: false, reachable: false };
+
+  async function refreshAdminConn() {
+    try {
+      const res = await fetch("/api/admin/auth/status", { cache: "no-store" });
+      if (!res.ok) throw new Error("status_" + res.status);
+      const data = await res.json();
+      adminConn.reachable = true;
+      adminConn.authed = !!data.authed;
+      adminConn.adminConfigured = !!data.adminConfigured;
+      adminConn.supabaseReady = !!data.supabaseReady;
+    } catch (error) {
+      // 로컬 정적 서버 등 서버리스 함수가 없을 때: 미연결로 간주하고 fallback
+      adminConn.reachable = false;
+      adminConn.authed = false;
+      adminConn.adminConfigured = false;
+      adminConn.supabaseReady = false;
+    }
+    adminConn.checked = true;
+    renderAdmin();
+  }
+
+  function renderAdminConnBar() {
+    const bar = document.getElementById("adminConnBar");
+    if (!bar) return;
+    if (!adminConn.checked) { bar.innerHTML = ""; return; }
+    if (!adminConn.reachable || !adminConn.adminConfigured) {
+      bar.innerHTML =
+        `<div class="admin-conn-card warn"><div class="admin-conn-msg">Supabase가 아직 연결되지 않았습니다.` +
+        `<small>docs/supabase-setup.md 안내에 따라 프로젝트를 생성하고 환경변수를 설정해주세요. 현재는 기존 데이터 읽기/fallback 모드로 동작합니다.</small></div></div>`;
+      return;
+    }
+    if (!adminConn.authed) {
+      bar.innerHTML =
+        `<div class="admin-conn-card"><div class="admin-conn-msg">관리자 인증이 필요합니다.<small>ADMIN_SECRET 코드를 입력하세요.</small></div>` +
+        `<div class="admin-conn-actions"><input id="adminCodeInput" type="password" placeholder="관리자 코드" autocomplete="off"><button id="adminLoginBtn" type="button">로그인</button></div></div>`;
+      return;
+    }
+    const sb = adminConn.supabaseReady ? "Supabase 연결됨" : "Supabase 환경변수 미설정(읽기 fallback)";
+    bar.innerHTML =
+      `<div class="admin-conn-card ok"><div class="admin-conn-msg">관리자 인증됨 · ${escapeHtml(sb)}</div>` +
+      `<div class="admin-conn-actions"><button id="adminLogoutBtn" class="ghost" type="button">로그아웃</button></div></div>`;
+  }
+
+  async function adminApi(path, options) {
+    options = options || {};
+    const res = await fetch("/api/admin/" + path, {
+      method: options.method || "GET",
+      headers: { "Content-Type": "application/json" },
+      body: options.body ? JSON.stringify(options.body) : undefined,
+      cache: "no-store"
+    });
+    let data = null;
+    try { data = await res.json(); } catch (e) {}
+    if (!res.ok || (data && data.ok === false)) {
+      const err = new Error((data && data.message) || ("api_error_" + res.status));
+      err.payload = data;
+      throw err;
+    }
+    return data ? data.data : null;
+  }
+
+  async function loadAdminSupabaseSection(section) {
+    const conf = ADMIN_MANAGED[section];
+    if (!conf) return;
+    try {
+      const rows = await adminApi(conf.resource);
+      const list = Array.isArray(rows) ? rows : [];
+      const cols = conf.cols.map(c => c[1]).concat(["노출", "관리"]);
+      const body = list.map(row => {
+        const cells = conf.cols.map(c => escapeHtml(String(row[c[0]] === null || row[c[0]] === undefined ? "-" : row[c[0]])));
+        cells.push(adminStatusBadge(row.is_visible === false ? "숨김" : "노출", row.is_visible === false ? "off" : "on"));
+        let actions = "";
+        if (conf.pin) actions += adminActionButton(row.is_pinned ? "고정해제" : "고정", conf.resource + ":pin:" + row.id);
+        if (row.is_visible === false) actions += adminActionButton("복구", conf.resource + ":restore:" + row.id);
+        else actions += adminActionButton("숨김", conf.resource + ":hide:" + row.id, true);
+        cells.push(actions);
+        return cells;
+      });
+      adminContent.innerHTML = adminToolbar(conf.resource + " (Supabase)", list.length + "건") + adminTable(cols, body);
+    } catch (error) {
+      if (error && error.payload && error.payload.error === "supabase_not_configured") {
+        adminContent.innerHTML = adminToolbar(section, "Supabase 미연결") + adminEmptyState("Supabase 환경변수가 설정되지 않았습니다. docs/supabase-setup.md 를 확인하세요.", "todo");
+      } else {
+        adminContent.innerHTML = adminToolbar(section, "오류") + adminEmptyState(UI_ERROR_TEXT, "error");
+      }
+    }
+  }
+
+  function setAdminSection(section, options) {
+    const valid = ADMIN_SECTIONS.some(s => s.key === section);
+    currentAdminSection = valid ? section : "dashboard";
+    renderAdmin();
+    if (!options || options.updateUrl !== false) {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set("tab", "admin");
+        url.searchParams.set("admin", currentAdminSection);
+        window.history.replaceState(window.history.state, "", url.toString());
+      } catch (error) {}
+    }
+  }
+
+  let adminToastTimer = null;
+  function showAdminToast(message) {
+    let el = document.getElementById("adminToast");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "adminToast";
+      el.className = "admin-toast";
+      document.body.appendChild(el);
+    }
+    el.textContent = message;
+    el.classList.add("show");
+    if (adminToastTimer) clearTimeout(adminToastTimer);
+    adminToastTimer = setTimeout(() => el.classList.remove("show"), 2400);
+  }
+
+  function getCctvCandidates() {
+    return getAllMembersWithStatus()
+      .filter(member => member.userId || extractSoopUserId(member.live || member.stream || ""))
+      .sort((a, b) => Number(b.status === "live") - Number(a.status === "live") || String(a.name).localeCompare(String(b.name), "ko"));
+  }
+
+  function ensureCctvSelection(rows) {
+    if (cctvSelectedIds.length) return;
+    const liveDefaults = rows.filter(member => member.status === "live").slice(0, 4).map(member => member.userId).filter(Boolean);
+    cctvSelectedIds = liveDefaults.length ? liveDefaults : rows.slice(0, 2).map(member => member.userId).filter(Boolean);
+  }
+
+  function stopCctvPlayers() {
+    if (cctvGrid) cctvGrid.innerHTML = renderHubEmpty("CCTV 페이지에 들어가면 선택한 방송 플레이어가 열립니다.");
+  }
+
+  function renderCctv() {
+    if (!cctvPicker || !cctvGrid) return;
+    const rows = getCctvCandidates();
+    ensureCctvSelection(rows);
+    cctvPicker.innerHTML = rows.length
+      ? rows.map(member => {
+          const id = member.userId || extractSoopUserId(member.live || member.stream || "");
+          const active = cctvSelectedIds.includes(id);
+          return `<button type="button" class="${active ? "active" : ""}" data-cctv-id="${escapeHtml(id)}">${escapeHtml(member.name)}${member.status === "live" ? " · LIVE" : ""}</button>`;
+        }).join("")
+      : renderHubEmpty();
+
+    const selected = rows.filter(member => cctvSelectedIds.includes(member.userId || extractSoopUserId(member.live || member.stream || "")));
+    cctvGrid.innerHTML = selected.length
+      ? selected.map(member => {
+          const url = getMemberWatchUrl(member);
+          return `
+            <article class="cctv-player">
+              <div class="cctv-head">
+                <div class="cctv-name">${escapeHtml(member.name)} · ${escapeHtml(member.race || "")}</div>
+                <a class="cctv-open" href="${safeLink(url)}" target="_blank" rel="noopener noreferrer">새 창</a>
+              </div>
+              <iframe class="cctv-frame" src="${safeLink(url)}" title="${escapeHtml(member.name)} CCTV" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+            </article>
+          `;
+        }).join("")
+      : renderHubEmpty("동시에 볼 멤버를 선택해주세요.");
+
+    // Grow the grid into a square (2x2, then 3x...) instead of one long row:
+    // 3rd player drops to the next row, 4th sits beside it, and so on.
+    const cctvCols = selected.length ? Math.ceil(Math.sqrt(selected.length)) : 1;
+    cctvGrid.style.gridTemplateColumns = `repeat(${cctvCols}, minmax(0, 1fr))`;
+
+    cctvPicker.querySelectorAll("[data-cctv-id]").forEach(button => {
+      button.addEventListener("click", () => {
+        const id = button.dataset.cctvId;
+        cctvSelectedIds = cctvSelectedIds.includes(id)
+          ? cctvSelectedIds.filter(value => value !== id)
+          : [...cctvSelectedIds, id].slice(-9);
+        renderCctv();
+      });
+    });
   }
 
   function getLeaderCoachCategory(member) {
@@ -8316,6 +10347,7 @@ function createMemberCard(member) {
     prepareRosterLayout();
     const filtered = getFilteredMembers();
     buildSummary(filtered);
+    renderHomeDashboard();
     renderStaff(filtered);
     renderPlayers(filtered);
     fixRosterLabels();
@@ -8426,7 +10458,7 @@ function createMemberCard(member) {
     }
 
     if (!visibleNoticeItems.length) {
-      noticeList.innerHTML = `<div class="empty">공지 데이터가 없습니다.</div>`;
+      noticeList.innerHTML = renderPageEmpty(noticeLoadError ? UI_ERROR_TEXT : UI_EMPTY_TEXT, noticeLoadError ? "error" : "empty");
       return;
     }
 
@@ -8453,18 +10485,24 @@ function createMemberCard(member) {
 
   async function fetchNotices() {
     try {
-      const response = await fetch(`${NOTICE_JSON_URL}?t=${Date.now()}`, { cache: "no-store" });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
+      const result = window.MonstarzDataServices
+        ? await MonstarzDataServices.notices(NOTICE_JSON_URL)
+        : { data: await fetchYoutubeJson(NOTICE_JSON_URL) };
+      if (result.error && !result.data) throw result.error;
+      const data = result.data || {};
       noticeItems = (Array.isArray(data?.items) ? data.items : [])
         .map(normalizeNoticeItem)
         .filter(item => item.link || item.content || item.title);
-      lastNoticeCheckedAt = data?.checkedAt || "";
+      noticeLoadError = false;
+      lastNoticeCheckedAt = data?.checkedAt || result.updatedAt || "";
       renderNotices();
+      renderHomeDashboard();
       console.log("공지 데이터 업데이트 성공", { total: noticeItems.length, checkedAt: lastNoticeCheckedAt });
     } catch (error) {
       console.log("공지 데이터 가져오기 실패", error);
+      noticeLoadError = true;
       renderNotices();
+      renderHomeDashboard();
     }
   }
 
@@ -8499,8 +10537,19 @@ function createMemberCard(member) {
     }
   }
 
+  function loadYoutubeIframeApi() {
+    if (youtubeApiReady || youtubeApiLoading || window.YT?.Player) return;
+    youtubeApiLoading = true;
+    const script = document.createElement("script");
+    script.src = "https://www.youtube.com/iframe_api";
+    script.async = true;
+    script.onerror = () => { youtubeApiLoading = false; };
+    document.head.appendChild(script);
+  }
+
   window.onYouTubeIframeAPIReady = function () {
     youtubeApiReady = true;
+    youtubeApiLoading = false;
     if (youtubeItems.length) selectYoutubeVideo(selectedYoutubeIndex, false, false);
   };
 
@@ -8517,6 +10566,7 @@ function createMemberCard(member) {
   function createYoutubePlayer(videoId, shouldAutoplay) {
     if (!videoId || !youtubePlayerMount) return false;
     destroyYoutubePlayer();
+    loadYoutubeIframeApi();
 
     if (!window.YT || !window.YT.Player || !youtubeApiReady) {
       const params = new URLSearchParams({
@@ -8755,13 +10805,14 @@ function createMemberCard(member) {
   }
 
   async function fetchSoopOembedHtml(vodUrl, title) {
-    const apiUrl = "https://openapi.sooplive.com/oembed/embedinfo?vod_url=" +
-      encodeURIComponent(vodUrl) + "&width=960&height=540";
-
-    const response = await fetch(apiUrl, { cache: "no-store" });
-    if (!response.ok) throw new Error("SOOP oEmbed HTTP " + response.status);
-
-    const data = await response.json();
+    const result = window.MonstarzDataServices
+      ? await MonstarzDataServices.soopOembed(vodUrl, { width: 960, height: 540 })
+      : { data: await fetch("https://openapi.sooplive.com/oembed/embedinfo?vod_url=" + encodeURIComponent(vodUrl) + "&width=960&height=540", { cache: "no-store" }).then(response => {
+          if (!response.ok) throw new Error("SOOP oEmbed HTTP " + response.status);
+          return response.json();
+        }) };
+    if (result.error && !result.data) throw result.error;
+    const data = result.data || {};
     const embedHtml = data.html || data.embed_html || data.embedHtml || "";
     if (!embedHtml) throw new Error("SOOP oEmbed html empty");
 
@@ -8876,8 +10927,10 @@ function createMemberCard(member) {
         youtubePlayer.classList.add("hidden");
         destroyYoutubePlayer();
       }
-      youtubeList.innerHTML = `<div class="empty">팬튜브 영상 데이터가 없습니다.</div>`;
+      youtubeList.innerHTML = renderPageEmpty(youtubeLoadError ? UI_ERROR_TEXT : UI_EMPTY_TEXT, youtubeLoadError ? "error" : "empty");
       updateYoutubeAutoplayButton();
+      renderHomeDashboard();
+      renderVideosHub();
       return;
     }
 
@@ -8929,13 +10982,16 @@ function createMemberCard(member) {
 
     // 핵심: 자동 갱신으로 renderYoutube()가 호출되어도 기존 플레이어를 다시 만들지 않음.
     // 아직 아무 영상도 선택/재생되지 않은 최초 진입 때만 기본 영상을 세팅.
-    if (!youtubePlayerActive && !currentYoutubeVideoId) {
+    const shouldMountYoutubePlayer = youtubeScreen && !youtubeScreen.classList.contains("hidden");
+    if (shouldMountYoutubePlayer && !youtubePlayerActive && !currentYoutubeVideoId) {
       selectYoutubeVideo(selectedYoutubeIndex, false, youtubeAutoplayEnabled);
     } else {
       document.querySelectorAll(".youtube-card").forEach((card, cardIndex) => {
         card.classList.toggle("active", cardIndex === selectedYoutubeIndex);
       });
     }
+    renderHomeDashboard();
+    renderVideosHub();
   }
 
   function normalizeYoutubeItem(item, sourceName, order) {
@@ -8967,16 +11023,23 @@ function createMemberCard(member) {
 
   async function fetchYoutube() {
     try {
+      const svc = window.MonstarzDataServices;
       const results = await Promise.allSettled([
-        fetchYoutubeJson(YOUTUBE_JSON_URL),
-        fetchYoutubeJson(KAMRINI_JSON_URL)
+        svc ? svc.videos("youtube", YOUTUBE_JSON_URL) : fetchYoutubeJson(YOUTUBE_JSON_URL).then(data => ({ data })),
+        svc ? svc.videos("kamrini", KAMRINI_JSON_URL) : fetchYoutubeJson(KAMRINI_JSON_URL).then(data => ({ data }))
       ]);
 
-      const normalData = results[0].status === "fulfilled" ? results[0].value : null;
-      const kamriniData = results[1].status === "fulfilled" ? results[1].value : null;
+      const normalResult = results[0].status === "fulfilled" ? results[0].value : null;
+      const kamriniResult = results[1].status === "fulfilled" ? results[1].value : null;
+      const normalData = normalResult?.data || null;
+      const kamriniData = kamriniResult?.data || null;
+      const hasFreshFailure = Boolean((normalResult?.error && !normalData) || (kamriniResult?.error && !kamriniData) || results.some(result => result.status === "rejected"));
 
       const normalItems = Array.isArray(normalData?.items) ? normalData.items : [];
       const kamriniItems = Array.isArray(kamriniData?.items) ? kamriniData.items : [];
+      if (!normalItems.length && !kamriniItems.length && hasFreshFailure) {
+        throw normalResult?.error || kamriniResult?.error || results.find(result => result.status === "rejected")?.reason || new Error("영상 데이터 없음");
+      }
 
       youtubeItems = [
         ...normalItems.map((item, index) => normalizeYoutubeItem(item, item.name || item.channelTitle || "팬유튜브", index)),
@@ -8990,16 +11053,22 @@ function createMemberCard(member) {
         return true;
       });
 
-      lastYoutubeCheckedAt = normalData?.checkedAt || kamriniData?.scrapedAt || "";
+      youtubeLoadError = Boolean(hasFreshFailure && youtubeItems.length === 0);
+      lastYoutubeCheckedAt = normalData?.checkedAt || kamriniData?.scrapedAt || normalResult?.updatedAt || kamriniResult?.updatedAt || "";
       renderYoutube();
+      renderHomeDashboard();
+      renderVideosHub();
       console.log("유튜브 데이터 업데이트 성공", { normalData, kamriniData, total: youtubeItems.length });
     } catch (error) {
       console.log("유튜브 데이터 가져오기 실패", error);
+      youtubeLoadError = true;
       // 재생 중 네트워크 오류가 나도 기존 목록/플레이어를 유지해서 영상이 끊기지 않게 함.
       if (!youtubePlayerActive) {
         youtubeItems = [];
         renderYoutube();
       }
+      renderHomeDashboard();
+      renderVideosHub();
     }
   }
 
@@ -9069,8 +11138,13 @@ function createMemberCard(member) {
   function loadFundingTempFrame() {
     if (!fundingTempFrame) return;
     const embedSearch = window.location.search || "";
+    // Guard MutationObserver inside the funding embed too: the YouTube IFrame
+    // API loaded in the srcdoc can call observe() before its target exists,
+    // which would throw an uncaught TypeError in the embed console.
+    const observerGuardScript = "<script>(function(){if(typeof MutationObserver!==\"function\"||!MutationObserver.prototype)return;var isE=function(m){m=String(m||\"\");return m.indexOf(\"Failed to execute 'observe' on 'MutationObserver'\")!==-1&&m.indexOf(\"not of type 'Node'\")!==-1;};var prev=window.onerror;window.onerror=function(m,s,l,c,e){if(isE(m))return true;if(typeof prev===\"function\")return prev.apply(this,arguments);return false;};var o=MutationObserver.prototype.observe;MutationObserver.prototype.observe=function(t,op){if(!t||typeof t.nodeType!==\"number\")return;return o.call(this,t,op);};window.addEventListener(\"error\",function(e){if(isE(e&&e.message)){e.preventDefault();e.stopImmediatePropagation();return false;}},true);})();<\/script>";
     const injectedSearchScript = '<script>window.__FUNDING_EMBED_SEARCH__ = ' + JSON.stringify(embedSearch) + ';<\/script>';
-    const nextSrcdoc = FUNDING_TEMP_DOC.replace('</head>', injectedSearchScript + '</head>');
+    const fundingDoc = FUNDING_TEMP_DOC.replace(/<script\s+src="https:\/\/www\.youtube\.com\/iframe_api"><\/script>\s*/i, "");
+    const nextSrcdoc = fundingDoc.replace('<head>', '<head>' + observerGuardScript + injectedSearchScript);
     if (fundingTempFrame.srcdoc !== nextSrcdoc) {
       fundingTempFrame.srcdoc = nextSrcdoc;
     }
@@ -9130,16 +11204,24 @@ function createMemberCard(member) {
   const ACTIVE_TAB_STORAGE_KEY = "monstarz-active-tab";
 
   function getTabKeyFromElement(tab) {
+    if (tab === tabMembers) return "members";
     if (tab === tabProfile) return "profile";
     if (tab === tabTier) return "tier";
+    if (tab === tabInfo) return "info";
+    if (tab === tabSchedule) return "schedule";
+    if (tab === tabVideos) return "videos";
     if (tab === tabNotice) return "notice";
     if (tab === tabInout) return "inout";
     if (tab === tabBoja) return "boja";
     if (tab === tabYoutube) return "youtube";
+    if (tab === tabTools) return "tools";
+    if (tab === tabCctv) return "cctv";
     if (tab === tabGame) return "game";
     if (tab === tabDuckCalc) return "duckCalc";
     if (tab === tabPinballDonation) return "pinballDonation";
     if (tab === tabFunding) return "funding";
+    if (tab === tabLinks) return "links";
+    if (tab === tabAdmin) return "admin";
     return "main";
   }
 
@@ -9148,16 +11230,24 @@ function createMemberCard(member) {
     if (!key) return "";
     const tabMap = {
       main: tabMain,
+      members: tabMembers,
       profile: tabProfile,
       tier: tabTier,
+      info: tabInfo,
+      schedule: tabSchedule,
+      videos: tabVideos,
       notice: tabNotice,
       inout: tabInout,
       boja: tabBoja,
       youtube: tabYoutube,
+      tools: tabTools,
+      cctv: tabCctv,
       game: tabGame,
       duckCalc: tabDuckCalc,
       pinballDonation: tabPinballDonation,
-      funding: tabFunding
+      funding: tabFunding,
+      links: tabLinks,
+      admin: tabAdmin
     };
     if (!Object.prototype.hasOwnProperty.call(tabMap, key)) return "";
     if (key === "funding" && isFundingTempTabHidden()) return "main";
@@ -9195,10 +11285,28 @@ function createMemberCard(member) {
     } catch (error) {}
   }
 
+  function getVisibleParentTab(activeTab) {
+    if ([tabSchedule, tabProfile, tabNotice, tabInout].includes(activeTab)) return tabInfo;
+    if ([tabBoja, tabYoutube].includes(activeTab)) return tabVideos;
+    if ([tabCctv, tabGame, tabDuckCalc, tabPinballDonation, tabFunding].includes(activeTab)) return tabTools;
+    return activeTab;
+  }
+
+  function setNavTreeOpen(parentTab, force) {
+    const tree = parentTab?.closest(".nav-tree");
+    if (!tree) return;
+    const open = force === undefined ? !tree.classList.contains("is-open") : Boolean(force);
+    tree.classList.toggle("is-open", open);
+    parentTab.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
   function setActiveTab(activeTab, options = {}) {
-    [tabMain, tabProfile, tabTier, tabNotice, tabInout, tabBoja, tabYoutube, tabGame, tabDuckCalc, tabPinballDonation, tabFunding].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
+    [tabMain, tabMembers, tabProfile, tabTier, tabInfo, tabSchedule, tabVideos, tabNotice, tabInout, tabBoja, tabYoutube, tabTools, tabCctv, tabGame, tabDuckCalc, tabPinballDonation, tabFunding, tabLinks, tabAdmin].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
     const safeActiveTab = activeTab === tabFunding && isFundingTempTabHidden() ? tabMain : activeTab;
     if (safeActiveTab) safeActiveTab.classList.add("active");
+    const parentTab = getVisibleParentTab(safeActiveTab);
+    if (parentTab && parentTab !== safeActiveTab) parentTab.classList.add("active");
+    if (parentTab) setNavTreeOpen(parentTab, true);
     document.body.classList.toggle("main-tab-active", safeActiveTab === tabMain);
     document.body.classList.toggle("tier-tab-active", safeActiveTab === tabTier);
     document.body.classList.toggle("pinball-donation-mode", safeActiveTab === tabPinballDonation);
@@ -9207,7 +11315,8 @@ function createMemberCard(member) {
   window.setActiveTab = setActiveTab;
 
   function hideAllScreens() {
-    [mainScreen, profileScreen, tierScreen, noticeScreen, inoutScreen, bojaScreen, youtubeScreen, gameScreen, duckCalcScreen, pinballDonationScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
+    if (cctvScreen && !cctvScreen.classList.contains("hidden")) stopCctvPlayers();
+    [homeScreen, mainScreen, profileScreen, tierScreen, infoScreen, scheduleScreen, videosScreen, noticeScreen, inoutScreen, bojaScreen, youtubeScreen, toolsScreen, cctvScreen, linksScreen, adminScreen, gameScreen, duckCalcScreen, pinballDonationScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
   }
   window.hideAllScreens = hideAllScreens;
 
@@ -9215,6 +11324,15 @@ function createMemberCard(member) {
     setFundingPageMode(false);
     setActiveTab(tabMain);
     updateSummaryVisibility(true);
+    hideAllScreens();
+    renderHomeDashboard();
+    homeScreen.classList.remove("hidden");
+  }
+
+  function showMembersScreen() {
+    setFundingPageMode(false);
+    setActiveTab(tabMembers);
+    updateSummaryVisibility(false);
     hideAllScreens();
     mainScreen.classList.remove("hidden");
   }
@@ -9233,6 +11351,23 @@ function createMemberCard(member) {
     updateSummaryVisibility(false);
     hideAllScreens();
     tierScreen.classList.remove("hidden");
+  }
+
+  function showInfoScreen() {
+    setNavTreeOpen(tabInfo);
+  }
+
+  function showScheduleScreen() {
+    setFundingPageMode(false);
+    setActiveTab(tabSchedule);
+    updateSummaryVisibility(false);
+    hideAllScreens();
+    renderScheduleHub();
+    scheduleScreen.classList.remove("hidden");
+  }
+
+  function showVideosScreen() {
+    setNavTreeOpen(tabVideos);
   }
 
   function showNoticeScreen() {
@@ -9270,6 +11405,44 @@ function createMemberCard(member) {
     hideAllScreens();
     inoutScreen.classList.remove("hidden");
     renderInout();
+  }
+
+  function showToolsScreen() {
+    setNavTreeOpen(tabTools);
+  }
+
+  function showCctvScreen() {
+    setFundingPageMode(false);
+    setActiveTab(tabCctv);
+    updateSummaryVisibility(false);
+    hideAllScreens();
+    cctvScreen.classList.remove("hidden");
+    renderCctv();
+  }
+
+  function showLinksScreen() {
+    setFundingPageMode(false);
+    setActiveTab(tabLinks);
+    updateSummaryVisibility(false);
+    hideAllScreens();
+    renderLinksHub();
+    linksScreen.classList.remove("hidden");
+  }
+
+  function showAdminScreen() {
+    setFundingPageMode(false);
+    setActiveTab(tabAdmin);
+    updateSummaryVisibility(false);
+    hideAllScreens();
+    let section = currentAdminSection || "dashboard";
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      const requested = params.get("admin");
+      if (requested && ADMIN_SECTIONS.some(s => s.key === requested)) section = requested;
+    } catch (error) {}
+    setAdminSection(section, { updateUrl: false });
+    adminScreen.classList.remove("hidden");
+    refreshAdminConn();
   }
 
 
@@ -9318,11 +11491,23 @@ function createMemberCard(member) {
 
   function showTabByKey(tabKey) {
     switch (normalizeTabKey(tabKey) || "main") {
+      case "members":
+        showMembersScreen();
+        break;
       case "profile":
         showProfileScreen();
         break;
       case "tier":
         showTierScreen();
+        break;
+      case "info":
+        showInfoScreen();
+        break;
+      case "schedule":
+        showScheduleScreen();
+        break;
+      case "videos":
+        showVideosScreen();
         break;
       case "notice":
         showNoticeScreen();
@@ -9336,6 +11521,12 @@ function createMemberCard(member) {
       case "youtube":
         showYoutubeScreen();
         break;
+      case "tools":
+        showToolsScreen();
+        break;
+      case "cctv":
+        showCctvScreen();
+        break;
       case "game":
         showGameScreen();
         break;
@@ -9347,6 +11538,12 @@ function createMemberCard(member) {
         break;
       case "funding":
         showFundingScreen();
+        break;
+      case "links":
+        showLinksScreen();
+        break;
+      case "admin":
+        showAdminScreen();
         break;
       default:
         showMainScreen();
@@ -9380,22 +11577,20 @@ function createMemberCard(member) {
   }
 
   async function fetchLiveStatus() {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
-
     try {
-      const response = await fetch(LIVE_STATUS_URL, {
-        signal: controller.signal,
-        cache: "no-store"
-      });
-
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const data = await response.json();
+      const result = window.MonstarzDataServices
+        ? await MonstarzDataServices.live(LIVE_STATUS_URL, { timeoutMs: 15000 })
+        : { data: await fetch(LIVE_STATUS_URL, { cache: "no-store" }).then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+          }) };
+      if (result.error && !result.data) throw result.error;
+      const data = result.data || {};
 
       if (data && data.statuses) {
         liveStatusMap = data.statuses || {};
-        lastCheckedAt = data.checkedAt || TEAM.updatedAt;
+        rebuildLiveInfo(data);
+        lastCheckedAt = data.checkedAt || result.updatedAt || TEAM.updatedAt;
         console.log("LIVE 상태 업데이트 성공", data);
       }
     } catch (error) {
@@ -9404,8 +11599,6 @@ function createMemberCard(member) {
         return;
       }
       console.log("라이브 상태 가져오기 실패 → 기존 상태 유지", error);
-    } finally {
-      clearTimeout(timeoutId);
     }
   }
 
@@ -9423,6 +11616,11 @@ function createMemberCard(member) {
   renderYoutube();
   renderNotices();
   renderInout();
+  renderScheduleHub();
+  renderToolsHub();
+  renderLinksHub();
+  renderAdmin();
+  fetchScheduleToday();
   refreshLiveStatuses();
   fetchYoutube();
   fetchNotices();
@@ -9430,19 +11628,97 @@ function createMemberCard(member) {
   setInterval(refreshLiveStatuses, 20000);
   setInterval(fetchYoutube, 60000);
   setInterval(fetchNotices, 60000);
+  setInterval(fetchScheduleToday, 180000);
 
   searchInput.addEventListener("input", render);
   statusFilter.addEventListener("change", render);
   tabMain.addEventListener("click", showMainScreen);
+  tabMembers?.addEventListener("click", showMembersScreen);
   tabProfile.addEventListener("click", showProfileScreen);
   tabTier.addEventListener("click", showTierScreen);
+  tabInfo?.addEventListener("click", showInfoScreen);
+  tabSchedule?.addEventListener("click", showScheduleScreen);
+  tabVideos?.addEventListener("click", showVideosScreen);
   tabNotice.addEventListener("click", showNoticeScreen);
   tabBoja.addEventListener("click", showBojaScreen);
   tabYoutube.addEventListener("click", showYoutubeScreen);
+  tabTools?.addEventListener("click", showToolsScreen);
+  tabCctv?.addEventListener("click", showCctvScreen);
   if (tabGame) tabGame.addEventListener("click", showGameScreen);
   if (tabPinballDonation) tabPinballDonation.addEventListener("click", showPinballDonationScreen);
   if (tabFunding) tabFunding.addEventListener("click", showFundingScreen);
+  tabLinks?.addEventListener("click", showLinksScreen);
+  tabAdmin?.addEventListener("click", showAdminScreen);
+
+  adminNav?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-admin-section]");
+    if (!button) return;
+    setAdminSection(button.dataset.adminSection);
+  });
+
+  adminContent?.addEventListener("click", async (event) => {
+    const action = event.target.closest("[data-admin-action]");
+    if (!action) return;
+    const parts = String(action.dataset.adminAction || "").split(":");
+    // 연결된 실데이터 버튼 형식: "<resource>:<op>:<id>"
+    if (parts.length === 3 && adminConn.authed && adminConn.supabaseReady) {
+      const [resource, op, id] = parts;
+      try {
+        action.disabled = true;
+        if (op === "hide") await adminApi(resource + "/" + id + "/hide", { method: "PATCH" });
+        else if (op === "restore") await adminApi(resource + "/" + id + "/restore", { method: "PATCH" });
+        else if (op === "pin") await adminApi(resource + "/" + id + "/pin", { method: "PATCH", body: { pinned: !/고정해제/.test(action.textContent) } });
+        showAdminToast("저장 완료");
+        renderAdmin();
+      } catch (err) {
+        action.disabled = false;
+        showAdminToast(err && err.payload && err.payload.error === "unauthorized" ? "권한이 없습니다. 다시 로그인하세요." : "저장 실패: " + (err.message || ""));
+      }
+      return;
+    }
+    // 미연결/추가·수정 폼 미구현: 안내
+    if (!adminConn.reachable || !adminConn.adminConfigured) {
+      showAdminToast("Supabase 미연결: docs/supabase-setup.md 안내에 따라 환경변수를 설정하세요.");
+    } else if (!adminConn.authed) {
+      showAdminToast("관리자 로그인 후 사용할 수 있습니다.");
+    } else {
+      showAdminToast("추가/수정 입력 폼은 다음 패치에서 연결 예정입니다.");
+    }
+  });
+
+  document.getElementById("adminConnBar")?.addEventListener("click", async (event) => {
+    const loginBtn = event.target.closest("#adminLoginBtn");
+    const logoutBtn = event.target.closest("#adminLogoutBtn");
+    if (loginBtn) {
+      const input = document.getElementById("adminCodeInput");
+      const code = input ? input.value : "";
+      if (!code) { showAdminToast("관리자 코드를 입력하세요."); return; }
+      try {
+        loginBtn.disabled = true;
+        await adminApi("auth/login", { method: "POST", body: { code } });
+        showAdminToast("로그인되었습니다.");
+        await refreshAdminConn();
+      } catch (err) {
+        loginBtn.disabled = false;
+        showAdminToast("로그인 실패: 코드를 확인하세요.");
+      }
+    } else if (logoutBtn) {
+      try { await adminApi("auth/logout", { method: "POST" }); } catch (e) {}
+      await refreshAdminConn();
+      showAdminToast("로그아웃되었습니다.");
+    }
+  });
   tabInout.addEventListener("click", showInoutScreen);
+  cctvClear?.addEventListener("click", () => {
+    cctvSelectedIds = [];
+    renderCctv();
+  });
+  document.addEventListener("click", (event) => {
+    const navTarget = event.target.closest("[data-nav-tab]");
+    if (!navTarget) return;
+    event.preventDefault();
+    showTabByKey(navTarget.getAttribute("data-nav-tab"));
+  });
   youtubeAutoplayToggle.addEventListener("click", toggleYoutubeAutoplay);
   inoutSearchInput?.addEventListener("input", renderInout);
   [inoutFilterIn, inoutFilterOut, inoutFilterAll].forEach((button) => {
