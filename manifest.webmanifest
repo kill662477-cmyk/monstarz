@@ -1,13 +1,13 @@
 {
-  "name": "캄몬스타즈 모바일 팬허브",
+  "name": "캄몬스타즈 팬허브",
   "short_name": "MONSTARZ",
-  "description": "캄몬스타즈 방송 현황, 오늘 일정, 공지, 팬튜브, 티어표와 방송도구를 빠르게 확인하는 모바일 팬허브",
-  "start_url": "/mobile/",
-  "scope": "/mobile/",
+  "description": "캄몬스타즈 방송 현황, 일정, 공지, 팬튜브, 티어표와 방송도구를 모아 보는 팬허브",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#050b16",
   "theme_color": "#07172d",
-  "orientation": "portrait",
+  "orientation": "any",
   "icons": [
     {
       "src": "/assets/icon-192.png",

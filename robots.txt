@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /api/admin/
+Disallow: /api/soop-token
+Disallow: /api/soop-refresh
 
-Sitemap: https://monstarznew.vercel.app/sitemap.xml
+Sitemap: https://monstarz-kappa.vercel.app/sitemap.xml

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">MONSTARZ</title>
+  <desc id="desc">캄몬스타즈 팬허브 아이콘</desc>
+  <defs>
+    <linearGradient id="bg" x1="80" y1="32" x2="432" y2="480" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1D66FF"/>
+      <stop offset=".52" stop-color="#07172D"/>
+      <stop offset="1" stop-color="#050B16"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="128" y1="120" x2="384" y2="396" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F6B93B"/>
+      <stop offset=".48" stop-color="#56A1FF"/>
+      <stop offset="1" stop-color="#EF4444"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M109 340V172h53l44 82 44-82h53v168h-48v-88l-33 62h-32l-33-62v88h-48Z" fill="#F8FBFF"/>
+  <path d="M333 340V172h48v124h72v44H333Z" fill="url(#mark)"/>
+  <circle cx="392" cy="142" r="28" fill="#F6B93B"/>
+  <path d="M95 407h322" stroke="#56A1FF" stroke-width="18" stroke-linecap="round" opacity=".72"/>
+</svg>
