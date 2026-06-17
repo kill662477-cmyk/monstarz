@@ -12,8 +12,11 @@
     "api/schedule-today.js": {
       "maxDuration": 10
     },
-    "api/admin/[...path].js": {
+    "api/admin/index.js": {
       "maxDuration": 10
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/api/admin/(.*)", "destination": "/api/admin?path=$1" }
+  ]
 }

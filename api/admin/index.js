@@ -125,9 +125,12 @@ function fail(res, status, error, message) {
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
 
-  const segments = []
-    .concat(req.query && req.query.path ? req.query.path : [])
-    .map(function (s) { return String(s); });
+  // 경로는 vercel.json 리라이트로 ?path=auth/status 형태로 전달된다.
+  // (정적 프로젝트에서는 [...catch-all] 라우팅이 동작하지 않으므로 리라이트 사용)
+  const rawPath = req.query && req.query.path;
+  const segments = (Array.isArray(rawPath) ? rawPath : String(rawPath || "").split("/"))
+    .map(function (s) { return String(s); })
+    .filter(Boolean);
 
   const method = req.method;
 
