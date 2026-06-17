@@ -14,6 +14,7 @@ const SOURCE = [
   { name: "배성흠", userId: "goodzerg", role: "코치", tier: "Jack", race: "Zerg" },
   { name: "파도튜브", userId: "kthrs9207", role: "코치", tier: "Spade", race: "Protoss" },
   { name: "변현제", userId: "bye1013", role: "코치", tier: "God", race: "Protoss" },
+  { name: "김민철", userId: "minchul", role: "코치", tier: "God", race: "Zerg" },
   { name: "토마토", userId: "freshtomato", role: "학생", tier: "3", race: "Protoss", youtube: "https://www.youtube.com/channel/UCoBw6khRoeei_tgSBueVUXw" },
   { name: "지두두", userId: "wjswlgns09", role: "학생", tier: "3", race: "Terran" },
   { name: "햇살", userId: "thelddl", role: "학생", tier: "4", race: "Terran" },
