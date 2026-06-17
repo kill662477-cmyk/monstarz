@@ -4,6 +4,50 @@ Checkpoint date: 2026-06-17
 
 This file is intentionally ASCII-only so Claude Code can read it cleanly in any terminal encoding.
 
+## 배포/테스트 진행 로그 (2026-06-17 저녁)
+
+(한글. 비밀 값은 적지 않음.)
+
+### 테스트 저장소 + 배포
+- 테스트용 GitHub 저장소 `kill662477-cmyk/monstarz` 에 배포 (원본 `monstarznew`(origin)는 안 건드림).
+  - 로컬 작업 브랜치 `test-deploy` → `git push --force monstarz test-deploy:main` 로 푸시.
+  - 푸시 시 워크트리 삭제 374건(data/records, .github/workflows, 원래 scripts)은 **스테이징 제외** →
+    테스트 저장소엔 원본 전체 + 새 기능이 들어간 완전한 스냅샷이 올라감. 비밀키 미포함.
+- Vercel 프로젝트 `monstarz` (프로덕션 https://monstarz-kappa.vercel.app/).
+  - 환경변수 4개 등록 완료(Production & Preview): NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, ADMIN_SECRET.
+
+### 이날 저녁 적용한 수정 (홈/멤버)
+- 상단 헤더 중복 요약(#summaryGrid) 제거 + 참조 JS null-safe 처리.
+- 홈 일정: "오늘 것만" 표시(type==="upcoming" 제외), PC + 모바일.
+- 홈 공지: 실제 공지 피드 형식(notice-feed-card: 프로필+이름/시간+제목+본문)으로 교체(PC).
+  모바일 홈 공지는 원래 아바타형이라 그대로.
+- 방송중(.live-panel .hub-list) 내부 스크롤 박스 제거 → 페이지 스크롤이 가두지 않게 수정.
+- 멤버 추가: 김민철 (coach, 갓티어(God), Zerg, userId=minchul, 합류 2026-06-16).
+  index.html + mobile MEMBERS, index.html JOIN_DATES, 양쪽 INOUT_HISTORY 반영.
+
+### 중요 버그픽스 — 관리자 API 라우팅
+- 증상: 배포본에서 /api/supabase-config 는 200(ready:true)인데 /api/admin/auth/status 가 404.
+- 원인: 정적(비 Next) Vercel 프로젝트에서는 `api/admin/[...path].js` 같은 catch-all 이
+  멀티 세그먼트 경로를 라우팅하지 못함.
+- 해결:
+  - 함수 파일명 `api/admin/[...path].js` → `api/admin/index.js`.
+  - vercel.json 에 rewrite 추가: `/api/admin/(.*)` → `/api/admin?path=$1`.
+  - 핸들러는 req.query.path("auth/status")를 "/"로 잘라 segments 로 사용(배열/문자열 모두 처리).
+- 검증(배포 후): /api/admin/auth/status -> 200
+  `{ok:true, authed:false, adminConfigured:true, supabaseReady:true, supabasePublicReady:true}`.
+  즉 /admin 에서 ADMIN_SECRET 로그인 시 관리자 모드 활성화됨.
+
+### 현재 상태 / 다음
+- 관리자 모드: 환경변수 + 라우팅 모두 정상 → /admin 로그인 가능 상태.
+- Supabase 테이블은 스키마만 있고 데이터 비어 있음 → 관리 목록은 처음엔 0건(정상).
+  채우려면 관리자에서 추가하거나 scripts/import-supabase-*.js --apply.
+- 보안 후속(권장): secret 키 재발급, ADMIN_SECRET 강화(현재 약함).
+- 루트에 스트레이 파일 `Publishable key ....txt` 있음(공개키라 위험 낮음, 정리 권장).
+- 6차 자동화 잔여(공지/영상 Supabase 병합, 공개 "최근 갱신" 표시 등)는 미완.
+
+---
+
 ## 현재 운영 상태 / 세션 진행 로그 (2026-06-17)
 
 (이 섹션은 한글입니다. 비밀 값은 여기에 적지 않습니다.)

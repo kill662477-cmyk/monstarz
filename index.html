@@ -574,6 +574,22 @@ textarea:focus-visible,
   border: 0;
 }
 
+.youtube-player-frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #020817;
+}
+
+#otherVideoPlayerMount {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .youtube-player-info {
   padding: 12px 14px;
 }
@@ -622,6 +638,25 @@ textarea:focus-visible,
   background: rgba(229,57,53,.26);
   border-color: rgba(255,120,120,.4);
   color: #fff;
+}
+
+.other-video-card {
+  width: 100%;
+  text-align: left;
+}
+
+.other-video-card.active {
+  border-color: rgba(86,161,255,.66)!important;
+  box-shadow: 0 0 0 1px rgba(86,161,255,.22), 0 14px 30px rgba(0,0,0,.28)!important;
+}
+
+.other-video-card .hub-thumb {
+  overflow: hidden;
+}
+
+.other-video-card video.hub-thumb,
+.video-summary video.hub-thumb {
+  object-fit: cover;
 }
 
 .inout-card {
@@ -8019,6 +8054,12 @@ table.admin-table a:hover { text-decoration: underline; }
   font-size: 11px;
   font-weight: 900;
 }
+.admin-field-hint {
+  color: rgba(180,205,240,.70);
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1.35;
+}
 .admin-field input,
 .admin-field select,
 .admin-field textarea {
@@ -8129,15 +8170,38 @@ body.light-mode .admin-conn-msg { color: #13233a; }
 body.light-mode .admin-stat-card,
 body.light-mode .admin-table-wrap,
 body.light-mode .admin-datastatus-card,
-body.light-mode .admin-settings-row { background: #ffffff; border-color: rgba(37,99,235,.16); }
+body.light-mode .admin-settings-row,
+body.light-mode .admin-editor,
+body.light-mode .other-video-card { background: #ffffff; border-color: rgba(37,99,235,.16); }
 body.light-mode .admin-stat-card b,
 body.light-mode .admin-title,
 body.light-mode .admin-toolbar h3,
+body.light-mode .admin-editor-title,
+body.light-mode .admin-field label,
 body.light-mode .admin-datastatus-card .ds-name,
 body.light-mode .admin-settings-row b { color: #13233a; }
 body.light-mode table.admin-table td { color: #1c2c44; }
 body.light-mode table.admin-table th { background: #eef5ff; color: #13233a; }
 body.light-mode .admin-nav button { background: #eef5ff; color: #2a4b7c; }
+body.light-mode .admin-editor-sub,
+body.light-mode .admin-field-hint { color: #607998; }
+body.light-mode .admin-field input,
+body.light-mode .admin-field select,
+body.light-mode .admin-field textarea,
+body.light-mode .admin-check-label {
+  background: #f8fbff;
+  border-color: rgba(37,99,235,.18);
+  color: #13233a;
+}
+body.light-mode .admin-cancel-btn {
+  background: #eef5ff;
+  color: #2a4b7c;
+  border-color: rgba(37,99,235,.18);
+}
+body.light-mode .youtube-player-title,
+body.light-mode .other-video-card .hub-title { color: #13233a; }
+body.light-mode .youtube-player-meta-row,
+body.light-mode .other-video-card .hub-meta { color: #607998; }
 @media (max-width: 1100px) {
   .admin-stat-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .admin-datastatus-grid { grid-template-columns: 1fr; }
@@ -8773,6 +8837,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
           <div class="count" id="otherVideosCount">0개</div>
         </div>
+        <div id="otherVideoPlayer" class="youtube-player-card hidden">
+          <div class="youtube-player-frame">
+            <div id="otherVideoPlayerMount"></div>
+          </div>
+          <div class="youtube-player-info">
+            <div id="otherVideoPlayerTitle" class="youtube-player-title"></div>
+            <div class="youtube-player-meta-row">
+              <span id="otherVideoPlayerMeta"></span>
+              <a id="otherVideoPlayerOpen" class="youtube-open-link" href="#" target="_blank" rel="noopener noreferrer">영상 열기</a>
+            </div>
+          </div>
+        </div>
         <div id="otherVideosList" class="youtube-grid">
           <div class="empty">관리자에서 기타영상을 추가하면 여기에 표시됩니다.</div>
         </div>
@@ -9379,6 +9455,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const ADMIN_SECTIONS = [
     { key: "dashboard", label: "대시보드" },
     { key: "members", label: "멤버 관리" },
+    { key: "profiles", label: "프로필 관리" },
     { key: "schedules", label: "일정 관리" },
     { key: "videos", label: "영상 관리" },
     { key: "notices", label: "공지 관리" },
@@ -9451,6 +9528,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   let lastCheckedAt = TEAM.updatedAt;
   let youtubeItems = [];
   let otherVideoItems = [];
+  let activeOtherVideoUrl = "";
   let youtubeLoadError = false;
   let lastYoutubeCheckedAt = "";
   let noticeItems = [];
@@ -9526,6 +9604,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const otherVideosScreen = document.getElementById("otherVideosScreen");
   const otherVideosList = document.getElementById("otherVideosList");
   const otherVideosCount = document.getElementById("otherVideosCount");
+  const otherVideoPlayer = document.getElementById("otherVideoPlayer");
+  const otherVideoPlayerMount = document.getElementById("otherVideoPlayerMount");
+  const otherVideoPlayerTitle = document.getElementById("otherVideoPlayerTitle");
+  const otherVideoPlayerMeta = document.getElementById("otherVideoPlayerMeta");
+  const otherVideoPlayerOpen = document.getElementById("otherVideoPlayerOpen");
   const infoScreen = document.getElementById("infoScreen");
   const scheduleScreen = document.getElementById("scheduleScreen");
   const scheduleHubList = document.getElementById("scheduleHubList");
@@ -10009,7 +10092,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const badge = item.sourceName || item.viewCountText || item.name || "영상";
     return `
       <a class="hub-item video-summary" href="${safeLink(url)}" target="_blank" rel="noopener noreferrer">
-        ${item.thumbnail ? `<img class="hub-thumb" src="${safeLink(item.thumbnail)}" alt="${escapeHtml(item.title || "영상")} 썸네일" loading="lazy" decoding="async">` : `<div class="hub-thumb"></div>`}
+        ${renderVideoThumb(item, "hub-thumb")}
         <div>
           <div class="hub-title">${escapeHtml(item.title || "영상")}</div>
           <div class="hub-meta">${escapeHtml(getYoutubeMetaText(item))}</div>
@@ -10017,6 +10100,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="hub-badge">${escapeHtml(String(badge).slice(0, 8))}</span>
       </a>
     `;
+  }
+
+  function getVideoUrl(item) {
+    return String(item?.url || item?.link || item?.embedUrl || "");
+  }
+
+  function getVideoThumbnail(item) {
+    const direct = item?.thumbnail || item?.thumb || item?.thumbnailUrl || item?.image || "";
+    if (direct) return String(direct);
+    const videoId = getYoutubeVideoId(getVideoUrl(item));
+    return videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : "";
+  }
+
+  function isDirectVideoUrl(url) {
+    const clean = String(url || "").split("?")[0].split("#")[0].toLowerCase();
+    return /\.(mp4|webm|ogg|mov|m4v)$/.test(clean);
+  }
+
+  function renderVideoThumb(item, className) {
+    const url = getVideoUrl(item);
+    const thumbnail = getVideoThumbnail(item);
+    const alt = escapeHtml(item?.title || "영상");
+    if (thumbnail) {
+      return `<img class="${escapeHtml(className)}" src="${safeLink(thumbnail)}" alt="${alt} 썸네일" loading="lazy" decoding="async">`;
+    }
+    if (isDirectVideoUrl(url)) {
+      return `<video class="${escapeHtml(className)}" src="${safeLink(url)}#t=0.1" muted playsinline preload="metadata" aria-label="${alt} 미리보기"></video>`;
+    }
+    return `<div class="${escapeHtml(className)}"></div>`;
   }
 
   function isOtherVideoItem(item) {
@@ -10030,19 +10142,79 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     return markers.some(value => value === OTHER_VIDEO_PLATFORM.toLowerCase() || value === "other" || value === "etc");
   }
 
-  function renderOtherVideos() {
-    if (!otherVideosList) return;
-    const list = otherVideoItems.slice().sort((a, b) => {
+  function getSortedOtherVideos() {
+    return otherVideoItems.slice().sort((a, b) => {
       const pinDiff = Number(Boolean(b.isPinned || b.is_pinned)) - Number(Boolean(a.isPinned || a.is_pinned));
       if (pinDiff) return pinDiff;
       const sortDiff = Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
       if (sortDiff) return sortDiff;
       return getYoutubeSortTime(b) - getYoutubeSortTime(a);
     });
+  }
+
+  function renderOtherVideoPlayer(item) {
+    if (!otherVideoPlayer || !otherVideoPlayerMount) return;
+    const url = getVideoUrl(item);
+    if (!item || !url) {
+      otherVideoPlayer.classList.add("hidden");
+      otherVideoPlayerMount.innerHTML = "";
+      return;
+    }
+    const title = item.title || "영상";
+    const meta = getYoutubeMetaText(item) || item.sourceName || item.platform || OTHER_VIDEO_PLATFORM;
+    const videoId = getYoutubeVideoId(url);
+    const thumbnail = getVideoThumbnail(item);
+    otherVideoPlayer.classList.remove("hidden");
+    if (otherVideoPlayerTitle) otherVideoPlayerTitle.textContent = title;
+    if (otherVideoPlayerMeta) otherVideoPlayerMeta.textContent = meta;
+    if (otherVideoPlayerOpen) otherVideoPlayerOpen.href = safeLink(url);
+    if (videoId) {
+      otherVideoPlayerMount.innerHTML = `<iframe src="https://www.youtube.com/embed/${escapeHtml(videoId)}?rel=0" title="${escapeHtml(title)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+    } else if (isDirectVideoUrl(url)) {
+      otherVideoPlayerMount.innerHTML = `<video src="${safeLink(url)}" ${thumbnail ? `poster="${safeLink(thumbnail)}"` : ""} controls playsinline preload="metadata"></video>`;
+    } else {
+      otherVideoPlayerMount.innerHTML = `<div class="hub-empty">외부 영상입니다. 영상 열기 버튼으로 확인해주세요.</div>`;
+    }
+  }
+
+  function renderOtherVideoCard(item, active) {
+    const url = getVideoUrl(item);
+    const badge = item.sourceName || item.platform || item.source || OTHER_VIDEO_PLATFORM;
+    return `
+      <button class="hub-item video-summary other-video-card ${active ? "active" : ""}" type="button" data-other-video-url="${escapeHtml(url)}">
+        ${renderVideoThumb(item, "hub-thumb")}
+        <div>
+          <div class="hub-title">${escapeHtml(item.title || "영상")}</div>
+          <div class="hub-meta">${escapeHtml(getYoutubeMetaText(item))}</div>
+        </div>
+        <span class="hub-badge">${escapeHtml(String(badge).slice(0, 8))}</span>
+      </button>
+    `;
+  }
+
+  function bindOtherVideoCards(list) {
+    if (!otherVideosList) return;
+    otherVideosList.querySelectorAll("[data-other-video-url]").forEach(button => {
+      button.addEventListener("click", () => {
+        activeOtherVideoUrl = button.dataset.otherVideoUrl || "";
+        const next = list.find(item => getVideoUrl(item) === activeOtherVideoUrl) || list[0];
+        renderOtherVideoPlayer(next);
+        renderOtherVideos();
+      });
+    });
+  }
+
+  function renderOtherVideos() {
+    if (!otherVideosList) return;
+    const list = getSortedOtherVideos();
     if (otherVideosCount) otherVideosCount.textContent = `${list.length}개`;
+    const active = list.find(item => getVideoUrl(item) === activeOtherVideoUrl) || list[0] || null;
+    activeOtherVideoUrl = active ? getVideoUrl(active) : "";
+    renderOtherVideoPlayer(active);
     otherVideosList.innerHTML = list.length
-      ? list.map(item => renderVideoHubItem(item)).join("")
+      ? list.map(item => renderOtherVideoCard(item, getVideoUrl(item) === activeOtherVideoUrl)).join("")
       : renderPageEmpty("관리자에서 기타영상을 추가하면 여기에 표시됩니다.");
+    bindOtherVideoCards(list);
   }
 
   function getBojaSummaryItems(limit = 2) {
@@ -10399,7 +10571,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   // 관리자 섹션 키 -> Supabase 리소스/컬럼 매핑 (연결됐을 때 실데이터 + 작동 버튼)
   const ADMIN_MANAGED = {
-    members: { resource: "members", cols: [["name", "이름"], ["race", "종족"], ["tier", "티어"], ["soop_id", "SOOP ID"]], pin: false },
+    members: { resource: "members", label: "멤버 관리", cols: [["name", "이름"], ["race", "종족"], ["tier", "티어"], ["soop_id", "SOOP ID"]], pin: false },
+    profiles: { resource: "members", label: "프로필 관리", cols: [["name", "이름"], ["role", "직책"], ["tier", "티어"], ["profile_image", "프로필 이미지"]], pin: false },
     schedules: { resource: "schedules", cols: [["title", "제목"], ["event_date", "날짜"], ["status", "상태"]], pin: false },
     videos: { resource: "videos", cols: [["title", "제목"], ["platform", "플랫폼"], ["member_code", "멤버"]], pin: true },
     notices: { resource: "notices", cols: [["title", "제목"], ["station_name", "출처"], ["notice_date", "날짜"]], pin: true },
@@ -10419,6 +10592,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       { name: "sort_order", label: "정렬", type: "number" },
       { name: "is_visible", label: "공개", type: "checkbox", defaultValue: true }
     ],
+    profiles: [
+      { name: "member_code", label: "멤버 코드", placeholder: "SOOP ID 또는 고유 코드" },
+      { name: "name", label: "이름", required: true },
+      { name: "role", label: "직책", placeholder: "Head Coach, Coach, Player" },
+      { name: "tier", label: "티어", placeholder: "God, King, Jack, Joker, Spade, 0~8, Youth" },
+      { name: "race", label: "종족", type: "select", options: [["", "선택"], ["T", "T"], ["P", "P"], ["Z", "Z"]] },
+      { name: "profile_image", label: "프로필 이미지 URL", wide: true },
+      { name: "soop_id", label: "SOOP ID" },
+      { name: "youtube_url", label: "YouTube URL" },
+      { name: "sort_order", label: "정렬", type: "number" },
+      { name: "is_visible", label: "공개", type: "checkbox", defaultValue: true }
+    ],
     schedules: [
       { name: "title", label: "제목", required: true },
       { name: "event_date", label: "일자", type: "date" },
@@ -10435,7 +10620,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       { name: "platform", label: "구분", type: "select", defaultValue: OTHER_VIDEO_PLATFORM, options: [["기타영상", "기타영상"], ["팬튜브", "팬튜브"], ["보자충", "보자충"], ["YouTube", "YouTube"], ["SOOP", "SOOP"]] },
       { name: "member_code", label: "멤버/분류 코드", placeholder: "기타영상은 other 권장" },
       { name: "url", label: "영상 URL", required: true },
-      { name: "published_at", label: "게시일", type: "datetime-local" },
+      { name: "published_at", label: "게시시간", type: "datetime-local", autoNow: true, readOnly: true, hint: "작성/수정 저장 시 현재 시각으로 자동 반영됩니다." },
       { name: "thumbnail", label: "썸네일 URL" },
       { name: "sort_order", label: "정렬", type: "number" },
       { name: "is_pinned", label: "고정", type: "checkbox" },
@@ -10474,13 +10659,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     return `<button type="button" class="admin-action-btn" data-admin-edit="${escapeHtml(section + ":" + id)}">수정</button>`;
   }
 
+  function formatAdminDateTimeLocal(value) {
+    const date = value ? new Date(value) : new Date();
+    if (Number.isNaN(date.getTime())) return "";
+    const pad = number => String(number).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
+  function datetimeLocalToIso(value) {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? "" : date.toISOString();
+  }
+
   function adminNormalizeFormValue(field, row) {
-    const value = row && Object.prototype.hasOwnProperty.call(row, field.name) ? row[field.name] : field.defaultValue;
+    const value = row && Object.prototype.hasOwnProperty.call(row, field.name) ? row[field.name] : (field.autoNow ? new Date().toISOString() : field.defaultValue);
     if (field.type === "checkbox") return value === true || value === "true" || value === 1;
     if (field.type === "csv") return Array.isArray(value) ? value.join(", ") : String(value || "");
     if (field.type === "datetime-local" && value) {
-      const date = new Date(value);
-      if (!Number.isNaN(date.getTime())) return date.toISOString().slice(0, 16);
+      return formatAdminDateTimeLocal(value);
     }
     return value === null || value === undefined ? "" : String(value);
   }
@@ -10489,6 +10685,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const value = adminNormalizeFormValue(field, row);
     const id = "adminField_" + field.name;
     const required = field.required ? " required" : "";
+    const readonly = field.readOnly ? " readonly" : "";
+    const hint = field.hint ? `<div class="admin-field-hint">${escapeHtml(field.hint)}</div>` : "";
     const wide = field.wide || field.type === "textarea" ? " wide" : "";
     if (field.type === "checkbox") {
       return `<div class="admin-field check"><label class="admin-check-label" for="${escapeHtml(id)}"><input id="${escapeHtml(id)}" name="${escapeHtml(field.name)}" type="checkbox" ${value ? "checked" : ""}> ${escapeHtml(field.label)}</label></div>`;
@@ -10497,12 +10695,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const options = (field.options || []).map(([optValue, label]) =>
         `<option value="${escapeHtml(optValue)}" ${String(value) === String(optValue) ? "selected" : ""}>${escapeHtml(label)}</option>`
       ).join("");
-      return `<div class="admin-field${wide}"><label for="${escapeHtml(id)}">${escapeHtml(field.label)}</label><select id="${escapeHtml(id)}" name="${escapeHtml(field.name)}"${required}>${options}</select></div>`;
+      return `<div class="admin-field${wide}"><label for="${escapeHtml(id)}">${escapeHtml(field.label)}</label><select id="${escapeHtml(id)}" name="${escapeHtml(field.name)}"${required}>${options}</select>${hint}</div>`;
     }
     if (field.type === "textarea") {
-      return `<div class="admin-field wide"><label for="${escapeHtml(id)}">${escapeHtml(field.label)}</label><textarea id="${escapeHtml(id)}" name="${escapeHtml(field.name)}" placeholder="${escapeHtml(field.placeholder || "")}"${required}>${escapeHtml(value)}</textarea></div>`;
+      return `<div class="admin-field wide"><label for="${escapeHtml(id)}">${escapeHtml(field.label)}</label><textarea id="${escapeHtml(id)}" name="${escapeHtml(field.name)}" placeholder="${escapeHtml(field.placeholder || "")}"${required}${readonly}>${escapeHtml(value)}</textarea>${hint}</div>`;
     }
-    return `<div class="admin-field${wide}"><label for="${escapeHtml(id)}">${escapeHtml(field.label)}</label><input id="${escapeHtml(id)}" name="${escapeHtml(field.name)}" type="${escapeHtml(field.type || "text")}" value="${escapeHtml(value)}" placeholder="${escapeHtml(field.placeholder || "")}"${required}></div>`;
+    return `<div class="admin-field${wide}"><label for="${escapeHtml(id)}">${escapeHtml(field.label)}</label><input id="${escapeHtml(id)}" name="${escapeHtml(field.name)}" type="${escapeHtml(field.type || "text")}" value="${escapeHtml(value)}" placeholder="${escapeHtml(field.placeholder || "")}"${required}${readonly}>${hint}</div>`;
   }
 
   function adminEditorHtml(section, conf) {
@@ -10547,9 +10745,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         payload[field.name] = value ? value.split(",").map(item => item.trim()).filter(Boolean) : [];
         return;
       }
-      payload[field.name] = value;
+      payload[field.name] = field.type === "datetime-local" ? datetimeLocalToIso(value) : value;
     });
-    if (section === "videos" && !payload.platform) payload.platform = OTHER_VIDEO_PLATFORM;
+    if (section === "videos") {
+      if (!payload.platform) payload.platform = OTHER_VIDEO_PLATFORM;
+      payload.published_at = new Date().toISOString();
+    }
     return payload;
   }
 
@@ -10571,6 +10772,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     let html = "";
     switch (currentAdminSection) {
       case "members": html = renderAdminMembers(); break;
+      case "profiles": html = renderAdminMembers(); break;
       case "schedules": html = renderAdminSchedules(); break;
       case "videos": html = renderAdminVideos(); break;
       case "notices": html = renderAdminNotices(); break;
@@ -10737,7 +10939,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         cells.push(actions);
         return cells;
       });
-      adminContent.innerHTML = adminToolbar(conf.resource + " (Supabase)", list.length + "건") + adminEditorHtml(section, conf) + adminTable(cols, body);
+      adminContent.innerHTML = adminToolbar((conf.label || conf.resource) + " (Supabase)", list.length + "건") + adminEditorHtml(section, conf) + adminTable(cols, body);
     } catch (error) {
       if (error && error.payload && error.payload.error === "supabase_not_configured") {
         adminContent.innerHTML = adminToolbar(section, "Supabase 미연결") + adminEmptyState("Supabase 환경변수가 설정되지 않았습니다. docs/supabase-setup.md 를 확인하세요.", "todo");
@@ -10874,7 +11076,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const joinDate = new Date(year, month - 1, day);
     const today = new Date();
     const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const diffDays = Math.floor((todayDate - joinDate) / 86400000);
+    const diffDays = Math.floor((todayDate - joinDate) / 86400000) + 1;
     const yy = String(year).slice(2);
     const mm = String(month).padStart(2, "0");
     const dd = String(day).padStart(2, "0");
@@ -15312,6 +15514,22 @@ window.__DUCK_ROULETTE_CONFIG__=${configJson};
     {name:"진땅콩", role:"8티어 · Player", tier:8, image:"https://stimg.sooplive.com/NORMAL_BBS/8/24579468/431369e9c82e3631d.jpeg", fallbackImage:"https://stimg.sooplive.com/LOGO/wl/wlswn6565/m/wlswn6565.webp", imagePos:"50% 50%", birth:"2001.01.13", blood:"", mbti:"INTP", height:"156cm", debut:"", awards:[]},
     {name:"낭니", role:"유스 · Player", tier:9, image:"https://stimg.sooplive.com/COMMENT/0/12635700/62001780139184566.jpg", fallbackImage:"https://stimg.sooplive.com/LOGO/sk/sksmsskdsl10/m/sksmsskdsl10.webp", imagePos:"50% 50%", birth:"1999.08.11", blood:"B형", mbti:"ISTP", height:"166cm", debut:"", awards:[]}
   ];
+  function profileTierRank(item) {
+    var role = String(item && item.role || "").toUpperCase();
+    if (role.indexOf("HEAD COACH") !== -1) return -100;
+    if (role.indexOf("GOD") !== -1) return 0;
+    if (role.indexOf("KING") !== -1) return 1;
+    if (role.indexOf("JACK") !== -1) return 2;
+    if (role.indexOf("JOKER") !== -1) return 3;
+    if (role.indexOf("SPADE") !== -1) return 4;
+    var tier = Number(item && item.tier);
+    if (Number.isFinite(tier)) return 10 + tier;
+    if (role.indexOf("YOUTH") !== -1) return 99;
+    return 80;
+  }
+  PROFILE_MEMBERS.sort(function(a,b){
+    return profileTierRank(a) - profileTierRank(b) || String(a.name || "").localeCompare(String(b.name || ""), "ko");
+  });
   var activeProfileIndex = 0;
   function esc(v){return String(v == null ? "" : v).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
   function jsEsc(v){return String(v == null ? "" : v).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\n/g," ");}
