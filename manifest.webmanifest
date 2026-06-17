@@ -1,7 +1,7 @@
 {
-  "name": "캄몬스타즈 팬허브",
+  "name": "캄몬스타즈 팬페이지",
   "short_name": "MONSTARZ",
-  "description": "캄몬스타즈 방송 현황, 일정, 공지, 팬튜브, 티어표와 방송도구를 모아 보는 팬허브",
+  "description": "캄몬스타즈 방송 현황, 일정, 공지, 팬튜브, 티어표와 방송도구를 모아 보는 팬페이지",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -10,12 +10,12 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "/assets/icon-192.png",
+      "src": "/assets/monstarz-favicon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/assets/icon-512.png",
+      "src": "/assets/monstarz-favicon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

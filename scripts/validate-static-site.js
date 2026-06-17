@@ -31,7 +31,7 @@ const sitemap = readRequired("sitemap.xml");
 assertContains("index.html", index, [
   "<!DOCTYPE html>",
   "</html>",
-  "캄몬스타즈 팬허브",
+  "캄몬스타즈 팬페이지",
   "/assets/og-default.png",
   "/manifest.webmanifest"
 ]);
@@ -39,7 +39,7 @@ assertContains("index.html", index, [
 assertContains("mobile/index.html", mobile, [
   "<!DOCTYPE html>",
   "</html>",
-  "캄몬스타즈 모바일 팬허브",
+  "캄몬스타즈 팬페이지",
   "/assets/og-default.png"
 ]);
 

@@ -10,3 +10,6 @@ node_modules/
 # OS / 에디터
 .DS_Store
 Thumbs.db
+
+# Local Supabase/key notes
+Publishable key *.txt
