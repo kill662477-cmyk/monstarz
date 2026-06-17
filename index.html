@@ -9227,6 +9227,47 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     return raw;
   }
 
+  const HOME_LIVE_TIER_ORDER = {
+    GOD: 0,
+    KING: 1,
+    JACK: 2,
+    JOKER: 3,
+    SPADE: 4,
+    "0": 5,
+    "1": 6,
+    "2": 7,
+    "3": 8,
+    "4": 9,
+    "5": 10,
+    "6": 11,
+    "7": 12,
+    "8": 13,
+    YOUTH: 14
+  };
+
+  function normalizeHomeLiveTier(tier) {
+    const raw = String(tier ?? "").trim().replace(/^tier-/i, "").replace(/티어$/i, "");
+    const upper = raw.toUpperCase();
+    if (upper === "GOD" || raw === "갓") return "GOD";
+    if (upper === "KING" || raw === "킹") return "KING";
+    if (upper === "JACK" || raw === "잭") return "JACK";
+    if (upper === "JOKER" || raw === "조커") return "JOKER";
+    if (upper === "SPADE" || raw === "스페이드") return "SPADE";
+    if (upper === "YOUTH" || raw === "유스" || raw === "9") return "YOUTH";
+    if (/^[0-8]$/.test(raw)) return raw;
+    return upper;
+  }
+
+  function sortHomeLiveMembers(list) {
+    return list.slice().sort((a, b) => {
+      if (a.name === "김윤환" && b.name !== "김윤환") return -1;
+      if (b.name === "김윤환" && a.name !== "김윤환") return 1;
+      const tierDiff = (HOME_LIVE_TIER_ORDER[normalizeHomeLiveTier(a.tier)] ?? 99) -
+        (HOME_LIVE_TIER_ORDER[normalizeHomeLiveTier(b.tier)] ?? 99);
+      return tierDiff;
+    });
+  }
+
   const tierLabels = { 3: "3티어", 4: "4티어", 5: "5티어", 6: "6티어", 7: "7티어", 8: "8티어", 9: "유스" };
   const tierDescriptions = { 3: " ", 4: " ", 5: " ", 6: " ", 7: " ", 8: " ", 9: " " };
 
@@ -9602,7 +9643,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   function renderHomeDashboard() {
     const allMembers = getAllMembersWithStatus();
-    const liveMembers = allMembers.filter(member => member.status === "live");
+    const liveMembers = sortHomeLiveMembers(allMembers.filter(member => member.status === "live"));
     const playerCountValue = allMembers.filter(member => member.type === "player").length;
 
     if (homeHeroStats) {
