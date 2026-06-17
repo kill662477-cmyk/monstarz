@@ -2,6 +2,12 @@
 // Uses the server-only service key, but returns only metadata needed by the public UI.
 const admin = require("../lib/supabase/admin");
 
+function clampLimit(value, fallback, min, max) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.max(min, Math.min(max, Math.floor(parsed)));
+}
+
 function publicNoticeMeta(row) {
   return {
     source_key: row.source_key || "",
@@ -43,32 +49,36 @@ function publicVideoMeta(row) {
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=300");
+  res.setHeader("Cache-Control", "s-maxage=120, stale-while-revalidate=600");
   res.setHeader("Access-Control-Allow-Origin", "*");
   if (req.method === "OPTIONS") return res.status(204).end();
-  if (req.method !== "GET") return res.status(405).json({ ok: false, error: "method_not_allowed" });
+  if (req.method !== "GET") return res.status(405).json({ ok: false, error: "method_not_allowed", code: "METHOD_NOT_ALLOWED" });
 
   try {
+    const noticeLimit = clampLimit(req.query && req.query.noticeLimit, 300, 1, 500);
+    const videoLimit = clampLimit(req.query && req.query.videoLimit, 300, 1, 500);
     const [noticesMeta, videos] = await Promise.all([
       admin.rest("GET", "notices_meta", {
-        query: "?select=source_key,title,station_name,link,notice_date,is_pinned,sort_order,is_visible,updated_at&order=sort_order.asc"
+        query: "?select=source_key,title,station_name,link,notice_date,is_pinned,sort_order,is_visible,updated_at&order=sort_order.asc&limit=" + noticeLimit
       }),
       admin.rest("GET", "videos", {
-        query: "?select=title,platform,member_code,url,published_at,thumbnail,is_pinned,sort_order,is_visible,updated_at&order=sort_order.asc"
+        query: "?select=title,platform,member_code,url,published_at,thumbnail,is_pinned,sort_order,is_visible,updated_at&order=sort_order.asc&limit=" + videoLimit
       })
     ]);
 
     return res.status(200).json({
       ok: true,
       ready: true,
+      updatedAt: new Date().toISOString(),
+      source: "supabase",
       noticesMeta: Array.isArray(noticesMeta) ? noticesMeta.map(publicNoticeMeta) : [],
       videos: Array.isArray(videos) ? videos.map(publicVideoMeta) : []
     });
   } catch (error) {
     if (error && error.code === "supabase_not_configured") {
-      return res.status(200).json({ ok: true, ready: false, noticesMeta: [], videos: [] });
+      return res.status(200).json({ ok: true, ready: false, updatedAt: new Date().toISOString(), source: "fallback", noticesMeta: [], videos: [] });
     }
     console.warn("[public-overrides] unavailable:", error && error.message);
-    return res.status(200).json({ ok: true, ready: false, error: "overrides_unavailable", noticesMeta: [], videos: [] });
+    return res.status(200).json({ ok: true, ready: false, error: "overrides_unavailable", code: "FETCH_FAILED", updatedAt: new Date().toISOString(), source: "fallback", noticesMeta: [], videos: [] });
   }
 };

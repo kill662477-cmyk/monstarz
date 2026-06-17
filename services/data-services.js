@@ -1,6 +1,8 @@
 (function () {
   const CACHE_PREFIX = "monstarz-data-cache:";
   const memoryCache = new Map();
+  const inFlightRequests = new Map();
+  const cachePolicies = new Map();
   const now = () => Date.now();
 
   const ttl = {
@@ -38,7 +40,7 @@
     return false;
   }
 
-  function normalizeResult(data, error, stale, updatedAt) {
+  function normalizeResult(data, error, stale, updatedAt, source) {
     return {
       data,
       loading: false,
@@ -47,7 +49,12 @@
       empty: isEmptyData(data),
       updatedAt: updatedAt || new Date().toISOString(),
       stale: Boolean(stale),
+      source: source || (stale ? "cache" : "network"),
     };
+  }
+
+  function rememberPolicy(key, maxAge) {
+    if (key && Number.isFinite(maxAge)) cachePolicies.set(key, maxAge);
   }
 
   function readStored(key) {
@@ -65,6 +72,34 @@
     } catch (error) {
       // Private browsing or quota errors should never break the fanhub.
     }
+  }
+
+  function cacheSnapshot() {
+    const rows = [];
+    memoryCache.forEach((entry, key) => {
+      const maxAge = cachePolicies.get(key) || 0;
+      const ageMs = entry && entry.time ? now() - entry.time : 0;
+      rows.push({
+        key,
+        updatedAt: entry && entry.updatedAt ? entry.updatedAt : "",
+        ageSeconds: Math.max(0, Math.round(ageMs / 1000)),
+        ttlSeconds: Math.round(maxAge / 1000),
+        stale: maxAge ? ageMs > maxAge : false,
+      });
+    });
+    return rows.sort((a, b) => a.key.localeCompare(b.key));
+  }
+
+  function clearCache(match) {
+    const needle = String(match || "");
+    Array.from(memoryCache.keys()).forEach(key => {
+      if (!needle || key.includes(needle)) memoryCache.delete(key);
+    });
+    try {
+      Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i))
+        .filter(key => key && key.indexOf(CACHE_PREFIX) === 0 && (!needle || key.includes(needle)))
+        .forEach(key => localStorage.removeItem(key));
+    } catch (error) {}
   }
 
   function normalizeList(value) {
@@ -107,42 +142,50 @@
 
   async function fetchJsonCached(key, url, maxAge, options) {
     const opts = options || {};
+    rememberPolicy(key, maxAge);
     const cached = memoryCache.get(key) || readStored(key);
     const useCache = !opts.refresh && cached && now() - cached.time < maxAge;
     if (useCache) {
       memoryCache.set(key, cached);
-      return normalizeResult(cached.data, null, false, cached.updatedAt);
+      return normalizeResult(cached.data, null, false, cached.updatedAt, "cache");
     }
+    if (!opts.refresh && inFlightRequests.has(key)) return inFlightRequests.get(key);
 
     const controller = typeof AbortController === "function" ? new AbortController() : null;
     const timeoutMs = opts.timeoutMs || 0;
     const timeoutId = controller && timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : null;
 
-    try {
-      const response = await fetch(url, {
-        cache: opts.cache || "default",
-        signal: controller ? controller.signal : undefined,
-      });
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      const data = await response.json();
-      const entry = { time: now(), data, updatedAt: new Date().toISOString() };
-      memoryCache.set(key, entry);
-      writeStored(key, entry);
-      return normalizeResult(data, null, false, entry.updatedAt);
-    } catch (error) {
-      if (cached) return normalizeResult(cached.data, error, true, cached.updatedAt);
-      return normalizeResult(null, error, false, "");
-    } finally {
-      if (timeoutId) clearTimeout(timeoutId);
-    }
+    const request = (async function () {
+      try {
+        const response = await fetch(url, {
+          cache: opts.cache || "default",
+          signal: controller ? controller.signal : undefined,
+        });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const data = await response.json();
+        const entry = { time: now(), data, updatedAt: new Date().toISOString() };
+        memoryCache.set(key, entry);
+        writeStored(key, entry);
+        return normalizeResult(data, null, false, entry.updatedAt, "network");
+      } catch (error) {
+        if (cached) return normalizeResult(cached.data, error, true, cached.updatedAt, "stale-cache");
+        return normalizeResult(null, error, false, "", "error");
+      } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+        inFlightRequests.delete(key);
+      }
+    })();
+    inFlightRequests.set(key, request);
+    return request;
   }
 
   function fromStatic(key, data, maxAge) {
+    rememberPolicy(key, maxAge);
     const cached = memoryCache.get(key);
-    if (cached && now() - cached.time < maxAge) return normalizeResult(cached.data, null, false, cached.updatedAt);
+    if (cached && now() - cached.time < maxAge) return normalizeResult(cached.data, null, false, cached.updatedAt, "memory");
     const entry = { time: now(), data, updatedAt: new Date().toISOString() };
     memoryCache.set(key, entry);
-    return normalizeResult(data, null, false, entry.updatedAt);
+    return normalizeResult(data, null, false, entry.updatedAt, "static");
   }
 
   function getMembers(list) {
@@ -165,7 +208,7 @@
   }
 
   function getScheduleToday(url, options) {
-    return fetchJsonCached("schedule:today", url, ttl.schedule, { cache: "no-store", ...(options || {}) });
+    return fetchJsonCached("schedule:today", url, ttl.schedule, options || {});
   }
 
   function getInoutList(list) {
@@ -210,7 +253,7 @@
       "supabase:public-overrides",
       "/api/public-overrides",
       ttl.overrides,
-      { cache: "no-store", ...(options || {}) }
+      options || {}
     );
   }
 
@@ -361,6 +404,9 @@
     normalizeList,
     sortLatest,
     fetchJsonCached,
+    cacheSnapshot,
+    getCacheSnapshot: cacheSnapshot,
+    clearCache,
     members: getMembers,
     getMembers,
     getMemberById,

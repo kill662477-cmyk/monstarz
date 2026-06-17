@@ -16,11 +16,19 @@ function cleanText(value) {
   return String(value || "").trim();
 }
 
-function buildItems(scheduleData, todayKey) {
+function clampLimit(value, fallback, min, max) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.max(min, Math.min(max, Math.floor(parsed)));
+}
+
+function buildItems(scheduleData, todayKey, options = {}) {
   const data = scheduleData && scheduleData.data ? scheduleData.data : scheduleData || {};
   const today = data.today || {};
   const monthly = data.monthly && typeof data.monthly === "object" ? data.monthly : {};
   const items = [];
+  const limit = clampLimit(options.limit, 5, 1, 10);
+  const includeUpcoming = options.includeUpcoming === true;
 
   const todaySchedule = cleanText(today.schedule);
   if (todaySchedule) {
@@ -44,27 +52,30 @@ function buildItems(scheduleData, todayKey) {
     });
   }
 
-  const upcoming = Object.entries(monthly)
-    .map(([date, body]) => ({ date, body: cleanText(body) }))
-    .filter(item => item.date >= todayKey && item.body)
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 5)
-    .map(item => ({
-      id: `monthly-${item.date}`,
-      title: item.date === todayKey ? "월간 일정표" : "다가오는 일정",
-      body: item.body,
-      date: item.date,
-      type: item.date === todayKey ? "today-monthly" : "upcoming",
-    }));
+  if (includeUpcoming) {
+    const upcoming = Object.entries(monthly)
+      .map(([date, body]) => ({ date, body: cleanText(body) }))
+      .filter(item => item.date >= todayKey && item.body)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(0, limit)
+      .map(item => ({
+        id: `monthly-${item.date}`,
+        title: item.date === todayKey ? "월간 일정표" : "다가오는 일정",
+        body: item.body,
+        date: item.date,
+        type: item.date === todayKey ? "today-monthly" : "upcoming",
+      }));
+    items.push(...upcoming);
+  }
 
-  return [...items, ...upcoming].slice(0, 5);
+  return items.slice(0, limit);
 }
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=240");
+  res.setHeader("Cache-Control", "s-maxage=120, stale-while-revalidate=300");
 
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "GET") return res.status(405).json({ error: "method_not_allowed" });
@@ -84,15 +95,25 @@ module.exports = async function handler(req, res) {
 
     if (!upstream.ok) {
       return res.status(upstream.status).json({
+        ok: false,
         error: "schedule_upstream_error",
+        code: "FETCH_FAILED",
         message: payload.error || raw.slice(0, 180),
+        todayKey: koreaDateKey(),
+        items: [],
+        isEmpty: true,
+        updatedAt: new Date().toISOString(),
       });
     }
 
     const todayKey = koreaDateKey();
-    const items = buildItems(payload, todayKey);
+    const items = buildItems(payload, todayKey, {
+      includeUpcoming: req.query && String(req.query.includeUpcoming || "") === "1",
+      limit: req.query && req.query.limit
+    });
 
     return res.status(200).json({
+      ok: true,
       todayKey,
       items,
       isEmpty: items.length === 0,
@@ -101,7 +122,9 @@ module.exports = async function handler(req, res) {
     });
   } catch (error) {
     return res.status(500).json({
+      ok: false,
       error: "schedule_proxy_error",
+      code: "FETCH_FAILED",
       message: error.message || String(error),
       todayKey: koreaDateKey(),
       items: [],

@@ -23,8 +23,10 @@
 const crypto = require("crypto");
 const { getServerConfig, getPublicConfig } = require("../../lib/supabase/server");
 const admin = require("../../lib/supabase/admin");
+const { checkRateLimit } = require("../_shared/rateLimit");
 
 const COOKIE_NAME = "mz_admin";
+const MAX_BODY_BYTES = 64 * 1024;
 
 const RESOURCES = {
   members: { table: "members_admin" },
@@ -93,12 +95,19 @@ function setAuthCookie(res, value, maxAgeSec) {
 async function readJsonBody(req) {
   if (req.body && typeof req.body === "object") return req.body;
   if (typeof req.body === "string") {
+    if (Buffer.byteLength(req.body, "utf8") > MAX_BODY_BYTES) throw validationError("요청 본문이 너무 큽니다.");
     try { return JSON.parse(req.body || "{}"); } catch (e) { return {}; }
   }
   // 스트림 직접 파싱 (일부 런타임)
-  return await new Promise(function (resolve) {
+  return await new Promise(function (resolve, reject) {
     let raw = "";
-    req.on("data", function (c) { raw += c; });
+    req.on("data", function (c) {
+      raw += c;
+      if (Buffer.byteLength(raw, "utf8") > MAX_BODY_BYTES) {
+        reject(validationError("요청 본문이 너무 큽니다."));
+        req.destroy();
+      }
+    });
     req.on("end", function () {
       try { resolve(raw ? JSON.parse(raw) : {}); } catch (e) { resolve({}); }
     });
@@ -116,10 +125,114 @@ function pickFields(table, body) {
 }
 
 function ok(res, data) {
-  return res.status(200).json({ ok: true, data: data === undefined ? null : data });
+  return res.status(200).json({ ok: true, data: data === undefined ? null : data, updatedAt: new Date().toISOString() });
 }
 function fail(res, status, error, message) {
-  return res.status(status).json({ ok: false, error: error, message: message || error });
+  return res.status(status).json({ ok: false, error: error, code: String(error || "ERROR").toUpperCase(), message: message || error });
+}
+
+function validationError(message) {
+  const err = new Error(message || "입력값을 확인해주세요.");
+  err.status = 400;
+  err.code = "invalid_payload";
+  return err;
+}
+
+function safeText(value, field) {
+  if (value === null || value === undefined) return value;
+  const text = String(value).replace(/\u0000/g, "").trim();
+  const max = field === "description" ? 4000 : 700;
+  if (text.length > max) throw validationError(field + " 값이 너무 깁니다.");
+  return text;
+}
+
+function safeUrl(value, field) {
+  const text = safeText(value, field);
+  if (!text) return text;
+  let parsed;
+  try {
+    parsed = new URL(text);
+  } catch (error) {
+    throw validationError(field + " URL 형식이 올바르지 않습니다.");
+  }
+  if (!["http:", "https:"].includes(parsed.protocol)) {
+    throw validationError(field + " URL은 http/https만 허용됩니다.");
+  }
+  return parsed.href;
+}
+
+function normalizePayload(table, payload) {
+  const out = {};
+  Object.keys(payload).forEach(function (key) {
+    const value = payload[key];
+    if (key === "sort_order") {
+      out[key] = Math.max(-9999, Math.min(9999, Number(value) || 0));
+      return;
+    }
+    if (key === "is_visible" || key === "is_pinned") {
+      out[key] = value === true || value === "true" || value === 1;
+      return;
+    }
+    if (key === "url" || key === "link" || key === "youtube_url" || key === "profile_image" || key === "thumbnail") {
+      out[key] = safeUrl(value, key);
+      return;
+    }
+    if (key === "members" && Array.isArray(value)) {
+      if (value.length > 80) throw validationError("members 항목이 너무 많습니다.");
+      out[key] = value.map(function (item) { return safeText(item, key); }).filter(Boolean);
+      return;
+    }
+    out[key] = safeText(value, key);
+  });
+  return out;
+}
+
+async function systemHealth(req) {
+  const serverCfg = getServerConfig();
+  const publicCfg = getPublicConfig();
+  const env = {
+    adminSecret: Boolean(process.env.ADMIN_SECRET),
+    supabaseUrl: Boolean(serverCfg.url || publicCfg.url),
+    supabaseServiceRole: Boolean(serverCfg.serviceKey),
+    supabasePublicKey: Boolean(publicCfg.anonKey),
+    firebaseDatabaseUrl: Boolean(process.env.FIREBASE_DATABASE_URL),
+    firebaseServiceAccount: Boolean(process.env.FIREBASE_SERVICE_ACCOUNT_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS),
+    soopClientId: Boolean(process.env.SOOP_CLIENT_ID),
+    soopClientSecret: Boolean(process.env.SOOP_CLIENT_SECRET),
+  };
+
+  let latestAutomation = null;
+  let automationError = "";
+  if (serverCfg.ready) {
+    try {
+      const rows = await admin.rest("GET", "automation_runs", { query: "?select=job_name,status,finished_at,created_at,error_message&order=created_at.desc&limit=1" });
+      latestAutomation = Array.isArray(rows) && rows[0] ? rows[0] : null;
+    } catch (error) {
+      automationError = "automation_runs_unavailable";
+    }
+  }
+
+  return {
+    supabase: { serverReady: serverCfg.ready, publicReady: publicCfg.ready },
+    firebase: { configured: env.firebaseDatabaseUrl || env.firebaseServiceAccount },
+    githubActions: { automationLogReady: Boolean(latestAutomation), latest: latestAutomation, error: automationError },
+    api: {
+      admin: "protected",
+      publicOverrides: serverCfg.ready ? "ready" : "fallback",
+      scheduleToday: "cached",
+    },
+    cachePolicy: {
+      liveSeconds: 45,
+      scheduleSeconds: 180,
+      noticesSeconds: 180,
+      videosSeconds: 900,
+      membersSeconds: 1800,
+      historySeconds: 2700,
+      linksSeconds: 3600,
+    },
+    env,
+    note: "Secret 값은 표시하지 않고 설정 여부만 반환합니다.",
+  };
 }
 
 module.exports = async function handler(req, res) {
@@ -133,6 +246,8 @@ module.exports = async function handler(req, res) {
     .filter(Boolean);
 
   const method = req.method;
+  const isWriteMethod = method === "POST" || method === "PATCH" || method === "PUT" || method === "DELETE";
+  if (!checkRateLimit(req, res, { name: "admin-api", max: isWriteMethod ? 90 : 240, windowMs: 60 * 1000 })) return;
 
   // ---- auth ----
   if (segments[0] === "auth") {
@@ -149,6 +264,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === "login" && method === "POST") {
+      if (!checkRateLimit(req, res, { name: "admin-login", max: 8, windowMs: 60 * 1000 })) return;
       if (!process.env.ADMIN_SECRET) return fail(res, 503, "admin_not_configured", "ADMIN_SECRET 환경변수가 설정되지 않았습니다.");
       const body = await readJsonBody(req);
       const code = (body && body.code) || "";
@@ -171,11 +287,20 @@ module.exports = async function handler(req, res) {
   const resourceKey = segments[0];
   const resource = RESOURCES[resourceKey];
 
+  if (resourceKey === "system-health" && method === "GET") {
+    try {
+      return ok(res, await systemHealth(req));
+    } catch (e) {
+      return handleError(res, e);
+    }
+  }
+
   // links/reorder
   if (resourceKey === "links" && segments[1] === "reorder" && method === "PATCH") {
     try {
       const body = await readJsonBody(req);
       const orders = Array.isArray(body.orders) ? body.orders : [];
+      if (orders.length > 200) return fail(res, 400, "invalid_payload", "정렬 항목이 너무 많습니다.");
       const results = [];
       for (let i = 0; i < orders.length; i++) {
         const item = orders[i];
@@ -213,7 +338,7 @@ module.exports = async function handler(req, res) {
     // POST /admin/<resource>
     if (method === "POST" && !id) {
       const body = await readJsonBody(req);
-      const payload = pickFields(table, body);
+      const payload = normalizePayload(table, pickFields(table, body));
       if (!Object.keys(payload).length) return fail(res, 400, "empty_payload", "저장할 값이 없습니다.");
       const data = await admin.insertRow(table, payload);
       return ok(res, data);
@@ -234,7 +359,7 @@ module.exports = async function handler(req, res) {
       }
       // 일반 수정
       const body = await readJsonBody(req);
-      const payload = pickFields(table, body);
+      const payload = normalizePayload(table, pickFields(table, body));
       if (!Object.keys(payload).length) return fail(res, 400, "empty_payload", "수정할 값이 없습니다.");
       return ok(res, await admin.updateRow(table, id, payload));
     }
@@ -249,5 +374,8 @@ function handleError(res, e) {
   if (e && e.code === "supabase_not_configured") {
     return fail(res, 503, "supabase_not_configured", "Supabase 환경변수가 설정되지 않았습니다.");
   }
-  return fail(res, (e && e.status) || 500, "server_error", (e && e.message) || "server_error");
+  if (e && e.code === "invalid_payload") {
+    return fail(res, 400, "invalid_payload", e.message);
+  }
+  return fail(res, (e && e.status) || 500, "server_error", "관리자 데이터를 처리하지 못했습니다.");
 }

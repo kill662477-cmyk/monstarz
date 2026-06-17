@@ -1,3 +1,22 @@
+const soopRateBuckets = globalThis.__MONSTARZ_SOOP_TOKEN_BUCKETS || (globalThis.__MONSTARZ_SOOP_TOKEN_BUCKETS = new Map());
+
+function rateLimit(req, res) {
+  const ip = String(req.headers["x-forwarded-for"] || req.headers["x-real-ip"] || req.socket?.remoteAddress || "unknown").split(",")[0].trim();
+  const now = Date.now();
+  const windowMs = 60 * 1000;
+  const max = 20;
+  let bucket = soopRateBuckets.get(ip);
+  if (!bucket || bucket.resetAt <= now) {
+    bucket = { count: 0, resetAt: now + windowMs };
+    soopRateBuckets.set(ip, bucket);
+  }
+  bucket.count += 1;
+  if (bucket.count <= max) return true;
+  res.setHeader("Retry-After", String(Math.ceil((bucket.resetAt - now) / 1000)));
+  res.status(429).json({ error: "rate_limited", code: "RATE_LIMITED", message: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요." });
+  return false;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -5,6 +24,7 @@ export default async function handler(req, res) {
 
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST") return res.status(405).json({ error: "method_not_allowed" });
+  if (!rateLimit(req, res)) return;
 
   try {
     const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
@@ -46,7 +66,8 @@ export default async function handler(req, res) {
     if (!soopRes.ok || data.error) {
       return res.status(soopRes.status || 500).json({
         error: data.error || "soop_token_error",
-        message: data.message || data.error_description || raw
+        code: "SOOP_TOKEN_ERROR",
+        message: data.message || data.error_description || "SOOP 토큰 발급에 실패했습니다."
       });
     }
 
@@ -54,7 +75,8 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({
       error: "server_error",
-      message: err.message || String(err)
+      code: "SERVER_ERROR",
+      message: err.message || "SOOP 토큰 발급을 처리하지 못했습니다."
     });
   }
 }

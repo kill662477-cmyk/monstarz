@@ -8959,6 +8959,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     logo: "https://stimg.sooplive.com/NORMAL_BBS/0/16216050/30546a167f55e2168.gif",
     updatedAt: "2026-04-04 23:00"
   };
+  window.addEventListener("error", (event) => {
+    const img = event.target;
+    if (!img || img.tagName !== "IMG" || img.dataset.mzFallbackApplied) return;
+    img.dataset.mzFallbackApplied = "1";
+    img.src = img.dataset.fallback || TEAM.logo;
+  }, true);
 
   const LIVE_STATUS_URL = "https://livecheck-2.onrender.com/live-status";
   const YOUTUBE_JSON_URL = "https://raw.githubusercontent.com/kill662477-cmyk/youtube/refs/heads/main/youtube.json";
@@ -9526,7 +9532,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const watchUrl = getMemberWatchUrl(member);
     return `
       <a class="hub-item" href="${safeLink(watchUrl)}" target="_blank" rel="noopener noreferrer">
-        <img class="hub-thumb" src="${safeLink(member.profileImage || "")}" alt="${escapeHtml(member.name)} 프로필" loading="lazy">
+        <img class="hub-thumb" src="${safeLink(member.profileImage || "")}" alt="${escapeHtml(member.name)} 프로필" loading="lazy" decoding="async">
         <div>
           <div class="hub-title">${escapeHtml(member.name)}</div>
           <div class="hub-meta">${escapeHtml([member.role, formatTierLabel(member.tier), member.race].filter(Boolean).join(" · "))}</div>
@@ -9679,7 +9685,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const badge = item.sourceName || item.viewCountText || item.name || "영상";
     return `
       <a class="hub-item video-summary" href="${safeLink(url)}" target="_blank" rel="noopener noreferrer">
-        ${item.thumbnail ? `<img class="hub-thumb" src="${safeLink(item.thumbnail)}" alt="${escapeHtml(item.title || "영상")} 썸네일" loading="lazy">` : `<div class="hub-thumb"></div>`}
+        ${item.thumbnail ? `<img class="hub-thumb" src="${safeLink(item.thumbnail)}" alt="${escapeHtml(item.title || "영상")} 썸네일" loading="lazy" decoding="async">` : `<div class="hub-thumb"></div>`}
         <div>
           <div class="hub-title">${escapeHtml(item.title || "영상")}</div>
           <div class="hub-meta">${escapeHtml(getYoutubeMetaText(item))}</div>
@@ -10006,6 +10012,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const members = getAllMembersWithStatus();
     const videoCount = getAdminVideoRows().length;
     const inoutCount = INOUT_HISTORY.reduce((s, d) => s + (d.events ? d.events.length : 0), 0);
+    const cacheRows = window.MonstarzDataServices && typeof MonstarzDataServices.getCacheSnapshot === "function"
+      ? MonstarzDataServices.getCacheSnapshot().slice(0, 10)
+      : [];
     const entries = [
       adminDataStatusEntry("멤버", members.length, false, lastCheckedAt, members.length + "명"),
       adminDataStatusEntry("방송 상태(LIVE)", members.filter(m => m.status === "live").length, false, lastCheckedAt),
@@ -10016,8 +10025,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       adminDataStatusEntry("IN&OUT", inoutCount, false, "", inoutCount + "건"),
       adminDataStatusEntry("외부 링크", EXTERNAL_LINKS.length, false, "", EXTERNAL_LINKS.length + "개")
     ];
+    const cacheSection = cacheRows.length
+      ? `<div class="admin-section">${adminToolbar("클라이언트 캐시", cacheRows.length + "개")}` +
+        `<div class="admin-datastatus-grid">${cacheRows.map(row =>
+          adminDataStatusEntry(row.key, row.ttlSeconds, row.stale, row.updatedAt, `${row.ageSeconds}s 경과 · TTL ${row.ttlSeconds}s`)
+        ).join("")}</div></div>`
+      : `<div class="admin-section">${adminToolbar("클라이언트 캐시", "대기")}${adminEmptyState("아직 캐시된 공개 데이터가 없습니다.", "todo")}</div>`;
     return adminToolbar("데이터 상태", "캐시/로딩 점검") +
-      `<div class="admin-datastatus-grid">${entries.join("")}</div>`;
+      `<div class="admin-datastatus-grid">${entries.join("")}</div>` +
+      cacheSection;
   }
 
   function renderAdminSettings() {
@@ -10073,9 +10089,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       default: html = renderAdminDashboard(); break;
     }
     adminContent.innerHTML = html;
-    // 데이터 상태 화면 + Supabase 연결 시 자동화 실행 로그(automation_runs) 덧붙이기
-    if (currentAdminSection === "data-status" && adminConn.authed && adminConn.supabaseReady) {
-      loadAutomationRuns();
+    // 데이터 상태 화면에서는 인증된 관리자에게만 운영 진단 정보를 덧붙인다.
+    if (currentAdminSection === "data-status" && adminConn.authed) {
+      loadSystemHealth();
+      if (adminConn.supabaseReady) loadAutomationRuns();
+    }
+  }
+
+  async function loadSystemHealth() {
+    try {
+      const health = await adminApi("system-health");
+      const latest = health && health.githubActions && health.githubActions.latest;
+      const env = health && health.env ? health.env : {};
+      const configured = Object.keys(env).filter(key => env[key]).length;
+      const envTotal = Object.keys(env).length;
+      const entries = [
+        adminDataStatusEntry("Supabase 서버", health?.supabase?.serverReady ? 1 : 0, !health?.supabase?.serverReady, "", health?.supabase?.serverReady ? "server key 설정됨" : "server key 미설정"),
+        adminDataStatusEntry("Supabase 공개", health?.supabase?.publicReady ? 1 : 0, !health?.supabase?.publicReady, "", health?.supabase?.publicReady ? "anon/publishable 설정됨" : "public key 미설정"),
+        adminDataStatusEntry("Firebase", health?.firebase?.configured ? 1 : 0, !health?.firebase?.configured, "", health?.firebase?.configured ? "환경변수 설정됨" : "환경변수 확인 필요"),
+        adminDataStatusEntry("환경변수", configured, configured < envTotal, "", `${configured}/${envTotal} 설정됨`),
+        adminDataStatusEntry("주요 API", 3, false, "", `admin ${health?.api?.admin || "-"} · overrides ${health?.api?.publicOverrides || "-"} · schedule ${health?.api?.scheduleToday || "-"}`),
+        adminDataStatusEntry("최근 자동화", latest ? 1 : 0, latest && latest.status === "failed", latest && (latest.finished_at || latest.created_at), latest ? `${latest.job_name || "-"} · ${latest.status || "-"}` : (health?.githubActions?.error || "기록 없음"))
+      ];
+      const section =
+        `<div class="admin-section">${adminToolbar("운영 진단", "server health")}` +
+        `<div class="admin-datastatus-grid">${entries.join("")}</div></div>`;
+      adminContent.insertAdjacentHTML("beforeend", section);
+    } catch (error) {
+      adminContent.insertAdjacentHTML("beforeend", `<div class="admin-section">${adminEmptyState("운영 진단 정보를 불러오지 못했습니다.", "todo")}</div>`);
     }
   }
 
@@ -10574,7 +10615,7 @@ function createMemberCard(member) {
     const initial = escapeHtml((item.stationName || "공").slice(0, 1));
     if (!profileImage) return `<span class="notice-feed-avatar-fallback">${initial}</span>`;
     return `
-      <img class="notice-feed-avatar" src="${escapeHtml(profileImage)}" alt="${escapeHtml(item.stationName)} 프로필" loading="lazy" referrerpolicy="no-referrer" onerror="this.hidden=true;this.nextElementSibling.hidden=false;">
+      <img class="notice-feed-avatar" src="${escapeHtml(profileImage)}" alt="${escapeHtml(item.stationName)} 프로필" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.hidden=true;this.nextElementSibling.hidden=false;">
       <span class="notice-feed-avatar-fallback" hidden>${initial}</span>
     `;
   }
@@ -14704,7 +14745,7 @@ window.__DUCK_ROULETTE_CONFIG__=${configJson};
     var onError = hasValue(item.fallbackImage) ? ' onerror="this.onerror=null;this.src=\''+jsEsc(item.fallbackImage)+'\';"' : '';
     var imgStyle = hasValue(item.imagePos) ? ' style="object-position:'+esc(item.imagePos)+';"' : '';
     detail.innerHTML = '<div class="profile-detail-inner">'
-      + '<div class="profile-photo-panel"><img class="profile-photo" src="'+esc(item.image)+'" alt="'+esc(item.name)+' 프로필 사진"'+imgStyle+onError+'><span class="profile-type-pill">'+esc(item.role||'PROFILE')+'</span></div>'
+      + '<div class="profile-photo-panel"><img class="profile-photo" src="'+esc(item.image)+'" alt="'+esc(item.name)+' 프로필 사진" loading="lazy" decoding="async"'+imgStyle+onError+'><span class="profile-type-pill">'+esc(item.role||'PROFILE')+'</span></div>'
       + '<div class="profile-info-panel"><div class="profile-kicker">MONSTARS MONSTARS PROFILE</div><div class="profile-title-row"><h3>'+esc(item.name)+'</h3>'+(hasValue(item.role)?'<span class="profile-role-badge">'+esc(item.role)+'</span>':'')+'</div>'
       + (facts ? '<div class="profile-fact-grid">'+facts+'</div>' : '<div class="profile-empty-note">등록된 상세 정보가 없습니다.</div>')
       + (awards.length ? '<div class="profile-awards"><h4 class="profile-awards-title">수상경력</h4><ul class="profile-awards-list">'+awards.map(function(a){return '<li>'+esc(a)+'</li>';}).join('')+'</ul></div>' : '')
