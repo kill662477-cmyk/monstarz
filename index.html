@@ -8670,38 +8670,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="home-lead">
           <div>
             <h2>오늘의 MONSTARZ</h2>
-            <p>팬들이 지금 바로 확인할 방송, 일정, 공지, 영상, IN&OUT을 한 화면에 모았습니다.</p>
           </div>
           <div id="homeHeroStats" class="home-stat-strip"></div>
         </div>
 
         <div class="hub-grid">
           <article class="hub-panel live-panel">
-            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>지금 방송중</h3><p>방송 썸네일 기준으로 LIVE 멤버 전체를 보여줍니다.</p></div><button class="panel-link" type="button" data-nav-tab="members">전체보기</button></div>
+            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>지금 방송중</h3></div><button class="panel-link" type="button" data-nav-tab="members">전체보기</button></div>
             <div id="homeLiveList" class="hub-list"><div class="hub-empty loading">데이터를 불러오는 중입니다.</div></div>
           </article>
           <article class="hub-panel schedule-panel">
-            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>오늘/다가오는 일정</h3><p>외부 일정표에서 오늘 확인할 항목만 요약합니다.</p></div><button class="panel-link" type="button" data-nav-tab="schedule">일정</button></div>
+            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>오늘/다가오는 일정</h3></div><button class="panel-link" type="button" data-nav-tab="schedule">일정</button></div>
             <div id="homeScheduleList" class="hub-list"></div>
           </article>
           <article class="hub-panel notice-panel">
-            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>최근 공지</h3><p>SOOP 공지를 가로 폭을 살려 읽기 좋게 보여줍니다.</p></div><button class="panel-link" type="button" data-nav-tab="notice">공지</button></div>
+            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>최근 공지</h3></div><button class="panel-link" type="button" data-nav-tab="notice">공지</button></div>
             <div id="homeNoticeList" class="hub-list"><div class="hub-empty loading">데이터를 불러오는 중입니다.</div></div>
           </article>
           <article class="hub-panel wide video-panel">
-            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>최신 팬튜브</h3><p>홈에서는 팬튜브 리스트만 최신순으로 압축합니다.</p></div><button class="panel-link" type="button" data-nav-tab="youtube">팬튜브</button></div>
+            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>최신 팬튜브</h3></div><button class="panel-link" type="button" data-nav-tab="youtube">팬튜브</button></div>
             <div id="homeVideoList" class="hub-list"></div>
           </article>
           <article class="hub-panel inout-panel">
-            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>최근 IN&OUT</h3><p>합류와 이탈 히스토리의 최신 흐름입니다.</p></div><button class="panel-link" type="button" data-nav-tab="inout">히스토리</button></div>
+            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>최근 IN&OUT</h3></div><button class="panel-link" type="button" data-nav-tab="inout">히스토리</button></div>
             <div id="homeInoutList" class="hub-list"></div>
           </article>
           <article class="hub-panel tier-panel">
-            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>티어/전적 포인트</h3><p>티어 분포, 최근 합류, 전적 이동 경로를 요약합니다.</p></div><button class="panel-link" type="button" data-nav-tab="tier">티어표</button></div>
+            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>티어/전적 포인트</h3></div><button class="panel-link" type="button" data-nav-tab="tier">티어표</button></div>
             <div id="homeTierList" class="hub-list"></div>
           </article>
           <article class="hub-panel tools-panel">
-            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>방송용 도구</h3><p>CCTV, 핀볼, 펀딩, 계산기, 오락실로 빠르게 이동합니다.</p></div><button class="panel-link" type="button" data-nav-tab="tools">도구 홈</button></div>
+            <div class="hub-panel-head"><div class="hub-panel-copy"><h3>방송용 도구</h3></div><button class="panel-link" type="button" data-nav-tab="tools">도구 홈</button></div>
             <div id="homeToolList" class="hub-list"></div>
           </article>
         </div>
@@ -9857,17 +9856,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const players = list.filter((m) => m.type === "player").length;
 
     const cards = [
-      { label: "전체 인원", value: total, sub: "감독 · 코치 · 학생 포함" },
-      { label: "방송중", value: live, sub: "현재 LIVE 표시 인원" },
-      { label: "학생", value: players, sub: "티어 등록 학생" },
-      { label: "방송 체크", value: formatCheckedAt(lastCheckedAt), sub: "숲 ON 갱신" }
+      { label: "전체 인원", value: total, sub: "" },
+      { label: "방송중", value: live, sub: "" },
+      { label: "학생", value: players, sub: "" },
+      { label: "방송 체크", value: formatCheckedAt(lastCheckedAt), sub: "" }
     ];
 
     summaryGrid.innerHTML = cards.map(card => `
       <div class="summary-card ${card.label === "방송 체크" ? "summary-check-card" : ""}">
         <div class="label">${card.label}</div>
         <div class="value">${card.value}</div>
-        <div class="sub">${card.sub}</div>
+        ${card.sub ? `<div class="sub">${card.sub}</div>` : ""}
       </div>
     `).join("");
   }
@@ -9933,7 +9932,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <button class="hub-item no-thumb" type="button" data-nav-tab="${escapeHtml(tabKey)}">
         <div>
           <div class="hub-title">${escapeHtml(title)}</div>
-          <div class="hub-meta">${escapeHtml(meta)}</div>
+          ${meta ? `<div class="hub-meta">${escapeHtml(meta)}</div>` : ""}
         </div>
         ${badge ? `<span class="hub-badge">${escapeHtml(badge)}</span>` : ""}
       </button>
@@ -10289,13 +10288,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       homeTierList.innerHTML = [
         renderInternalHubItem("티어 분포", tiers.join(" · "), "tier", "표"),
         latestJoin ? renderInternalHubItem("최근 합류", `${latestJoin[1]} · ${latestJoin[0]}`, "inout", "IN") : "",
-        renderInternalHubItem("전적/랭킹", "ELOBOARD에서 상세 전적 확인", "links", "외부")
+        renderInternalHubItem("전적/랭킹", "", "links", "외부")
       ].filter(Boolean).join("");
     }
 
     if (homeToolList) {
       homeToolList.innerHTML = BROADCAST_TOOLS.slice(0, 3)
-        .map(tool => renderInternalHubItem(tool.title, tool.note, tool.key, tool.status))
+        .map(tool => renderInternalHubItem(tool.title, "", tool.key, tool.status))
         .join("");
     }
 
@@ -10315,9 +10314,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     if (!videosHubList) return;
     if (videosHubCount) videosHubCount.textContent = "3 MENU";
     videosHubList.innerHTML = `
-      <button class="tool-card" type="button" data-nav-tab="boja"><b>보자충</b><span>보자충 큐레이션 영상을 확인합니다.</span><small>영상</small></button>
-      <button class="tool-card" type="button" data-nav-tab="youtube"><b>팬튜브</b><span>유튜브와 팬튜브 최신 영상을 확인합니다.</span><small>영상</small></button>
-      <button class="tool-card" type="button" data-nav-tab="otherVideos"><b>기타영상</b><span>관리자가 수동 등록한 영상을 확인합니다.</span><small>${escapeHtml(otherVideoItems.length + "개")}</small></button>
+      <button class="tool-card" type="button" data-nav-tab="boja"><b>보자충</b><small>영상</small></button>
+      <button class="tool-card" type="button" data-nav-tab="youtube"><b>팬튜브</b><small>영상</small></button>
+      <button class="tool-card" type="button" data-nav-tab="otherVideos"><b>기타영상</b><small>${escapeHtml(otherVideoItems.length + "개")}</small></button>
     `;
   }
 
@@ -10326,7 +10325,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     toolsHubList.innerHTML = BROADCAST_TOOLS.map(tool => `
       <button class="tool-card" type="button" data-nav-tab="${escapeHtml(tool.key)}">
         <b>${escapeHtml(tool.title)}</b>
-        <span>${escapeHtml(tool.note)}</span>
         <small>${escapeHtml(tool.status)}</small>
       </button>
     `).join("");
