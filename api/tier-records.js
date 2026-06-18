@@ -7,6 +7,18 @@ function safeKey(value) {
   return String(value || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 120);
 }
 
+function normalizePrefix(value) {
+  return String(value || "")
+    .replace(/^\/+|\/+$/g, "")
+    .replace(/\/{2,}/g, "/");
+}
+
+function recordPath(key) {
+  const prefix = normalizePrefix(process.env.TIER_RECORD_STORAGE_PREFIX || "records");
+  const fileName = safeKey(key) + ".json.gz";
+  return prefix ? prefix + "/" + fileName : fileName;
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
@@ -17,7 +29,8 @@ module.exports = async function handler(req, res) {
   if (!key) return res.status(400).json({ error: "missing_key" });
 
   try {
-    const data = await downloadGzJson(DEFAULT_BUCKET, "records/" + key + ".json.gz");
+    const bucket = process.env.TIER_RECORD_STORAGE_BUCKET || DEFAULT_BUCKET;
+    const data = await downloadGzJson(bucket, recordPath(key));
     if (data === null) {
       res.setHeader("Cache-Control", "s-maxage=30");
       return res.status(404).json({ key: key, data: null, isEmpty: true, error: "not_found" });
@@ -28,6 +41,6 @@ module.exports = async function handler(req, res) {
     if (e && e.code === "supabase_not_configured") {
       return res.status(503).json({ error: "supabase_not_configured", key: key, data: null, isEmpty: true });
     }
-    return res.status(500).json({ error: "tier_records_error", message: (e && e.message) || "error", key: key, data: null, isEmpty: true });
+    return res.status(500).json({ error: "tier_records_error", key: key, data: null, isEmpty: true });
   }
 };

@@ -2,6 +2,12 @@ const fs = require("fs/promises");
 const path = require("path");
 const admin = require("firebase-admin");
 const { withAutomationLog } = require("./lib/automationLogger");
+const {
+  ensureBucket,
+  uploadGzJson,
+  downloadGzJson,
+  DEFAULT_BUCKET,
+} = require("../lib/supabase/storage");
 
 const root = path.resolve(__dirname, "..");
 const dataDir = path.join(root, "data");
@@ -45,6 +51,28 @@ const RECORD_META_RECENT_ID_LIMIT = Math.max(
 
 const CACHE_LOCAL_JSON = process.env.CACHE_LOCAL_JSON !== "false";
 const CACHE_LOCAL_ASSETS = process.env.CACHE_LOCAL_ASSETS === "true";
+const TIER_RECORD_STORAGE_UPLOAD =
+  process.env.TIER_RECORD_STORAGE_UPLOAD === "true" ||
+  process.env.UPLOAD_SUPABASE_RECORD_FILES === "true";
+const TIER_RECORD_STORAGE_REQUIRED = process.env.TIER_RECORD_STORAGE_REQUIRED === "true";
+const TIER_RECORD_STORAGE_BUCKET = process.env.TIER_RECORD_STORAGE_BUCKET || DEFAULT_BUCKET;
+const TIER_RECORD_STORAGE_PREFIX = normalizeStoragePrefix(
+  process.env.TIER_RECORD_STORAGE_PREFIX || "records"
+);
+const FIREBASE_RECORD_ROWS_UPLOAD =
+  process.env.FIREBASE_RECORD_ROWS_UPLOAD !== "false" &&
+  process.env.UPLOAD_FIREBASE_RECORD_ROWS !== "false";
+
+function normalizeStoragePrefix(value) {
+  return String(value || "")
+    .replace(/^\/+|\/+$/g, "")
+    .replace(/\/{2,}/g, "/");
+}
+
+function tierRecordStoragePath(key) {
+  const fileName = `${safeKey(key)}.json.gz`;
+  return TIER_RECORD_STORAGE_PREFIX ? `${TIER_RECORD_STORAGE_PREFIX}/${fileName}` : fileName;
+}
 
 const tierName = {
   G: "갓티어",
@@ -1226,7 +1254,35 @@ async function readExistingRecordState(rootRef, key) {
     value,
     rows: normalizeRecordRows(value),
     nextRowIndex: maxNumericChildIndex(value),
+    source: "firebase",
   };
+}
+
+async function readExistingRecordStatePreferStorage(rootRef, key) {
+  if (TIER_RECORD_STORAGE_UPLOAD) {
+    try {
+      const value = await downloadGzJson(
+        TIER_RECORD_STORAGE_BUCKET,
+        tierRecordStoragePath(key)
+      );
+      const rows = normalizeRecordRows(value);
+
+      if (value !== null && value !== undefined) {
+        return {
+          value,
+          rows,
+          nextRowIndex: rows.length,
+          source: "supabase-storage",
+        };
+      }
+    } catch (error) {
+      console.warn(
+        `[storage] records/${key} read failed; fallback to Firebase: ${error.message}`
+      );
+    }
+  }
+
+  return readExistingRecordState(rootRef, key);
 }
 
 async function fetchRecordsIncrementalByCheckpoint(player, recordMeta) {
@@ -1828,6 +1884,66 @@ async function uploadRecordsInChunks(ref, records, rowChunkSize, label) {
   }
 }
 
+function queueRecordStorageUpload(recordStorageUploads, key, rows) {
+  if (!TIER_RECORD_STORAGE_UPLOAD || !key) return;
+  recordStorageUploads[key] = normalizeRecordRows(rows);
+}
+
+async function uploadRecordStorageFiles(recordStorageUploads) {
+  const stats = {
+    enabled: TIER_RECORD_STORAGE_UPLOAD,
+    bucket: TIER_RECORD_STORAGE_BUCKET,
+    prefix: TIER_RECORD_STORAGE_PREFIX,
+    attempted: 0,
+    succeeded: 0,
+    failed: 0,
+    totalGzipBytes: 0,
+  };
+
+  if (!TIER_RECORD_STORAGE_UPLOAD) {
+    console.log("[storage] tier record gzip upload disabled");
+    return stats;
+  }
+
+  const entries = Object.entries(recordStorageUploads || {});
+  stats.attempted = entries.length;
+
+  if (entries.length === 0) {
+    console.log("[storage] tier record gzip upload empty");
+    return stats;
+  }
+
+  try {
+    await ensureBucket(TIER_RECORD_STORAGE_BUCKET);
+  } catch (error) {
+    stats.failed = entries.length;
+    console.warn(`[storage] bucket prepare failed: ${error.message}`);
+    if (TIER_RECORD_STORAGE_REQUIRED) throw error;
+    return stats;
+  }
+
+  for (let i = 0; i < entries.length; i += 1) {
+    const [key, rows] = entries[i];
+
+    try {
+      const result = await uploadGzJson(
+        TIER_RECORD_STORAGE_BUCKET,
+        tierRecordStoragePath(key),
+        normalizeRecordRows(rows)
+      );
+      stats.succeeded += 1;
+      stats.totalGzipBytes += Number(result.size || 0);
+      console.log(`[storage] records/${key}.json.gz uploaded ${i + 1}/${entries.length}`);
+    } catch (error) {
+      stats.failed += 1;
+      console.warn(`[storage] records/${key}.json.gz upload failed: ${error.message}`);
+      if (TIER_RECORD_STORAGE_REQUIRED) throw error;
+    }
+  }
+
+  return stats;
+}
+
 async function readExistingLiveState(rootRef) {
   console.log("[firebase] read existing liveStatus");
 
@@ -1894,20 +2010,24 @@ async function uploadToFirebase(payload) {
   console.log("[firebase] upload winRates");
   await rootRef.child("winRates").set(cleanPayload.winRates || {});
 
-  console.log("[firebase] upload record replacements only");
-  await uploadRecordsInChunks(
-    rootRef.child("records"),
-    cleanPayload.recordReplacements || {},
-    100,
-    "records-replace"
-  );
+  if (FIREBASE_RECORD_ROWS_UPLOAD) {
+    console.log("[firebase] upload record replacements only");
+    await uploadRecordsInChunks(
+      rootRef.child("records"),
+      cleanPayload.recordReplacements || {},
+      100,
+      "records-replace"
+    );
 
-  console.log("[firebase] append newly discovered records only");
-  await uploadRecordAppends(
-    rootRef,
-    cleanPayload.recordAppends || {},
-    cleanPayload.recordMeta || {}
-  );
+    console.log("[firebase] append newly discovered records only");
+    await uploadRecordAppends(
+      rootRef,
+      cleanPayload.recordAppends || {},
+      cleanPayload.recordMeta || {}
+    );
+  } else {
+    console.log("[firebase] skip bulky records rows upload; compact recordMeta only");
+  }
 
   console.log("[firebase] upload compact recordMeta");
   await rootRef.child("recordMeta").set(cleanPayload.recordMeta || {});
@@ -2049,6 +2169,7 @@ async function main(run = {}) {
   const recordMetaState = { ...existingRecordMeta };
   const recordReplacements = {};
   const recordAppends = {};
+  const recordStorageUploads = {};
   const recordPreserveReadFailed = {};
 
   let recordFetchPlayerCount = 0;
@@ -2091,6 +2212,7 @@ async function main(run = {}) {
         if (rows.length === 0) throw new Error("ELOBOARD parsed 0 rows");
 
         recordReplacements[key] = rows;
+        queueRecordStorageUpload(recordStorageUploads, key, rows);
         recordMetaState[key] = buildRecordMetaEntry(rows, player, {
           nextRowIndex: rows.length,
         });
@@ -2110,7 +2232,7 @@ async function main(run = {}) {
       ) {
         // One-time migration: read this player's existing saved records once,
         // create compact checkpoint metadata, then stop downloading history on later runs.
-        const existingState = await readExistingRecordState(rootRef, key).catch((error) => {
+        const existingState = await readExistingRecordStatePreferStorage(rootRef, key).catch((error) => {
           recordPreserveReadFailed[key] = true;
           recordPreserveReadFailCount += 1;
           throw error;
@@ -2126,6 +2248,7 @@ async function main(run = {}) {
           recordMetaState[key] = buildRecordMetaEntry(rows, player, {
             nextRowIndex: rows.length,
           });
+          queueRecordStorageUpload(recordStorageUploads, key, rows);
 
           if (newRowCount > 0) {
             recordReplacements[key] = rows;
@@ -2148,6 +2271,7 @@ async function main(run = {}) {
           if (rows.length === 0) throw new Error("ELOBOARD parsed 0 rows");
 
           recordReplacements[key] = rows;
+          queueRecordStorageUpload(recordStorageUploads, key, rows);
           recordMetaState[key] = buildRecordMetaEntry(rows, player, {
             nextRowIndex: rows.length,
           });
@@ -2170,13 +2294,14 @@ async function main(run = {}) {
           // recent checkpoint window can safely bridge. Preserve old rows by
           // reading them once and replacing with a merged snapshot.
           recordCheckpointMissCount += 1;
-          const existingState = await readExistingRecordState(rootRef, key);
+          const existingState = await readExistingRecordStatePreferStorage(rootRef, key);
           const fullResult = await fetchRecordsFull(player);
           const rows = mergeRecordRows(fullResult.rows, existingState.rows, player);
 
           if (rows.length === 0) throw new Error("checkpoint fallback parsed 0 rows");
 
           recordReplacements[key] = rows;
+          queueRecordStorageUpload(recordStorageUploads, key, rows);
           recordMetaState[key] = buildRecordMetaEntry(rows, player, {
             nextRowIndex: rows.length,
           });
@@ -2193,10 +2318,20 @@ async function main(run = {}) {
           const newRows = normalizeRecordRows(result.rows);
 
           if (newRows.length > 0) {
+            let storageRows = null;
+            if (TIER_RECORD_STORAGE_UPLOAD) {
+              const existingState = await readExistingRecordStatePreferStorage(rootRef, key);
+              if (previousMeta.recordCount > 0 && existingState.rows.length === 0) {
+                throw new Error("missing existing record snapshot for storage append");
+              }
+              storageRows = mergeRecordRows(newRows, existingState.rows, player);
+            }
+
             recordAppends[key] = {
               startIndex: previousMeta.nextRowIndex,
               rows: newRows,
             };
+            if (storageRows) queueRecordStorageUpload(recordStorageUploads, key, storageRows);
             recordMetaState[key] = advanceRecordMetaEntry(previousMeta, newRows, player);
             recordAppendPlayerCount += 1;
             recordAppendRowCount += newRows.length;
@@ -2346,10 +2481,25 @@ async function main(run = {}) {
     recordFullMaxPages: RECORD_FULL_MAX_PAGES,
     recordIncrementalMaxPages: RECORD_INCREMENTAL_MAX_PAGES,
     eloboardMaxRowsPerPlayer: ELOBOARD_MAX_ROWS_PER_PLAYER,
-    source: "manual-players + direct-eloboard-ajax + compact-recordMeta",
+    firebaseRecordRowsUpload: FIREBASE_RECORD_ROWS_UPLOAD,
+    recordStorageUploadEnabled: TIER_RECORD_STORAGE_UPLOAD,
+    recordStorageRequired: TIER_RECORD_STORAGE_REQUIRED,
+    recordStorageBucket: TIER_RECORD_STORAGE_BUCKET,
+    recordStoragePrefix: TIER_RECORD_STORAGE_PREFIX,
+    recordStoragePlannedPlayerCount: Object.keys(recordStorageUploads).length,
+    source: "manual-players + direct-eloboard-ajax + compact-recordMeta + storage-records",
     playerSource: "data/manual/players.json",
     liveSource: "preserved-from-soop-sync",
   };
+
+  console.log("[5.5/6] Supabase Storage 전적 gzip 업로드");
+  const recordStorageUploadStats = await uploadRecordStorageFiles(recordStorageUploads);
+  Object.assign(meta, {
+    recordStorageUploadAttempted: recordStorageUploadStats.attempted,
+    recordStorageUploadSucceeded: recordStorageUploadStats.succeeded,
+    recordStorageUploadFailed: recordStorageUploadStats.failed,
+    recordStorageUploadGzipBytes: recordStorageUploadStats.totalGzipBytes,
+  });
 
   const payload = {
     meta,
@@ -2372,10 +2522,16 @@ async function main(run = {}) {
 
   const uploadedMeta = await uploadToFirebase(payload);
 
-  run.status = recordFailCount > 0 ? "partial" : "success";
+  run.status =
+    recordFailCount > 0 || recordStorageUploadStats.failed > 0 ? "partial" : "success";
   run.itemsFound = players.length;
-  run.itemsWritten = visiblePlayers.length + recordUploadRowCount;
-  run.itemsSkipped = recordSkipCount + recordFailCount + hiddenInactivePlayers.length;
+  run.itemsWritten =
+    visiblePlayers.length + recordUploadRowCount + recordStorageUploadStats.succeeded;
+  run.itemsSkipped =
+    recordSkipCount +
+    recordFailCount +
+    hiddenInactivePlayers.length +
+    recordStorageUploadStats.failed;
   run.meta = {
     firebaseRoot: FIREBASE_ROOT,
     recordSyncMode: RECORD_SYNC_MODE,
@@ -2384,6 +2540,9 @@ async function main(run = {}) {
     sourcePlayerCount: players.length,
     recordRowCount,
     recordUploadRowCount,
+    recordStorageUploadSucceeded: recordStorageUploadStats.succeeded,
+    recordStorageUploadFailed: recordStorageUploadStats.failed,
+    firebaseRecordRowsUpload: FIREBASE_RECORD_ROWS_UPLOAD,
     recordFailCount,
     recordSkipCount,
     hiddenInactivePlayerCount: hiddenInactivePlayers.length
@@ -2406,10 +2565,12 @@ withAutomationLog({
   jobName: "collect-tier-data",
   jobType: process.env.GITHUB_EVENT_NAME || "scheduled",
   source: "manual-players+eloboard",
-  target: "firebase",
+  target: TIER_RECORD_STORAGE_UPLOAD ? "firebase+supabase-storage" : "firebase",
   meta: {
     firebaseRoot: FIREBASE_ROOT,
-    recordSyncMode: RECORD_SYNC_MODE
+    recordSyncMode: RECORD_SYNC_MODE,
+    tierRecordStorageUpload: TIER_RECORD_STORAGE_UPLOAD,
+    firebaseRecordRowsUpload: FIREBASE_RECORD_ROWS_UPLOAD
   }
 }, main)
   .then(async () => {

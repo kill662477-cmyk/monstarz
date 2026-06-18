@@ -7,7 +7,8 @@
     "build": "node scripts/validate-static-site.js",
     "collect": "node scripts/collect-data.js",
     "sync-live": "node scripts/sync-soop-live-to-firebase.js",
-    "export-players": "node scripts/export-manual-players.js"
+    "export-players": "node scripts/export-manual-players.js",
+    "seed-record-storage": "node scripts/seed-tier-records-storage.js"
   },
   "dependencies": {
     "firebase-admin": "^13.5.0"

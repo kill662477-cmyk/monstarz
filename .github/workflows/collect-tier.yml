@@ -57,6 +57,11 @@ jobs:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TIER_RECORD_STORAGE_UPLOAD: "true"
+          TIER_RECORD_STORAGE_REQUIRED: "true"
+          TIER_RECORD_STORAGE_BUCKET: tier-records
+          TIER_RECORD_STORAGE_PREFIX: records
+          FIREBASE_RECORD_ROWS_UPLOAD: "false"
 
           CACHE_LOCAL_JSON: "false"
           CACHE_LOCAL_ASSETS: "false"

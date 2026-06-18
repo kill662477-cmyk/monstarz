@@ -435,13 +435,53 @@
     });
   }
 
+  function normalizeRecordPayload(value) {
+    if (value && typeof value === "object") {
+      if (Array.isArray(value.data)) return value.data;
+      if (Array.isArray(value.records)) return value.records;
+      if (Array.isArray(value.rows)) return value.rows;
+      if (Array.isArray(value.list)) return value.list;
+    }
+    return normalizeList(value);
+  }
+
   async function getRecords(rootUrl, userId, race, options) {
     const safeKey = String((userId || "") + "_" + (race || "")).replace(/[.#$/[\]]/g, "_");
-    return fetchJsonCached(
-      "records:" + safeKey,
+    const opts = { cache: "no-store", ...(options || {}) };
+    const storageResult = await fetchJsonCached(
+      "records:storage:" + safeKey,
+      "/api/tier-records?key=" + encodeURIComponent(safeKey),
+      ttl.records,
+      opts
+    );
+
+    if (
+      storageResult.data !== null &&
+      storageResult.data !== undefined &&
+      (!storageResult.error || storageResult.stale)
+    ) {
+      return normalizeResult(
+        normalizeRecordPayload(storageResult.data),
+        storageResult.stale ? storageResult.error : null,
+        storageResult.stale,
+        storageResult.updatedAt,
+        storageResult.source === "network" ? "supabase-storage" : storageResult.source
+      );
+    }
+
+    const firebaseResult = await fetchJsonCached(
+      "records:firebase:" + safeKey,
       rootUrl.replace(/\/$/, "") + "/records/" + encodeURIComponent(safeKey) + ".json",
       ttl.records,
-      { cache: "no-store", ...(options || {}) }
+      opts
+    );
+
+    return normalizeResult(
+      normalizeRecordPayload(firebaseResult.data),
+      firebaseResult.error || storageResult.error,
+      firebaseResult.stale,
+      firebaseResult.updatedAt || storageResult.updatedAt,
+      firebaseResult.source === "network" ? "firebase-fallback" : firebaseResult.source
     );
   }
 
