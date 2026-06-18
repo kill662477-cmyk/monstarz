@@ -5936,44 +5936,78 @@ html.light .entry-match-badge.fixed{color:#16518f;background:rgba(31,111,214,.08
       if(/(결승|준결승|플레이오프|po|4강|8강|승강전|중요)/i.test(text)) weight+=.18;
       return weight;
     }
-    function entryStatsForRows(rows,player,period){
-      const stats={total:0,wins:0,losses:0,rate:0,weightedTotal:0,weightedWins:0,weightedRate:0};
-      (rows||[]).forEach(row=>{
-        if(!entryInPeriod(row,period)||!rowContainsPlayer(row,player)) return;
-        const win=rowIsWin(row,player);
-        const weight=entryCompetitionWeight(row);
-        stats.total+=1;
-        stats.weightedTotal+=weight;
-        if(win){ stats.wins+=1; stats.weightedWins+=weight; }
-        else stats.losses+=1;
-      });
-      stats.rate=stats.total?(stats.wins/stats.total)*100:0;
-      stats.weightedRate=stats.weightedTotal?(stats.weightedWins/stats.weightedTotal)*100:0;
-      return stats;
-    }
     function entryStatClass(rate){ return rate>=60?'entry-rate-high':rate>=50?'entry-rate-mid':'entry-rate-low'; }
-    function formatEntryStat(stat){
-      if(!stat||!stat.total) return '<span class="entry-record-loading">-</span>';
-      return '<span class="'+entryStatClass(stat.rate)+'">'+stat.rate.toFixed(1)+'%</span> <small>'+stat.wins+'승 '+stat.losses+'패</small>';
-    }
     function entryRowsForPlayer(player){
       const item=entryState.recordCache.get(playerKey(player));
       return item?item.rows:null;
     }
+    function entryPairRowId(row){
+      return [rowDate(row),rowWinnerId(row)||rowWinnerName(row),rowLoserId(row)||rowLoserName(row),row.map||row.mapName||''].join('|');
+    }
+    function entryHeadToHeadStats(playerA,playerB,period){
+      const rowsA=entryRowsForPlayer(playerA);
+      const rowsB=entryRowsForPlayer(playerB);
+      if(!rowsA&&!rowsB) return null;
+      const seen=new Set();
+      const stats={total:0,wins:0,losses:0,rate:0};
+      function addRows(rows,owner,opponent,invert){
+        (rows||[]).forEach(row=>{
+          if(!entryInPeriod(row,period)||!rowContainsPlayer(row,owner)||!rowMatchesOpponent(row,owner,opponent)) return;
+          const id=entryPairRowId(row);
+          if(seen.has(id)) return;
+          seen.add(id);
+          const ownerWin=rowIsWin(row,owner);
+          const aWin=invert?!ownerWin:ownerWin;
+          stats.total+=1;
+          if(aWin) stats.wins+=1;
+          else stats.losses+=1;
+        });
+      }
+      addRows(rowsA,playerA,playerB,false);
+      addRows(rowsB,playerB,playerA,true);
+      stats.rate=stats.total?(stats.wins/stats.total)*100:0;
+      return stats;
+    }
+    function formatEntryHeadStat(stat,loading){
+      if(!stat) return '<span class="entry-record-loading">'+(loading?'조회중':'조회 필요')+'</span>';
+      if(!stat.total) return '<span class="entry-record-loading">상대전적 없음</span>';
+      return '<span class="'+entryStatClass(stat.rate)+'">'+stat.rate.toFixed(1)+'%</span> <small>'+stat.wins+'승 '+stat.losses+'패</small>';
+    }
     function renderEntryStats(){
-      const rows=entryState.teamA.map(key=>({team:'A',key})).concat(entryState.teamB.map(key=>({team:'B',key}))).filter(item=>playerByKey(item.key));
-      if(!rows.length){ entryStatsTable.innerHTML='<div class="entry-empty">선수를 선택해주세요.</div>'; return; }
-      entryStatsTable.innerHTML='<div class="entry-stat-scroll"><table><thead><tr><th>팀</th><th>선수</th>'+entryPeriods.map(p=>'<th>'+p.label+'</th>').join('')+'</tr></thead><tbody>'+
-        rows.map(item=>{
-          const player=playerByKey(item.key);
-          const cached=entryRowsForPlayer(player);
-          const loading=entryState.loadingRecords.has(item.key);
-          const cells=entryPeriods.map(period=>{
-            if(!cached) return '<td class="entry-record-loading">'+(loading?'조회중':'조회 필요')+'</td>';
-            return '<td>'+formatEntryStat(entryStatsForRows(cached,player,period.key))+'</td>';
-          }).join('');
-          return '<tr><td>'+item.team+'팀</td><td>'+escapeHtml(player.name)+' <span class="race-badge '+escapeAttr(player.race)+'">'+escapeHtml(player.race)+'</span></td>'+cells+'</tr>';
-        }).join('')+'</tbody></table></div>';
+      const lineA=entryLineup('A');
+      const lineB=entryLineup('B');
+      const pairCount=Math.min(lineA.length,lineB.length);
+      if(!lineA.length||!lineB.length){ entryStatsTable.innerHTML='<div class="entry-empty">A팀과 B팀 선수를 선택하면 매치 상대전적을 표시합니다.</div>'; return; }
+      if(!pairCount){ entryStatsTable.innerHTML='<div class="entry-empty">서로 맞붙을 선수를 같은 순서로 선택해주세요.</div>'; return; }
+      const note=lineA.length!==lineB.length?'<div class="entry-sub" style="padding:0 16px 12px">짝이 없는 선수는 상대전적 표에서 제외됩니다.</div>':'';
+      entryStatsTable.innerHTML='<div class="entry-stat-scroll"><table><thead><tr><th>매치</th><th>A팀 선수</th><th>B팀 선수</th>'+entryPeriods.map(p=>'<th>'+p.label+' A기준</th>').join('')+'</tr></thead><tbody>'+
+        Array.from({length:pairCount},(_,index)=>{
+          const playerA=lineA[index];
+          const playerB=lineB[index];
+          const loading=entryState.loadingRecords.has(playerKey(playerA))||entryState.loadingRecords.has(playerKey(playerB));
+          const cells=entryPeriods.map(period=>'<td>'+formatEntryHeadStat(entryHeadToHeadStats(playerA,playerB,period.key),loading)+'</td>').join('');
+          return '<tr><td>'+(index+1)+'매치</td><td>'+escapeHtml(playerA.name)+' <span class="race-badge '+escapeAttr(playerA.race)+'">'+escapeHtml(playerA.race)+'</span></td><td>'+escapeHtml(playerB.name)+' <span class="race-badge '+escapeAttr(playerB.race)+'">'+escapeHtml(playerB.race)+'</span></td>'+cells+'</tr>';
+        }).join('')+'</tbody></table></div>'+note;
+    }
+    function entryDirectHeadToHeadModel(playerA,playerB,baseRate){
+      const weightedPeriods=[{key:'m1',weight:1.5},{key:'m3',weight:1.15},{key:'y2026',weight:.85},{key:'all',weight:.45}];
+      let weightedWins=0,weightedTotal=0,totalGames=0;
+      weightedPeriods.forEach(period=>{
+        const stat=entryHeadToHeadStats(playerA,playerB,period.key);
+        if(!stat||!stat.total) return;
+        weightedWins+=stat.wins*period.weight;
+        weightedTotal+=stat.total*period.weight;
+        totalGames=Math.max(totalGames,stat.total);
+      });
+      if(!weightedTotal) return {available:false,rate:baseRate,weight:0,total:0};
+      const priorGames=totalGames>=12?2.5:totalGames>=6?4:6;
+      const rate=entryClamp((baseRate*priorGames+weightedWins)/(priorGames+weightedTotal),.08,.92);
+      return {available:true,rate,weight:.50,total:totalGames};
+    }
+    function entryBlendDirectHeadToHead(baseRate,playerA,playerB){
+      const h2h=entryDirectHeadToHeadModel(playerA,playerB,baseRate);
+      if(!h2h.available) return baseRate;
+      return entryClamp(h2h.rate*h2h.weight+baseRate*(1-h2h.weight),.06,.94);
     }
     function entryLineup(team){ return (team==='A'?entryState.teamA:entryState.teamB).map(key=>playerByKey(key)).filter(Boolean); }
     function entryFixedPairAt(lineA,lineB,index){
@@ -6008,7 +6042,8 @@ html.light .entry-match-badge.fixed{color:#16518f;background:rgba(31,111,214,.08
       const modelB=entryBlendedModel(playerB,playerA.race,modelCache);
       const uncertainty=Math.sqrt(modelA.sigma*modelA.sigma+modelB.sigma*modelB.sigma);
       const adjustedDiff=(modelA.elo-modelB.elo)/Math.sqrt(1+Math.pow(uncertainty/420,2));
-      return entryClamp(entryEloToProb(adjustedDiff),.06,.94);
+      const baseRate=entryClamp(entryEloToProb(adjustedDiff),.06,.94);
+      return entryBlendDirectHeadToHead(baseRate,playerA,playerB);
     }
     function entryAverageRandomProbability(lineA,lineB,modelCache){
       const pool=entryPairPool(lineA,lineB);
@@ -6202,7 +6237,8 @@ html.light .entry-match-badge.fixed{color:#16518f;background:rgba(31,111,214,.08
       const modelB=entryBlendedModel(playerB,playerA.race,modelCache);
       const drawA=modelA.elo+entryNormal(rng)*modelA.sigma;
       const drawB=modelB.elo+entryNormal(rng)*modelB.sigma;
-      return entryClamp(entryEloToProb(drawA-drawB),.06,.94);
+      const baseRate=entryClamp(entryEloToProb(drawA-drawB),.06,.94);
+      return entryBlendDirectHeadToHead(baseRate,playerA,playerB);
     }
     function entrySimulateSeries(lineA,lineB,target,maxGames,rng,modelCache,baseSlot=0){
       let a=0,b=0,games=0;
