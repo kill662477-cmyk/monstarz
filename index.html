@@ -8933,7 +8933,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="inout-title-sub">SOOP 라이브 여러 명 동시 재생</div>
           </div>
           <div class="cctv-actions">
-            <button id="cctvSoopLogin" class="cctv-login" type="button">SOOP 로그인 새 창</button>
+            <button id="cctvSoopLogin" class="cctv-login" type="button" title="SOOP 로그인 페이지를 새 창으로 엽니다">SOOP 로그인</button>
             <button id="cctvReload" class="cctv-reload" type="button">플레이어 새로고침</button>
             <button id="cctvClear" class="cctv-clear" type="button">선택 초기화</button>
           </div>
@@ -9928,6 +9928,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     if (member?.live && member.live !== "#") return member.live;
     if (userId) return `https://play.sooplive.com/${userId}`;
     return safeLink(member?.stream || "");
+  }
+
+  const SOOP_CCTV_LOGIN_URL = "https://login.sooplive.com/afreeca/login.php";
+  const SOOP_CCTV_HOME_URL = "https://www.sooplive.com/";
+
+  function buildCctvSoopLoginUrl(returnUrl = SOOP_CCTV_HOME_URL) {
+    const targetUrl = returnUrl && returnUrl !== "javascript:void(0)" ? returnUrl : SOOP_CCTV_HOME_URL;
+    const params = new URLSearchParams();
+    params.set("szFrom", "full");
+    params.set("request_uri", targetUrl);
+    return `${SOOP_CCTV_LOGIN_URL}?${params.toString()}`;
   }
 
   function getMemberLiveThumbnail(member) {
@@ -11128,7 +11139,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   function openCctvSoopLoginWindow() {
     const selected = getSelectedCctvMembers();
     const member = selected[0] || getCctvCandidates()[0];
-    const url = member ? getMemberWatchUrl(member) : "https://www.sooplive.com/";
+    const url = buildCctvSoopLoginUrl(member ? getMemberWatchUrl(member) : SOOP_CCTV_HOME_URL);
     window.open(safeLink(url), "_blank", "noopener,noreferrer");
   }
 
