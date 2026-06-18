@@ -19,6 +19,9 @@
     },
     "api/public-overrides.js": {
       "maxDuration": 10
+    },
+    "api/tier-records.js": {
+      "maxDuration": 10
     }
   },
   "rewrites": [
