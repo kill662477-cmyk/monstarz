@@ -229,12 +229,36 @@
     try {
       return new URL(raw, window.location.href).href.replace(/#.*$/, "");
     } catch (error) {
-      return raw;
+      return raw.replace(/#.*$/, "");
     }
   }
 
   function compactKey(value) {
     return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
+  }
+
+  function hashKey(value) {
+    const hash = String(value || "").trim().toLowerCase().replace(/^sha256:/, "");
+    return hash ? "hash:" + hash : "";
+  }
+
+  const publicHashCache = new Map();
+  async function publicValueHash(value) {
+    const normalized = stableUrl(value);
+    if (!normalized) return "";
+    if (publicHashCache.has(normalized)) return publicHashCache.get(normalized);
+    let result = "";
+    try {
+      if (window.crypto && window.crypto.subtle && window.TextEncoder) {
+        const bytes = new TextEncoder().encode(normalized);
+        const digest = await window.crypto.subtle.digest("SHA-256", bytes);
+        result = Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, "0")).join("");
+      }
+    } catch (error) {
+      result = "";
+    }
+    publicHashCache.set(normalized, result);
+    return result;
   }
 
   function noticeKeys(item) {
@@ -245,7 +269,41 @@
       item && item.url,
       [item && (item.stationName || item.station_name || item.writer), item && item.title, item && (item.time || item.notice_date || item.date)].filter(Boolean).join("|")
     ];
-    return keys.map(stableUrl).concat(keys.map(compactKey)).filter(Boolean);
+    const hashes = [
+      item && item.link_hash,
+      item && item.linkHash,
+      item && item.url_hash,
+      item && item.urlHash
+    ].map(hashKey);
+    return keys.map(stableUrl).concat(keys.map(compactKey), hashes).filter(Boolean);
+  }
+
+  async function noticeKeysWithHashes(item) {
+    const keys = noticeKeys(item);
+    const linkHash = await publicValueHash(item && (item.link || item.url));
+    if (linkHash) keys.push(hashKey(linkHash));
+    return keys;
+  }
+
+  function videoKeys(item) {
+    const keys = [
+      item && item.url,
+      item && item.link
+    ];
+    const hashes = [
+      item && item.url_hash,
+      item && item.urlHash,
+      item && item.link_hash,
+      item && item.linkHash
+    ].map(hashKey);
+    return keys.map(stableUrl).concat(keys.map(compactKey), hashes).filter(Boolean);
+  }
+
+  async function videoKeysWithHashes(item) {
+    const keys = videoKeys(item);
+    const urlHash = await publicValueHash(item && (item.url || item.link));
+    if (urlHash) keys.push(hashKey(urlHash));
+    return keys;
   }
 
   async function getPublicOverrides(options) {
@@ -264,13 +322,14 @@
     if (!rows.length) return base;
 
     const metaByKey = new Map();
-    rows.forEach(row => {
-      noticeKeys(row).forEach(key => metaByKey.set(key, row));
-    });
+    await Promise.all(rows.map(async row => {
+      const keys = await noticeKeysWithHashes(row);
+      keys.forEach(key => metaByKey.set(key, row));
+    }));
 
-    return base
-      .map((item, index) => {
-        const meta = noticeKeys(item).map(key => metaByKey.get(key)).find(Boolean);
+    const merged = await Promise.all(base.map(async (item, index) => {
+        const keys = await noticeKeysWithHashes(item);
+        const meta = keys.map(key => metaByKey.get(key)).find(Boolean);
         if (meta && meta.is_visible === false) return null;
         return {
           ...item,
@@ -282,7 +341,9 @@
           isPinned: Boolean(meta && meta.is_pinned),
           sortOrder: meta ? Number(meta.sort_order || 0) : Number(item.sortOrder || 0)
         };
-      })
+      }));
+
+    return merged
       .filter(Boolean)
       .sort((a, b) => {
         const pinDiff = Number(Boolean(b.isPinned)) - Number(Boolean(a.isPinned));
@@ -299,17 +360,19 @@
     const rows = normalizeList(result && result.data && result.data.videos);
     if (!rows.length) return base;
 
-    const hiddenUrls = new Set(rows.filter(row => row && row.is_visible === false).map(row => stableUrl(row.url)).filter(Boolean));
-    const metaByUrl = new Map();
-    rows.filter(row => row && row.is_visible !== false && row.url).forEach(row => {
-      metaByUrl.set(stableUrl(row.url), row);
-    });
+    const hiddenKeys = new Set();
+    const metaByKey = new Map();
+    await Promise.all(rows.map(async row => {
+      if (!row) return;
+      const keys = await videoKeysWithHashes(row);
+      if (row.is_visible === false) keys.forEach(key => hiddenKeys.add(key));
+      else keys.forEach(key => metaByKey.set(key, row));
+    }));
 
-    const merged = base
-      .map((item, index) => {
-        const url = stableUrl(item.url || item.link);
-        if (url && hiddenUrls.has(url)) return null;
-        const meta = url ? metaByUrl.get(url) : null;
+    const merged = (await Promise.all(base.map(async (item, index) => {
+        const keys = await videoKeysWithHashes(item);
+        if (keys.some(key => hiddenKeys.has(key))) return null;
+        const meta = keys.map(key => metaByKey.get(key)).find(Boolean);
         return {
           ...item,
           _order: item._order == null ? index : item._order,
@@ -325,8 +388,7 @@
           isPinned: Boolean(meta && meta.is_pinned),
           sortOrder: meta ? Number(meta.sort_order || 0) : Number(item.sortOrder || 0)
         };
-      })
-      .filter(Boolean);
+      }))).filter(Boolean);
 
     const seenUrls = new Set(merged.map(item => stableUrl(item.url || item.link)).filter(Boolean));
     rows

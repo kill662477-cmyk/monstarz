@@ -1,5 +1,6 @@
 // Public-safe Supabase overrides for auto-collected notices/videos.
 // Uses the server-only service key, but returns only metadata needed by the public UI.
+const crypto = require("crypto");
 const admin = require("../lib/supabase/admin");
 
 function clampLimit(value, fallback, min, max) {
@@ -8,9 +9,38 @@ function clampLimit(value, fallback, min, max) {
   return Math.max(min, Math.min(max, Math.floor(parsed)));
 }
 
+function normalizePublicKey(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  try {
+    return new URL(raw).href.replace(/#.*$/, "");
+  } catch (error) {
+    return raw.replace(/#.*$/, "");
+  }
+}
+
+function publicHash(value) {
+  const normalized = normalizePublicKey(value);
+  if (!normalized) return "";
+  return crypto.createHash("sha256").update(normalized).digest("hex");
+}
+
 function publicNoticeMeta(row) {
+  const visible = row.is_visible !== false;
+  if (!visible) {
+    return {
+      source_key: row.source_key || "",
+      link_hash: publicHash(row.link),
+      is_visible: false,
+      is_pinned: false,
+      sort_order: Number(row.sort_order || 0),
+      updated_at: row.updated_at || ""
+    };
+  }
+
   return {
     source_key: row.source_key || "",
+    link_hash: publicHash(row.link),
     title: row.title || "",
     station_name: row.station_name || "",
     link: row.link || "",
@@ -26,7 +56,7 @@ function publicVideoMeta(row) {
   const visible = row.is_visible !== false;
   if (!visible) {
     return {
-      url: row.url || "",
+      url_hash: publicHash(row.url),
       is_visible: false,
       is_pinned: false,
       sort_order: Number(row.sort_order || 0),
@@ -35,6 +65,7 @@ function publicVideoMeta(row) {
   }
 
   return {
+    url_hash: publicHash(row.url),
     title: row.title || "",
     platform: row.platform || "",
     member_code: row.member_code || "",
