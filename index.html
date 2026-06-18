@@ -9572,6 +9572,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   let lastNoticeCheckedAt = "";
   let cctvSelectedIds = [];
   const CCTV_MAX_PLAYERS = 4;
+  const CCTV_LOGIN_RELOAD_KEY = "monstarzCctvLoginReloadAt";
+  const CCTV_LOGIN_RELOAD_WINDOW_MS = 10 * 60 * 1000;
+  const CCTV_IFRAME_ALLOW = "autoplay; fullscreen; picture-in-picture; encrypted-media; local-network-access";
   let scheduleTodayItems = [];
   let scheduleTodayLoadError = false;
 
@@ -11124,7 +11127,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div class="cctv-name">${escapeHtml(member.name)} · ${escapeHtml(member.race || "")}</div>
                 <a class="cctv-open" href="${safeLink(url)}" target="_blank" rel="noopener noreferrer">새 창</a>
               </div>
-              <iframe class="cctv-frame" src="${safeLink(url)}" title="${escapeHtml(member.name)} CCTV" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+              <iframe class="cctv-frame" src="${safeLink(url)}" title="${escapeHtml(member.name)} CCTV" loading="lazy" allow="${CCTV_IFRAME_ALLOW}" allowfullscreen></iframe>
             </article>
           `;
         }).join("")
@@ -11153,6 +11156,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       frame.setAttribute("src", "about:blank");
       setTimeout(() => frame.setAttribute("src", src), 80);
     });
+  }
+
+  function markCctvLoginReloadPending() {
+    try { sessionStorage.setItem(CCTV_LOGIN_RELOAD_KEY, String(Date.now())); } catch (error) {}
+  }
+
+  function reloadCctvPlayersAfterLoginIfNeeded() {
+    let startedAt = 0;
+    try { startedAt = Number(sessionStorage.getItem(CCTV_LOGIN_RELOAD_KEY) || 0); } catch (error) {}
+    if (!startedAt || Date.now() - startedAt > CCTV_LOGIN_RELOAD_WINDOW_MS) return;
+    if (!cctvScreen || cctvScreen.classList.contains("hidden")) return;
+    try { sessionStorage.removeItem(CCTV_LOGIN_RELOAD_KEY); } catch (error) {}
+    reloadCctvPlayers();
   }
 
   function getLeaderCoachCategory(member) {
@@ -12824,7 +12840,12 @@ function createMemberCard(member) {
     cctvSelectedIds = [];
     renderCctv();
   });
+  cctvSoopLogin?.addEventListener("click", markCctvLoginReloadPending);
   cctvReload?.addEventListener("click", reloadCctvPlayers);
+  window.addEventListener("focus", () => setTimeout(reloadCctvPlayersAfterLoginIfNeeded, 500));
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") setTimeout(reloadCctvPlayersAfterLoginIfNeeded, 500);
+  });
   document.addEventListener("click", (event) => {
     const navTarget = event.target.closest("[data-nav-tab]");
     if (!navTarget) return;
