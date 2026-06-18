@@ -8217,6 +8217,10 @@ body.light-mode .other-video-card .hub-meta { color: #607998; }
   content: "☷";
 }
 
+#tabEntry:before {
+  content: "";
+}
+
 .tier-tab-shell {
   display: grid;
   min-height: 0;
@@ -8249,7 +8253,8 @@ body.tier-tab-active .wrap {
   padding-bottom: 18px !important;
 }
 
-body.tier-tab-active #tierScreen {
+body.tier-tab-active #tierScreen,
+body.tier-tab-active #entryScreen {
   min-height: 0 !important;
   overflow: hidden !important;
 }
@@ -8543,6 +8548,7 @@ body.light-mode .notice-feed-sub {
 #tabDuckCalc::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20width%3D%2216%22%20height%3D%2220%22%20x%3D%224%22%20y%3D%222%22%20rx%3D%222%22%2F%3E%3Cline%20x1%3D%228%22%20x2%3D%2216%22%20y1%3D%226%22%20y2%3D%226%22%2F%3E%3Cline%20x1%3D%2216%22%20x2%3D%2216%22%20y1%3D%2214%22%20y2%3D%2218%22%2F%3E%3Cpath%20d%3D%22M16%2010h.01%22%2F%3E%3Cpath%20d%3D%22M12%2010h.01%22%2F%3E%3Cpath%20d%3D%22M8%2010h.01%22%2F%3E%3Cpath%20d%3D%22M12%2014h.01%22%2F%3E%3Cpath%20d%3D%22M8%2014h.01%22%2F%3E%3Cpath%20d%3D%22M12%2018h.01%22%2F%3E%3Cpath%20d%3D%22M8%2018h.01%22%2F%3E%3C%2Fsvg%3E"); }
 #tabPinballDonation::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%226%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%222%22%2F%3E%3C%2Fsvg%3E"); }
 
+#tabEntry::before{ --ic:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20width%3D%2716%27%20height%3D%2718%27%20x%3D%274%27%20y%3D%274%27%20rx%3D%272%27%2F%3E%3Cpath%20d%3D%27M8%202h8v4H8z%27%2F%3E%3Cpath%20d%3D%27M8%2010h8%27%2F%3E%3Cpath%20d%3D%27M8%2014h8%27%2F%3E%3Cpath%20d%3D%27M8%2018h5%27%2F%3E%3C%2Fsvg%3E"); }
 /* ---- 2. header: light travelling around the border ---- */
 @property --cm-ang{ syntax:'<angle>'; inherits:false; initial-value:0deg; }
 .site-header{ position:relative; }
@@ -8629,6 +8635,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <button id="tabMain" class="tab-btn active" type="button">홈</button>
           <button id="tabMembers" class="tab-btn" type="button">현황판</button>
           <button id="tabTier" class="tab-btn" type="button">티어표</button>
+          <button id="tabEntry" class="tab-btn" type="button">엔트리</button>
         </div>
         <div class="nav-cluster nav-tree is-open" data-nav-tree="info">
           <button id="tabInfo" class="tab-btn nav-parent" type="button" aria-expanded="true">정보</button>
@@ -8761,7 +8768,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div id="tierScreen" class="screen hidden">
       <section class="tier-tab-shell tier-tab-shell-compact">
-        <iframe id="tierFrame" class="tier-tab-frame" src="tierboard_calm_tab.html" title="스타크래프트 티어표" loading="lazy" scrolling="auto"></iframe>
+        <iframe id="tierFrame" class="tier-tab-frame" src="tierboard_calm_tab.html?view=tier" title="스타크래프트 티어표" loading="lazy" scrolling="auto"></iframe>
+      </section>
+    </div>
+
+    <div id="entryScreen" class="screen hidden">
+      <section class="tier-tab-shell tier-tab-shell-compact">
+        <iframe id="entryFrame" class="tier-tab-frame" src="tierboard_calm_tab.html?view=entry" title="스타크래프트 엔트리" loading="lazy" scrolling="auto"></iframe>
       </section>
     </div>
 
@@ -9486,6 +9499,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     members: { title: "캄몬스타즈 멤버 현황판", description: "캄몬스타즈 멤버의 방송 상태, 종족, 티어, SOOP 바로가기를 확인합니다." },
     profile: { title: "캄몬스타즈 멤버 프로필", description: "캄몬스타즈 멤버 프로필과 기본 정보를 모아 봅니다." },
     tier: { title: "캄몬스타즈 티어표와 전적", description: "스타크래프트 티어표, ELO 전적, 방송 중 전적 이동 경로를 확인합니다." },
+    entry: { title: "캄몬스타즈 엔트리", description: "대학별 선수 엔트리, 최근 전적, 매치별 승률, 시뮬레이션 결과를 확인합니다." },
     schedule: { title: "캄몬스타즈 일정표", description: "캄몬스타즈 외부 일정표와 오늘 일정 요약을 확인합니다." },
     notice: { title: "캄몬스타즈 공지", description: "SOOP 방송국 공지를 확인합니다." },
     inout: { title: "캄몬스타즈 IN&OUT", description: "멤버 합류와 이탈 히스토리를 최신순으로 확인합니다." },
@@ -9565,6 +9579,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const tabMembers = document.getElementById("tabMembers");
   const tabProfile = document.getElementById("tabProfile");
   const tabTier = document.getElementById("tabTier");
+  const tabEntry = document.getElementById("tabEntry");
   const tabInfo = document.getElementById("tabInfo");
   const tabSchedule = document.getElementById("tabSchedule");
   const tabVideos = document.getElementById("tabVideos");
@@ -9573,6 +9588,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const mainScreen = document.getElementById("mainScreen");
   const profileScreen = document.getElementById("profileScreen");
   const tierScreen = document.getElementById("tierScreen");
+  const entryScreen = document.getElementById("entryScreen");
   const noticeScreen = document.getElementById("noticeScreen");
   const noticeList = document.getElementById("noticeList");
   const noticeCount = document.getElementById("noticeCount");
@@ -12136,6 +12152,7 @@ function createMemberCard(member) {
     if (tab === tabMembers) return "members";
     if (tab === tabProfile) return "profile";
     if (tab === tabTier) return "tier";
+    if (tab === tabEntry) return "entry";
     if (tab === tabInfo) return "info";
     if (tab === tabSchedule) return "schedule";
     if (tab === tabVideos) return "videos";
@@ -12163,6 +12180,7 @@ function createMemberCard(member) {
       members: tabMembers,
       profile: tabProfile,
       tier: tabTier,
+      entry: tabEntry,
       info: tabInfo,
       schedule: tabSchedule,
       videos: tabVideos,
@@ -12243,14 +12261,14 @@ function createMemberCard(member) {
   }
 
   function setActiveTab(activeTab, options = {}) {
-    [tabMain, tabMembers, tabProfile, tabTier, tabInfo, tabSchedule, tabVideos, tabNotice, tabInout, tabBoja, tabYoutube, tabOtherVideos, tabTools, tabCctv, tabGame, tabDuckCalc, tabPinballDonation, tabFunding, tabLinks, tabAdmin].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
+    [tabMain, tabMembers, tabProfile, tabTier, tabEntry, tabInfo, tabSchedule, tabVideos, tabNotice, tabInout, tabBoja, tabYoutube, tabOtherVideos, tabTools, tabCctv, tabGame, tabDuckCalc, tabPinballDonation, tabFunding, tabLinks, tabAdmin].filter(Boolean).forEach((tab) => tab.classList.remove("active"));
     const safeActiveTab = activeTab === tabFunding && isFundingTempTabHidden() ? tabMain : activeTab;
     if (safeActiveTab) safeActiveTab.classList.add("active");
     const parentTab = getVisibleParentTab(safeActiveTab);
     if (parentTab && parentTab !== safeActiveTab) parentTab.classList.add("active");
     if (parentTab) setNavTreeOpen(parentTab, true);
     document.body.classList.toggle("main-tab-active", safeActiveTab === tabMain);
-    document.body.classList.toggle("tier-tab-active", safeActiveTab === tabTier);
+    document.body.classList.toggle("tier-tab-active", safeActiveTab === tabTier || safeActiveTab === tabEntry);
     document.body.classList.toggle("pinball-donation-mode", safeActiveTab === tabPinballDonation);
     const tabKey = getTabKeyFromElement(safeActiveTab);
     applyPageMeta(tabKey || "main");
@@ -12260,7 +12278,7 @@ function createMemberCard(member) {
 
   function hideAllScreens() {
     if (cctvScreen && !cctvScreen.classList.contains("hidden")) stopCctvPlayers();
-    [homeScreen, mainScreen, profileScreen, tierScreen, infoScreen, scheduleScreen, videosScreen, noticeScreen, inoutScreen, bojaScreen, youtubeScreen, otherVideosScreen, toolsScreen, cctvScreen, linksScreen, adminScreen, gameScreen, duckCalcScreen, pinballDonationScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
+    [homeScreen, mainScreen, profileScreen, tierScreen, entryScreen, infoScreen, scheduleScreen, videosScreen, noticeScreen, inoutScreen, bojaScreen, youtubeScreen, otherVideosScreen, toolsScreen, cctvScreen, linksScreen, adminScreen, gameScreen, duckCalcScreen, pinballDonationScreen, fundingScreen].filter(Boolean).forEach((screen) => screen.classList.add("hidden"));
   }
   window.hideAllScreens = hideAllScreens;
 
@@ -12295,6 +12313,14 @@ function createMemberCard(member) {
     updateSummaryVisibility(false);
     hideAllScreens();
     tierScreen.classList.remove("hidden");
+  }
+
+  function showEntryScreen() {
+    setFundingPageMode(false);
+    setActiveTab(tabEntry);
+    updateSummaryVisibility(false);
+    hideAllScreens();
+    entryScreen.classList.remove("hidden");
   }
 
   function showInfoScreen() {
@@ -12453,6 +12479,9 @@ function createMemberCard(member) {
       case "tier":
         showTierScreen();
         break;
+      case "entry":
+        showEntryScreen();
+        break;
       case "info":
         showInfoScreen();
         break;
@@ -12597,6 +12626,7 @@ function createMemberCard(member) {
   tabMembers?.addEventListener("click", showMembersScreen);
   tabProfile.addEventListener("click", showProfileScreen);
   tabTier.addEventListener("click", showTierScreen);
+  tabEntry?.addEventListener("click", showEntryScreen);
   tabInfo?.addEventListener("click", showInfoScreen);
   tabSchedule?.addEventListener("click", showScheduleScreen);
   tabVideos?.addEventListener("click", showVideosScreen);

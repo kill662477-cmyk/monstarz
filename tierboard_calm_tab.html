@@ -141,6 +141,9 @@ body{ line-height:1.55; }
 </style>
 <style id="entry-tool-style">
 .view-tabs{display:flex;gap:8px;margin:18px 0 14px;padding:6px;border:1px solid rgba(142,169,208,.18);border-radius:12px;background:rgba(8,20,36,.66);box-shadow:0 16px 42px rgba(0,0,0,.18)}
+.main-view-locked .view-tabs{display:none}
+.main-view-locked.entry-view-active .app-header{display:none}
+.main-view-locked.entry-view-active .entry-tool{margin-top:0}
 .view-tab{flex:0 0 auto;min-width:116px;height:42px;border:1px solid transparent;border-radius:9px;background:transparent;color:#9fb5ce;font-weight:800;font-size:14px;cursor:pointer}
 .view-tab:hover{color:#eaf4ff;background:rgba(90,167,255,.10)}
 .view-tab.active{color:#eaf4ff;background:linear-gradient(180deg,rgba(90,167,255,.24),rgba(57,114,222,.16));border-color:rgba(90,167,255,.42);box-shadow:0 10px 28px rgba(44,117,220,.14)}
@@ -5678,6 +5681,16 @@ html.light .entry-match-badge.fixed{color:#16518f;background:rgba(31,111,214,.08
     let h2hVisibleCount = H2H_PAGE_SIZE;
     let searchRenderTimer = 0;
     let entryRenderTimer = 0;
+    function requestedMainView(){
+      try{
+        const value = new URLSearchParams(window.location.search || '').get('view');
+        return value === 'entry' || value === 'tier' ? value : '';
+      }catch(e){
+        return '';
+      }
+    }
+    const requestedView = requestedMainView();
+    if(requestedView) document.documentElement.classList.add('main-view-locked');
     const entryState = {
       view:'tier',
       teamA:[],
@@ -5689,7 +5702,8 @@ html.light .entry-match-badge.fixed{color:#16518f;background:rgba(31,111,214,.08
       simMode:'bo7',
       recordCache:new Map(),
       loadingRecords:new Set(),
-      simulation:null
+      simulation:null,
+      defaultAcademyAApplied:false
     };
 
     const FIREBASE_ROOT = 'starcraftTier/current';
@@ -5815,6 +5829,8 @@ html.light .entry-match-badge.fixed{color:#16518f;background:rgba(31,111,214,.08
     function setMainView(view){
       const entry=view==='entry';
       entryState.view=entry?'entry':'tier';
+      document.documentElement.classList.toggle('entry-view-active',entry);
+      document.documentElement.classList.toggle('tier-view-active',!entry);
       viewTabTier.classList.toggle('active',!entry);
       viewTabEntry.classList.toggle('active',entry);
       viewTabTier.setAttribute('aria-selected',entry?'false':'true');
@@ -5843,11 +5859,22 @@ html.light .entry-match-badge.fixed{color:#16518f;background:rgba(31,111,214,.08
       entryState.teamA=entryState.teamA.filter(key=>playerByKey(key));
       entryState.teamB=entryState.teamB.filter(key=>playerByKey(key));
     }
+    function isDefaultEntryAcademy(name){
+      return String(name||'').replace(/\s+/g,'').includes('\uCE84\uBAAC');
+    }
+    function applyDefaultEntryAcademyA(academies){
+      if(entryState.defaultAcademyAApplied || entryState.academyA!=='all') return;
+      const academy=academies.find(isDefaultEntryAcademy);
+      if(!academy) return;
+      entryState.academyA=academy;
+      entryState.defaultAcademyAApplied=true;
+    }
     function renderEntryAcademyOptions(){
       const academies=Array.from(new Set(entryPlayers().map(academyName))).sort((a,b)=>a.localeCompare(b,'ko'));
       function html(selected){ return '<option value="all">교육기관 선택</option>'+academies.map(name=>'<option value="'+escapeAttr(name)+'" '+(name===selected?'selected':'')+'>'+escapeHtml(name)+'</option>').join(''); }
       if(!academies.includes(entryState.academyA)) entryState.academyA='all';
       if(!academies.includes(entryState.academyB)) entryState.academyB='all';
+      applyDefaultEntryAcademyA(academies);
       entryAcademyA.innerHTML=html(entryState.academyA);
       entryAcademyB.innerHTML=html(entryState.academyB);
     }
@@ -6256,7 +6283,7 @@ html.light .entry-match-badge.fixed{color:#16518f;background:rgba(31,111,214,.08
     filterSummary.addEventListener('click',e=>{ const btn=e.target.closest('[data-remove-filter]'); if(!btn) return; const k=btn.dataset.removeFilter; if(k==='live') filters.liveOnly=false; if(k==='race') filters.races=[]; if(k==='tier') filters.tiers=[]; if(k==='search') searchInput.value=''; render(); });
     tierStack.addEventListener('click',e=>{ const rec=e.target.closest('.record-action'); if(rec) openRecord(rec.dataset.playerKey); const toggle=e.target.closest('.live-first-toggle'); if(toggle){ filters.liveFirst=toggle.checked; render(); } });
     viewTabs.addEventListener('click',e=>{ const btn=e.target.closest('[data-view]'); if(!btn) return; setMainView(btn.dataset.view); });
-    entryAcademyA.addEventListener('change',()=>{ entryState.academyA=entryAcademyA.value; entryState.simulation=null; renderEntry(); });
+    entryAcademyA.addEventListener('change',()=>{ entryState.academyA=entryAcademyA.value; entryState.defaultAcademyAApplied=true; entryState.simulation=null; renderEntry(); });
     entryAcademyB.addEventListener('change',()=>{ entryState.academyB=entryAcademyB.value; entryState.simulation=null; renderEntry(); });
     entrySearchA.addEventListener('input',()=>{ entryState.searchA=entrySearchA.value; clearTimeout(entryRenderTimer); entryRenderTimer=setTimeout(renderEntry,90); });
     entrySearchB.addEventListener('input',()=>{ entryState.searchB=entrySearchB.value; clearTimeout(entryRenderTimer); entryRenderTimer=setTimeout(renderEntry,90); });
@@ -6300,8 +6327,9 @@ html.light .entry-match-badge.fixed{color:#16518f;background:rgba(31,111,214,.08
     renderTierNav();
     renderEntry();
     tierStack.innerHTML='<div class="loading-note">티어표를 불러오는 중입니다…</div>';
+    if(requestedView==='entry') setMainView('entry');
     initFirebaseTierData();
-    setTimeout(function(){ if(!booted){ booted=true; render(); } }, 3500); // Firebase 응답이 없을 때만 embedded 데이터로 표시
+    setTimeout(function(){ if(!booted){ booted=true; render(); if(entryState.view==='entry') renderEntry(); } }, 3500); // Firebase 응답이 없을 때만 embedded 데이터로 표시
   </script>
 <script id="thumb-preview-js">
 (function(){
