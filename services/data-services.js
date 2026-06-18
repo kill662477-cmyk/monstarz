@@ -243,8 +243,7 @@
   }
 
   const publicHashCache = new Map();
-  async function publicValueHash(value) {
-    const normalized = stableUrl(value);
+  async function publicHashValue(normalized) {
     if (!normalized) return "";
     if (publicHashCache.has(normalized)) return publicHashCache.get(normalized);
     let result = "";
@@ -261,6 +260,14 @@
     return result;
   }
 
+  async function publicValueHash(value) {
+    return publicHashValue(stableUrl(value));
+  }
+
+  async function publicTextHash(value) {
+    return publicHashValue(compactKey(value));
+  }
+
   function noticeKeys(item) {
     const keys = [
       item && item.source_key,
@@ -273,7 +280,9 @@
       item && item.link_hash,
       item && item.linkHash,
       item && item.url_hash,
-      item && item.urlHash
+      item && item.urlHash,
+      item && item.notice_hash,
+      item && item.noticeHash
     ].map(hashKey);
     return keys.map(stableUrl).concat(keys.map(compactKey), hashes).filter(Boolean);
   }
@@ -282,6 +291,9 @@
     const keys = noticeKeys(item);
     const linkHash = await publicValueHash(item && (item.link || item.url));
     if (linkHash) keys.push(hashKey(linkHash));
+    const identity = item && [item.stationName || item.station_name || item.writer, item.title, item.time || item.notice_date || item.date].filter(Boolean).join("|");
+    const noticeHash = await publicTextHash(identity);
+    if (noticeHash) keys.push(hashKey(noticeHash));
     return keys;
   }
 

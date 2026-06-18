@@ -19,10 +19,28 @@ function normalizePublicKey(value) {
   }
 }
 
-function publicHash(value) {
+function compactPublicKey(value) {
+  return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+function sha256(value) {
+  return crypto.createHash("sha256").update(value).digest("hex");
+}
+
+function publicUrlHash(value) {
   const normalized = normalizePublicKey(value);
   if (!normalized) return "";
-  return crypto.createHash("sha256").update(normalized).digest("hex");
+  return sha256(normalized);
+}
+
+function publicTextHash(value) {
+  const normalized = compactPublicKey(value);
+  if (!normalized) return "";
+  return sha256(normalized);
+}
+
+function noticeIdentity(row) {
+  return [row.station_name, row.title, row.notice_date].filter(Boolean).join("|");
 }
 
 function publicNoticeMeta(row) {
@@ -30,7 +48,8 @@ function publicNoticeMeta(row) {
   if (!visible) {
     return {
       source_key: row.source_key || "",
-      link_hash: publicHash(row.link),
+      link_hash: publicUrlHash(row.link),
+      notice_hash: publicTextHash(noticeIdentity(row)),
       is_visible: false,
       is_pinned: false,
       sort_order: Number(row.sort_order || 0),
@@ -40,7 +59,8 @@ function publicNoticeMeta(row) {
 
   return {
     source_key: row.source_key || "",
-    link_hash: publicHash(row.link),
+    link_hash: publicUrlHash(row.link),
+    notice_hash: publicTextHash(noticeIdentity(row)),
     title: row.title || "",
     station_name: row.station_name || "",
     link: row.link || "",
@@ -56,7 +76,7 @@ function publicVideoMeta(row) {
   const visible = row.is_visible !== false;
   if (!visible) {
     return {
-      url_hash: publicHash(row.url),
+      url_hash: publicUrlHash(row.url),
       is_visible: false,
       is_pinned: false,
       sort_order: Number(row.sort_order || 0),
@@ -65,7 +85,7 @@ function publicVideoMeta(row) {
   }
 
   return {
-    url_hash: publicHash(row.url),
+    url_hash: publicUrlHash(row.url),
     title: row.title || "",
     platform: row.platform || "",
     member_code: row.member_code || "",
