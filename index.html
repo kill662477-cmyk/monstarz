@@ -7355,7 +7355,9 @@ body.funding-overlay-host .funding-temp-frame {
 .panel-link,
 .hub-action,
 .cctv-open,
-.cctv-clear {
+.cctv-clear,
+.cctv-login,
+.cctv-reload {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -7820,6 +7822,13 @@ body.funding-overlay-host .funding-temp-frame {
   padding: 2px 0 10px;
 }
 
+.cctv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .cctv-picker button {
   flex: 0 0 auto;
   min-height: 36px;
@@ -7840,8 +7849,12 @@ body.funding-overlay-host .funding-temp-frame {
 
 .cctv-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.cctv-grid .hub-empty {
+  grid-column: 1 / -1;
 }
 
 .cctv-player {
@@ -7934,6 +7947,10 @@ body.light-mode .schedule-today-card .hub-meta::first-line {
 
   .hub-panel.wide {
     grid-column: auto;
+  }
+
+  .cctv-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -8915,7 +8932,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2>CCTV</h2>
             <div class="inout-title-sub">SOOP 라이브 여러 명 동시 재생</div>
           </div>
-          <button id="cctvClear" class="cctv-clear" type="button">선택 초기화</button>
+          <div class="cctv-actions">
+            <button id="cctvSoopLogin" class="cctv-login" type="button">SOOP 로그인 새 창</button>
+            <button id="cctvReload" class="cctv-reload" type="button">플레이어 새로고침</button>
+            <button id="cctvClear" class="cctv-clear" type="button">선택 초기화</button>
+          </div>
         </div>
         <div id="cctvPicker" class="cctv-picker"></div>
         <div id="cctvGrid" class="cctv-grid"><div class="hub-empty">CCTV 페이지에 들어가면 선택한 방송 플레이어가 열립니다.</div></div>
@@ -9550,6 +9571,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   let noticeLoadError = false;
   let lastNoticeCheckedAt = "";
   let cctvSelectedIds = [];
+  const CCTV_MAX_PLAYERS = 4;
   let scheduleTodayItems = [];
   let scheduleTodayLoadError = false;
 
@@ -9638,6 +9660,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const cctvPicker = document.getElementById("cctvPicker");
   const cctvGrid = document.getElementById("cctvGrid");
   const cctvClear = document.getElementById("cctvClear");
+  const cctvSoopLogin = document.getElementById("cctvSoopLogin");
+  const cctvReload = document.getElementById("cctvReload");
   const linksScreen = document.getElementById("linksScreen");
   const linksHubList = document.getElementById("linksHubList");
   const linksHubCount = document.getElementById("linksHubCount");
@@ -11041,10 +11065,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       .sort((a, b) => Number(b.status === "live") - Number(a.status === "live") || String(a.name).localeCompare(String(b.name), "ko"));
   }
 
+  function cctvMemberId(member) {
+    return member.userId || extractSoopUserId(member.live || member.stream || "");
+  }
+
+  function getSelectedCctvMembers(rows = getCctvCandidates()) {
+    const selectedIdSet = new Set(cctvSelectedIds.slice(0, CCTV_MAX_PLAYERS));
+    return rows.filter(member => selectedIdSet.has(cctvMemberId(member))).slice(0, CCTV_MAX_PLAYERS);
+  }
+
   function ensureCctvSelection(rows) {
+    const validIds = new Set(rows.map(cctvMemberId).filter(Boolean));
+    cctvSelectedIds = cctvSelectedIds.filter(id => validIds.has(id)).slice(0, CCTV_MAX_PLAYERS);
     if (cctvSelectedIds.length) return;
-    const liveDefaults = rows.filter(member => member.status === "live").slice(0, 4).map(member => member.userId).filter(Boolean);
-    cctvSelectedIds = liveDefaults.length ? liveDefaults : rows.slice(0, 2).map(member => member.userId).filter(Boolean);
+    const liveDefaults = rows.filter(member => member.status === "live").slice(0, CCTV_MAX_PLAYERS).map(cctvMemberId).filter(Boolean);
+    cctvSelectedIds = liveDefaults.length ? liveDefaults : rows.slice(0, CCTV_MAX_PLAYERS).map(cctvMemberId).filter(Boolean);
   }
 
   function stopCctvPlayers() {
@@ -11057,13 +11092,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     ensureCctvSelection(rows);
     cctvPicker.innerHTML = rows.length
       ? rows.map(member => {
-          const id = member.userId || extractSoopUserId(member.live || member.stream || "");
+          const id = cctvMemberId(member);
           const active = cctvSelectedIds.includes(id);
           return `<button type="button" class="${active ? "active" : ""}" data-cctv-id="${escapeHtml(id)}">${escapeHtml(member.name)}${member.status === "live" ? " · LIVE" : ""}</button>`;
         }).join("")
       : renderHubEmpty();
 
-    const selected = rows.filter(member => cctvSelectedIds.includes(member.userId || extractSoopUserId(member.live || member.stream || "")));
+    const selected = getSelectedCctvMembers(rows);
     cctvGrid.innerHTML = selected.length
       ? selected.map(member => {
           const url = getMemberWatchUrl(member);
@@ -11079,19 +11114,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }).join("")
       : renderHubEmpty("동시에 볼 멤버를 선택해주세요.");
 
-    // Grow the grid into a square (2x2, then 3x...) instead of one long row:
-    // 3rd player drops to the next row, 4th sits beside it, and so on.
-    const cctvCols = selected.length ? Math.ceil(Math.sqrt(selected.length)) : 1;
-    cctvGrid.style.gridTemplateColumns = `repeat(${cctvCols}, minmax(0, 1fr))`;
-
     cctvPicker.querySelectorAll("[data-cctv-id]").forEach(button => {
       button.addEventListener("click", () => {
         const id = button.dataset.cctvId;
         cctvSelectedIds = cctvSelectedIds.includes(id)
           ? cctvSelectedIds.filter(value => value !== id)
-          : [...cctvSelectedIds, id].slice(-9);
+          : [...cctvSelectedIds, id].slice(-CCTV_MAX_PLAYERS);
         renderCctv();
       });
+    });
+  }
+
+  function openCctvSoopLoginWindow() {
+    const selected = getSelectedCctvMembers();
+    const member = selected[0] || getCctvCandidates()[0];
+    const url = member ? getMemberWatchUrl(member) : "https://www.sooplive.com/";
+    window.open(safeLink(url), "_blank", "noopener,noreferrer");
+  }
+
+  function reloadCctvPlayers() {
+    const frames = Array.from(cctvGrid?.querySelectorAll("iframe.cctv-frame") || []);
+    if (!frames.length) {
+      renderCctv();
+      return;
+    }
+    frames.forEach(frame => {
+      const src = frame.getAttribute("src");
+      if (!src) return;
+      frame.setAttribute("src", "about:blank");
+      setTimeout(() => frame.setAttribute("src", src), 80);
     });
   }
 
@@ -12764,6 +12815,8 @@ function createMemberCard(member) {
     cctvSelectedIds = [];
     renderCctv();
   });
+  cctvSoopLogin?.addEventListener("click", openCctvSoopLoginWindow);
+  cctvReload?.addEventListener("click", reloadCctvPlayers);
   document.addEventListener("click", (event) => {
     const navTarget = event.target.closest("[data-nav-tab]");
     if (!navTarget) return;
