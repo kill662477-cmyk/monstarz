@@ -1,5 +1,10 @@
+const fs = require("fs/promises");
+const path = require("path");
 const admin = require("firebase-admin");
 const { withAutomationLog } = require("./lib/automationLogger");
+
+const root = path.resolve(__dirname, "..");
+const manualPlayersPath = path.join(root, "data", "manual", "players.json");
 
 const FIREBASE_DATABASE_URL =
   process.env.FIREBASE_DATABASE_URL ||
@@ -145,6 +150,38 @@ async function loadPlayersFromFirebase(db) {
     }));
 }
 
+async function loadPlayersFromLocal() {
+  const raw = await fs.readFile(manualPlayersPath, "utf8");
+  const value = JSON.parse(raw);
+  const list = Array.isArray(value) ? value : Object.values(value || {});
+
+  return list
+    .filter((player) => player && player.userId)
+    .map((player, index) => ({
+      index,
+      userId: String(player.userId),
+      name: player.name || player.userId,
+      race: player.race || "",
+      tier: player.tier || "",
+      tierCode: player.tierCode || "",
+    }));
+}
+
+async function loadPlayers(db) {
+  try {
+    const players = await loadPlayersFromLocal();
+    if (players.length) {
+      console.log(`[local] players loaded ${players.length}: data/manual/players.json`);
+      return players;
+    }
+  } catch (error) {
+    console.warn(`[local] manual players unavailable: ${error.message}`);
+  }
+
+  console.log("[firebase] fallback load players");
+  return loadPlayersFromFirebase(db);
+}
+
 async function fetchSoopLiveMap(players) {
   lastSoopFetchStats = { pagesChecked: 0, failedPages: 0 };
   const targets = players
@@ -244,69 +281,31 @@ async function fetchSoopLiveMap(players) {
 
 function buildLiveStatus(players, liveMap) {
   const checkedAt = new Date().toISOString();
-  const liveStatus = {};
+  const liveStatus = {
+    __meta: {
+      checkedAt,
+      playerCount: players.length,
+      liveCount: liveMap.size,
+      source: "soop-openapi-broad-list",
+      mode: "live-only",
+    },
+  };
 
   players.forEach((player) => {
     const info = liveMap.get(String(player.userId));
 
-    if (info) {
-      liveStatus[safeKey(player.userId)] = {
-        ...info,
-        race: player.race || "",
-        tier: player.tier || "",
-        tierCode: player.tierCode || "",
-        checkedAt,
-      };
-      return;
-    }
+    if (!info) return;
 
     liveStatus[safeKey(player.userId)] = {
-      live: false,
-      status: "offline",
-      userId: player.userId,
-      name: player.name || player.userId,
+      ...info,
       race: player.race || "",
       tier: player.tier || "",
       tierCode: player.tierCode || "",
-      broadNo: "",
-      title: "",
-      startAt: "",
-      categoryTags: [],
-      totalViewCount: 0,
-      thumbnail: "",
-      profileImg: "",
-      stationUrl: `https://www.sooplive.com/station/${player.userId}`,
-      broadcastUrl: "",
       checkedAt,
     };
   });
 
   return liveStatus;
-}
-
-function buildPlayerLiveUpdates(players, liveMap) {
-  const updates = {};
-
-  players.forEach((player) => {
-    const info = liveMap.get(String(player.userId));
-    const basePath = `${FIREBASE_TIER_ROOT}/players/${player.index}`;
-
-    updates[`${basePath}/live`] = Boolean(info);
-    updates[`${basePath}/broadcastUrl`] = info ? info.broadcastUrl : "";
-    updates[`${basePath}/broad`] = info
-      ? {
-          broadNo: info.broadNo || "",
-          title: info.title || "",
-          startAt: info.startAt || "",
-          categoryTags: info.categoryTags || [],
-          totalViewCount: info.totalViewCount || 0,
-          thumbnail: info.thumbnail || "",
-          profileImg: info.profileImg || "",
-        }
-      : null;
-  });
-
-  return updates;
 }
 
 async function main(run = {}) {
@@ -319,8 +318,8 @@ async function main(run = {}) {
 
   const db = initFirebase();
 
-  console.log("[firebase] load players");
-  const players = await loadPlayersFromFirebase(db);
+  console.log("[players] load roster");
+  const players = await loadPlayers(db);
 
   if (!players.length) {
     throw new Error(`${FIREBASE_TIER_ROOT}/players is empty`);
@@ -330,15 +329,11 @@ async function main(run = {}) {
 
   const liveMap = await fetchSoopLiveMap(players);
   const liveStatus = buildLiveStatus(players, liveMap);
-  const playerLiveUpdates = buildPlayerLiveUpdates(players, liveMap);
 
   const checkedAt = new Date().toISOString();
 
   console.log("[firebase] update liveStatus");
   await db.ref(`${FIREBASE_TIER_ROOT}/liveStatus`).set(liveStatus);
-
-  console.log("[firebase] update players live fields");
-  await db.ref().update(playerLiveUpdates);
 
   console.log("[firebase] update live meta");
   await db.ref(`${FIREBASE_TIER_ROOT}/meta/liveSyncedAt`).set(checkedAt);
@@ -353,7 +348,7 @@ async function main(run = {}) {
 
   run.status = "success";
   run.itemsFound = players.length;
-  run.itemsWritten = Object.keys(playerLiveUpdates).length + Object.keys(liveStatus).length + 3;
+  run.itemsWritten = Object.keys(liveStatus).length + 3;
   run.itemsSkipped = Math.max(0, players.length - liveMap.size);
   run.meta = {
     firebaseRoot: FIREBASE_TIER_ROOT,

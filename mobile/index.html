@@ -741,7 +741,8 @@
   const tierRaceRank=v=>TIER_RACE_ORDER[raceCode(v)]??99;
   function tierCode(p){const raw=String(p.tierCode??p.tier??p.tierId??"N").replace(/^tier-/,"").trim().toUpperCase();if(raw==="GOD")return"G";if(raw==="KING")return"K";if(raw==="JACK")return"J";if(raw==="SPADE")return"S";if(raw==="YOUTH"||raw==="유스"||raw==="9")return"U";return raw||"N"}
   function tierLabel(p){const c=tierCode(p);return TIER_NAMES[c]||(c==="N"?"티어없음":c+"티어")}
-  function tierLiveInfo(p){return tierLiveMap[safeKey(p.userId)]??tierLiveMap[p.userId]??p.live??false}
+  function tierLiveHasSnapshot(){return Boolean(tierLiveMap&&typeof tierLiveMap==="object"&&Object.keys(tierLiveMap).some(k=>String(k).startsWith("__")||["meta","updatedAt","checkedAt","source","liveCount","playerCount","mode"].includes(String(k))))}
+  function tierLiveInfo(p){const fromMap=tierLiveMap[safeKey(p.userId)]??tierLiveMap[p.userId];return fromMap??(tierLiveHasSnapshot()?false:p.live??false)}
   function tierIsLive(p){return isLiveValue(tierLiveInfo(p))}
   function tierImage(p){return p.image||p.sourceImage||p.profileImage||p.broad?.profileImg||TEAM.logo}
   function tierThumb(p){const info=tierLiveInfo(p)||{};return info.thumbnailUrl||info.thumbnail||info.thumb||info.image||info.broadImg||info.broad_image||info.preview||p.thumbnailUrl||p.thumbnail||p.thumb||p.broad?.thumbnail||tierImage(p)}

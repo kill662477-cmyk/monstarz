@@ -1847,31 +1847,6 @@ async function readExistingLiveState(rootRef) {
   };
 }
 
-function applyExistingLiveToPlayers(players, liveStatus) {
-  return (players || []).map((player) => {
-    const liveInfo = liveStatus[safeKey(player.userId)] || null;
-    const isLive = Boolean(liveInfo && liveInfo.live);
-
-    return {
-      ...player,
-      live: isLive,
-      broad: isLive
-        ? {
-            broadNo: liveInfo.broadNo || "",
-            title: liveInfo.title || "",
-            startAt: liveInfo.startAt || "",
-            categoryTags: liveInfo.categoryTags || [],
-            totalViewCount: liveInfo.totalViewCount || 0,
-            thumbnail: liveInfo.thumbnail || "",
-            profileImg: liveInfo.profileImg || "",
-          }
-        : null,
-      broadcastUrl: isLive ? liveInfo.broadcastUrl || "" : "",
-    };
-  });
-}
-
-
 async function uploadRecordAppends(rootRef, recordAppends, recordMeta) {
   const entries = Object.entries(recordAppends || {});
 
@@ -1902,13 +1877,7 @@ async function uploadToFirebase(payload) {
   const cleanPayload = removeUndefined(payload);
   const rootRef = db.ref(FIREBASE_ROOT);
 
-  const { liveStatus: existingLiveStatus, liveCount: existingLiveCount } =
-    await readExistingLiveState(rootRef);
-
-  const playersWithPreservedLive = applyExistingLiveToPlayers(
-    cleanPayload.players || [],
-    existingLiveStatus
-  );
+  const { liveCount: existingLiveCount } = await readExistingLiveState(rootRef);
 
   const metaWithPreservedLive = {
     ...(cleanPayload.meta || {}),
@@ -1920,7 +1889,7 @@ async function uploadToFirebase(payload) {
   await rootRef.child("meta").set(metaWithPreservedLive);
 
   console.log("[firebase] upload players");
-  await rootRef.child("players").set(playersWithPreservedLive);
+  await rootRef.child("players").set(cleanPayload.players || []);
 
   console.log("[firebase] upload winRates");
   await rootRef.child("winRates").set(cleanPayload.winRates || {});
