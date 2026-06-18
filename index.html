@@ -7354,10 +7354,7 @@ body.funding-overlay-host .funding-temp-frame {
 
 .panel-link,
 .hub-action,
-.cctv-open,
-.cctv-clear,
-.cctv-login,
-.cctv-reload {
+.cctv-open {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -7820,13 +7817,6 @@ body.funding-overlay-host .funding-temp-frame {
   gap: 8px;
   overflow-x: auto;
   padding: 2px 0 10px;
-}
-
-.cctv-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
 }
 
 .cctv-picker button {
@@ -8932,11 +8922,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2>CCTV</h2>
             <div class="inout-title-sub">SOOP 라이브 여러 명 동시 재생</div>
           </div>
-          <div class="cctv-actions">
-            <a id="cctvSoopLogin" class="cctv-login" href="https://login.sooplive.com/afreeca/login.php?szFrom=full&amp;request_uri=https%3A%2F%2Fwww.sooplive.com%2F" target="_blank" rel="noopener noreferrer" title="SOOP 로그인 페이지를 새 창으로 엽니다">SOOP 로그인</a>
-            <button id="cctvReload" class="cctv-reload" type="button">플레이어 새로고침</button>
-            <button id="cctvClear" class="cctv-clear" type="button">선택 초기화</button>
-          </div>
         </div>
         <div id="cctvPicker" class="cctv-picker"></div>
         <div id="cctvGrid" class="cctv-grid"><div class="hub-empty">CCTV 페이지에 들어가면 선택한 방송 플레이어가 열립니다.</div></div>
@@ -9572,9 +9557,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   let lastNoticeCheckedAt = "";
   let cctvSelectedIds = [];
   const CCTV_MAX_PLAYERS = 4;
-  const CCTV_LOGIN_RELOAD_KEY = "monstarzCctvLoginReloadAt";
-  const CCTV_LOGIN_RELOAD_WINDOW_MS = 10 * 60 * 1000;
-  const CCTV_IFRAME_ALLOW = "autoplay; fullscreen; picture-in-picture; encrypted-media; local-network-access; storage-access";
   let scheduleTodayItems = [];
   let scheduleTodayLoadError = false;
 
@@ -9662,9 +9644,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const cctvScreen = document.getElementById("cctvScreen");
   const cctvPicker = document.getElementById("cctvPicker");
   const cctvGrid = document.getElementById("cctvGrid");
-  const cctvClear = document.getElementById("cctvClear");
-  const cctvSoopLogin = document.getElementById("cctvSoopLogin");
-  const cctvReload = document.getElementById("cctvReload");
   const linksScreen = document.getElementById("linksScreen");
   const linksHubList = document.getElementById("linksHubList");
   const linksHubCount = document.getElementById("linksHubCount");
@@ -9931,17 +9910,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     if (member?.live && member.live !== "#") return member.live;
     if (userId) return `https://play.sooplive.com/${userId}`;
     return safeLink(member?.stream || "");
-  }
-
-  const SOOP_CCTV_LOGIN_URL = "https://login.sooplive.com/afreeca/login.php";
-  const SOOP_CCTV_HOME_URL = "https://www.sooplive.com/";
-
-  function buildCctvSoopLoginUrl(returnUrl = SOOP_CCTV_HOME_URL) {
-    const targetUrl = returnUrl && returnUrl !== "javascript:void(0)" ? returnUrl : SOOP_CCTV_HOME_URL;
-    const params = new URLSearchParams();
-    params.set("szFrom", "full");
-    params.set("request_uri", targetUrl);
-    return `${SOOP_CCTV_LOGIN_URL}?${params.toString()}`;
   }
 
   function getMemberLiveThumbnail(member) {
@@ -11113,11 +11081,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       : renderHubEmpty();
 
     const selected = getSelectedCctvMembers(rows);
-    if (cctvSoopLogin) {
-      const loginMember = selected[0] || rows[0];
-      cctvSoopLogin.href = buildCctvSoopLoginUrl(loginMember ? getMemberWatchUrl(loginMember) : SOOP_CCTV_HOME_URL);
-    }
-
     cctvGrid.innerHTML = selected.length
       ? selected.map(member => {
           const url = getMemberWatchUrl(member);
@@ -11127,7 +11090,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div class="cctv-name">${escapeHtml(member.name)} · ${escapeHtml(member.race || "")}</div>
                 <a class="cctv-open" href="${safeLink(url)}" target="_blank" rel="noopener noreferrer">새 창</a>
               </div>
-              <iframe class="cctv-frame" src="${safeLink(url)}" title="${escapeHtml(member.name)} CCTV" loading="lazy" allow="${CCTV_IFRAME_ALLOW}" allowfullscreen></iframe>
+              <iframe class="cctv-frame" src="${safeLink(url)}" title="${escapeHtml(member.name)} CCTV" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
             </article>
           `;
         }).join("")
@@ -11142,33 +11105,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         renderCctv();
       });
     });
-  }
-
-  function reloadCctvPlayers() {
-    const frames = Array.from(cctvGrid?.querySelectorAll("iframe.cctv-frame") || []);
-    if (!frames.length) {
-      renderCctv();
-      return;
-    }
-    frames.forEach(frame => {
-      const src = frame.getAttribute("src");
-      if (!src) return;
-      frame.setAttribute("src", "about:blank");
-      setTimeout(() => frame.setAttribute("src", src), 80);
-    });
-  }
-
-  function markCctvLoginReloadPending() {
-    try { sessionStorage.setItem(CCTV_LOGIN_RELOAD_KEY, String(Date.now())); } catch (error) {}
-  }
-
-  function reloadCctvPlayersAfterLoginIfNeeded() {
-    let startedAt = 0;
-    try { startedAt = Number(sessionStorage.getItem(CCTV_LOGIN_RELOAD_KEY) || 0); } catch (error) {}
-    if (!startedAt || Date.now() - startedAt > CCTV_LOGIN_RELOAD_WINDOW_MS) return;
-    if (!cctvScreen || cctvScreen.classList.contains("hidden")) return;
-    try { sessionStorage.removeItem(CCTV_LOGIN_RELOAD_KEY); } catch (error) {}
-    reloadCctvPlayers();
   }
 
   function getLeaderCoachCategory(member) {
@@ -12836,16 +12772,6 @@ function createMemberCard(member) {
     }
   });
   tabInout.addEventListener("click", showInoutScreen);
-  cctvClear?.addEventListener("click", () => {
-    cctvSelectedIds = [];
-    renderCctv();
-  });
-  cctvSoopLogin?.addEventListener("click", markCctvLoginReloadPending);
-  cctvReload?.addEventListener("click", reloadCctvPlayers);
-  window.addEventListener("focus", () => setTimeout(reloadCctvPlayersAfterLoginIfNeeded, 500));
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") setTimeout(reloadCctvPlayersAfterLoginIfNeeded, 500);
-  });
   document.addEventListener("click", (event) => {
     const navTarget = event.target.closest("[data-nav-tab]");
     if (!navTarget) return;
